@@ -1,3 +1,4 @@
+local config = require('pi.config')
 local config_file = require('pi.config_file')
 ---@type PiState
 local state = require('pi.state')
@@ -51,7 +52,32 @@ M.actions.select_agent = Promise.async(function()
   end)
 end)
 
+local function has_command(commands, name)
+  for _, command in ipairs(commands and commands.commands or {}) do
+    if command.name == name then
+      return true
+    end
+  end
+  return false
+end
+
+local function toggle_pi_plan_mode()
+  local rpc_client = require('pi.rpc_client').get()
+  local commands = rpc_client:get_commands():await()
+  if not has_command(commands, 'plan') then
+    vim.notify('Plan mode extension command /plan is not available', vim.log.levels.WARN)
+    return false
+  end
+
+  rpc_client:prompt('/plan'):await()
+  return true
+end
+
 M.actions.switch_mode = Promise.async(function()
+  if config.backend == 'pi' then
+    return toggle_pi_plan_mode()
+  end
+
   local modes = config_file.get_pi_agents():await() --[[@as string[] ]]
   local current_index = util.index_of(modes, state.store.get('current_mode'))
 

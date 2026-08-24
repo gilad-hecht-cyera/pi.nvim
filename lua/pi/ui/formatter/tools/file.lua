@@ -1,5 +1,6 @@
 local util = require('pi.util')
 local icons = require('pi.ui.icons')
+local utils = require('pi.ui.formatter.utils')
 
 local M = {}
 
@@ -46,6 +47,47 @@ local function resolve_display_file_name(file_path, tool_output)
   return resolved
 end
 
+local function input_file_path(input)
+  return input.filePath or input.path or ''
+end
+
+---@param text string
+---@return string[]
+local function read_output_lines(text)
+  text = text or ''
+  text = text:gsub('^<file>\n?', ''):gsub('\n?</file>$', '')
+  text = text:gsub('\n%(%s*End of file[^\n]*%)$', '')
+
+  local lines = vim.split(text, '\n')
+  for i, line in ipairs(lines) do
+    lines[i] = line:gsub('^%d+| ?', '')
+  end
+  return lines
+end
+
+---@param output Output
+---@param edits table[]
+---@param file_type string
+local function format_edit_blocks(output, edits, file_type)
+  for index, edit in ipairs(edits or {}) do
+    if #edits > 1 then
+      output:add_empty_line()
+      output:add_line('**Edit ' .. index .. '**')
+    end
+
+    if edit.oldText then
+      output:add_empty_line()
+      output:add_line('*Old*')
+      utils.format_code(output, vim.split(edit.oldText, '\n'), file_type)
+    end
+    if edit.newText then
+      output:add_empty_line()
+      output:add_line('*New*')
+      utils.format_code(output, vim.split(edit.newText, '\n'), file_type)
+    end
+  end
+end
+
 ---@param output Output
 ---@param part PiMessagePart
 function M.format(output, part)
@@ -53,24 +95,24 @@ function M.format(output, part)
   local metadata = part.state and part.state.metadata or {}
   local tool_output = part.state and part.state.output or ''
   local tool_type = part.tool
+  local file_path = input_file_path(input)
 
-  local file_name = tool_type == 'read' and resolve_display_file_name(input.filePath or '', tool_output)
-    or resolve_file_name(input.filePath or '')
+  local file_name = tool_type == 'read' and resolve_display_file_name(file_path, tool_output)
+    or resolve_file_name(file_path)
 
-  local file_type = input.filePath and util.get_markdown_filetype(input.filePath) or ''
+  local file_type = file_path ~= '' and util.get_markdown_filetype(file_path) or ''
 
-  local utils = require('pi.ui.formatter.utils')
   local config = require('pi.config')
 
   local icon_text = icons.get(tool_type)
   utils.format_action(output, icon_text, tool_type, file_name, utils.get_duration_text(part))
 
-  if file_name ~= '' and input.filePath then
+  if file_name ~= '' and file_path ~= '' then
     local action_line = output:get_line_count()
     local line_content = output:get_line(action_line)
     output:add_target({
       kind = 'file',
-      path = input.filePath,
+      path = file_path,
       range = {
         line = action_line,
         start_col = 0,
@@ -84,10 +126,18 @@ function M.format(output, part)
     return
   end
 
-  if tool_type == 'edit' and metadata.diff then
-    utils.format_diff(output, metadata.diff, file_type, input.filePath)
+  if tool_type == 'read' and tool_output and tool_output ~= '' then
+    utils.format_code(output, read_output_lines(tool_output), file_type)
+  elseif tool_type == 'edit' and metadata.diff then
+    utils.format_diff(output, metadata.diff, file_type, file_path)
+  elseif tool_type == 'edit' and input.edits then
+    format_edit_blocks(output, input.edits, file_type)
+  elseif tool_type == 'edit' and (input.oldText or input.newText) then
+    format_edit_blocks(output, { input }, file_type)
   elseif tool_type == 'write' and input.content then
     utils.format_code(output, vim.split(input.content, '\n'), file_type)
+  elseif tool_output and tool_output ~= '' then
+    utils.format_code(output, vim.split(tool_output, '\n'), '')
   end
 
   output:add_fold_with_threshold(start_line, config.ui.output.tools.show_output, config.ui.output.tools.use_folds)
@@ -98,11 +148,12 @@ end
 ---@return string, string, string
 function M.summary(part, input)
   local tool = part.tool
+  local file_path = input_file_path(input or {})
   if tool == 'read' then
     local tool_output = part.state and part.state.output or nil
-    return icons.get('read'), 'read', resolve_display_file_name(input.filePath, tool_output)
+    return icons.get('read'), 'read', resolve_display_file_name(file_path, tool_output)
   end
-  return icons.get(tool), tool, resolve_file_name(input.filePath)
+  return icons.get(tool), tool, resolve_file_name(file_path)
 end
 
 return M

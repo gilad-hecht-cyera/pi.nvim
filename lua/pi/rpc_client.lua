@@ -70,7 +70,13 @@ function RpcClient:_handle_extension_ui_request(event)
       vim.opt.title = true
     end
     return
-  elseif method == 'setStatus' or method == 'setWidget' then
+  elseif method == 'setStatus' then
+    local ok, state = pcall(require, 'pi.state')
+    if ok and state.ui and state.ui.set_extension_status then
+      state.ui.set_extension_status(event.statusKey, event.statusText)
+    end
+    return
+  elseif method == 'setWidget' then
     return
   end
 

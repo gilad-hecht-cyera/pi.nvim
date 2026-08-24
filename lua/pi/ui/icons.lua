@@ -7,7 +7,7 @@ local presets = {
   nerdfonts = {
     -- headers
     header_user = '▌󰭻 ',
-    header_assistant = ' ',
+    header_assistant = 'π ',
     -- actions/tools
     run = ' ',
     task = ' ',
@@ -55,7 +55,7 @@ local presets = {
   text = {
     -- headers
     header_user = '▌$ ',
-    header_assistant = '@ ',
+    header_assistant = 'π ',
     -- actions/tools
     run = '::',
     task = '::',

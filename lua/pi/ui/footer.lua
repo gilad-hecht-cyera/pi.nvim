@@ -1,6 +1,7 @@
 local state = require('pi.state')
 local config = require('pi.config')
 local icons = require('pi.ui.icons')
+local util = require('pi.util')
 local output_window = require('pi.ui.output_window')
 local snapshot = require('pi.snapshot')
 local loading_animation = require('pi.ui.loading_animation')
@@ -20,6 +21,13 @@ local function get_mode_highlight()
   return highlights[mode] or 'PiAgentCustom'
 end
 
+local function format_mode_label(mode)
+  if mode:lower() == 'pi' then
+    return 'π'
+  end
+  return mode:upper()
+end
+
 local function build_left_segments()
   local segments = {}
   local restore_points = snapshot.get_restore_points()
@@ -32,8 +40,26 @@ local function build_left_segments()
   return segments
 end
 
+local function add_extension_status_segments(segments)
+  local statuses = state.extension_statuses or {}
+  local keys = vim.tbl_keys(statuses)
+  table.sort(keys)
+
+  for _, key in ipairs(keys) do
+    local text = util.strip_ansi(tostring(statuses[key] or ''))
+    text = vim.trim(text)
+    if text ~= '' then
+      local highlight = key == 'plan-mode' and 'PiAgentPlan' or 'PiHint'
+      table.insert(segments, { string.format(' %s ', text), highlight })
+      table.insert(segments, { ' ' })
+    end
+  end
+end
+
 local function build_right_segments()
   local segments = {}
+
+  add_extension_status_segments(segments)
 
   if loading_animation.is_running() then
     local cancel_keymap = config.get_key_for_function('input_window', 'cancel') or '<C-c>'
@@ -52,7 +78,7 @@ local function build_right_segments()
   end
 
   table.insert(segments, {
-    string.format(' %s ', (state.current_mode or config.default_mode):upper()),
+    string.format(' %s ', format_mode_label(state.current_mode or config.default_mode)),
     get_mode_highlight(),
   })
 
@@ -154,6 +180,7 @@ function M.setup(windows)
   state.store.subscribe('current_model', on_change)
   state.store.subscribe('current_mode', on_change)
   state.store.subscribe('current_variant', on_change)
+  state.store.subscribe('extension_statuses', on_change)
   state.store.subscribe('active_session', on_change)
   -- to show C-c message
   state.store.subscribe('job_count', on_job_count_changed)
@@ -183,6 +210,7 @@ function M.close(preserve_buffer)
   state.store.unsubscribe('current_model', on_change)
   state.store.unsubscribe('current_mode', on_change)
   state.store.unsubscribe('current_variant', on_change)
+  state.store.unsubscribe('extension_statuses', on_change)
   state.store.unsubscribe('active_session', on_change)
   state.store.unsubscribe('job_count', on_job_count_changed)
   state.store.unsubscribe('restore_points', on_change)

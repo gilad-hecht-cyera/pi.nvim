@@ -57,17 +57,11 @@ local function builtin_commands()
     local_command('/model', 'Select Pi model', function()
       return require('pi.services.agent_model').configure_provider()
     end),
-    local_command('/models', 'Select Pi model', function()
-      return require('pi.services.agent_model').configure_provider()
-    end),
     local_command('/thinking', 'Select Pi thinking level', function()
       return require('pi.services.agent_model').configure_variant()
     end),
     local_command('/new', 'Start a new Pi session', function()
       return require('pi.services.session_runtime').open({ new_session = true, focus = 'input' })
-    end),
-    local_command('/sessions', 'Select Pi session', function()
-      return require('pi.services.session_runtime').select_session()
     end),
     local_command('/resume', 'Select Pi session', function()
       return require('pi.services.session_runtime').select_session()

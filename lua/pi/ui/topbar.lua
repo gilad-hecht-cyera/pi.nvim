@@ -50,7 +50,7 @@ local function format_token_info()
 
     local stats = state.session_stats or {}
     if stats.contextUsage and stats.contextUsage.percent then
-      table.insert(parts, string.format('%.1f%%%%', stats.contextUsage.percent))
+      table.insert(parts, string.format('%.1f%%%', stats.contextUsage.percent))
     else
       local limit = model_context_limit()
       if limit and limit > 0 then

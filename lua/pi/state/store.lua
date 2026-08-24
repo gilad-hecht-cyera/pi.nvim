@@ -25,6 +25,7 @@ local M = {}
 ---@field user_mode_model_map table<string, string>
 ---@field current_model_info table|nil
 ---@field current_variant string|nil
+---@field extension_statuses table<string, string>
 ---@field messages PiMessage[]|nil
 ---@field current_message PiMessage|nil
 ---@field pending_permissions PiPermission[]
@@ -70,6 +71,7 @@ local _state = {
   user_mode_model_map = {},
   current_model_info = nil,
   current_variant = nil,
+  extension_statuses = {},
   messages = nil,
   current_message = nil,
   pending_permissions = {},

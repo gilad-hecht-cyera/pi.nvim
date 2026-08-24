@@ -51,6 +51,47 @@ local function update_text_part(message_id, part_id, text, synthetic)
   })
 end
 
+local function normalize_tool_name(name)
+  name = tostring(name or 'tool')
+  local lower = name:lower()
+  local aliases = {
+    read = 'read',
+    edit = 'edit',
+    write = 'write',
+    bash = 'bash',
+    run = 'bash',
+    glob = 'glob',
+    grep = 'grep',
+    list = 'list',
+    ls = 'list',
+    question = 'question',
+    todowrite = 'todowrite',
+    todo_write = 'todowrite',
+  }
+  return aliases[lower] or lower
+end
+
+local function update_tool_part(message_id, part_id, tool_name, input, state)
+  emit('message.part.updated', {
+    part = {
+      id = part_id,
+      messageID = message_id,
+      sessionID = session_id(),
+      type = 'tool',
+      tool = normalize_tool_name(tool_name),
+      callID = state and state.callID or nil,
+      state = {
+        input = input or {},
+        metadata = (state and state.metadata) or {},
+        time = (state and state.time) or {},
+        status = (state and state.status) or 'completed',
+        output = state and state.output or nil,
+        error = state and state.error or nil,
+      },
+    },
+  })
+end
+
 local function content_to_text(content)
   if type(content) == 'string' then
     return content
@@ -94,7 +135,10 @@ local function emit_full_message(message, index)
       if item.type == 'thinking' then
         update_text_part(message_id, part_id, item.thinking or '', true)
       elseif item.type == 'toolCall' then
-        update_text_part(message_id, part_id, string.format('Called %s with %s', item.name or 'tool', vim.json.encode(item.arguments or {})), true)
+        update_tool_part(message_id, part_id, item.name, item.arguments or {}, {
+          callID = item.id or item.callID,
+          status = 'completed',
+        })
       else
         update_text_part(message_id, part_id, content_to_text({ item }), nil)
       end
@@ -146,8 +190,15 @@ function M.messages_from_pi(messages)
           part.text = item.thinking or ''
           part.synthetic = true
         elseif item.type == 'toolCall' then
-          part.text = string.format('Called %s with %s', item.name or 'tool', vim.json.encode(item.arguments or {}))
-          part.synthetic = true
+          part.type = 'tool'
+          part.tool = normalize_tool_name(item.name)
+          part.callID = item.id or item.callID
+          part.state = {
+            input = item.arguments or {},
+            metadata = {},
+            time = {},
+            status = 'completed',
+          }
         else
           part.text = content_to_text({ item })
         end
@@ -279,7 +330,10 @@ function M.handle_event(event)
       update_text_part(message_id, live.thinking_parts[key].id, live.thinking_parts[key].text, true)
     elseif delta.type == 'toolcall_end' and delta.toolCall then
       local tool = delta.toolCall
-      update_text_part(message_id, next_id('pi_prt', 'part'), string.format('Called %s with %s', tool.name or 'tool', vim.json.encode(tool.arguments or {})), true)
+      update_tool_part(message_id, next_id('pi_prt', 'part'), tool.name, tool.arguments or {}, {
+        callID = tool.id or tool.callID,
+        status = 'completed',
+      })
     elseif delta.type == 'error' then
       update_text_part(message_id, next_id('pi_prt', 'part'), 'Pi error: ' .. tostring(delta.reason or 'unknown error'), true)
     end
@@ -310,7 +364,10 @@ function M.handle_event(event)
           live.thinking_parts[key].text = item.thinking or live.thinking_parts[key].text or ''
           update_text_part(message_id, live.thinking_parts[key].id, live.thinking_parts[key].text, true)
         elseif item.type == 'toolCall' then
-          update_text_part(message_id, next_id('pi_prt', 'part'), string.format('Called %s with %s', item.name or 'tool', vim.json.encode(item.arguments or {})), true)
+          update_tool_part(message_id, next_id('pi_prt', 'part'), item.name, item.arguments or {}, {
+            callID = item.id or item.callID,
+            status = 'completed',
+          })
         end
       end
     elseif type(event.message.content) == 'string' and event.message.content ~= '' then
@@ -325,17 +382,41 @@ function M.handle_event(event)
 
   if event.type == 'tool_execution_start' then
     local message_id = ensure_live_assistant()
-    live.tool_parts[event.toolCallId] = next_id('pi_prt', 'part')
-    update_text_part(message_id, live.tool_parts[event.toolCallId], string.format('Running %s with %s', event.toolName or 'tool', vim.json.encode(event.args or {})), true)
+    live.tool_parts[event.toolCallId] = {
+      id = next_id('pi_prt', 'part'),
+      tool = event.toolName,
+      input = event.args or {},
+      time = { start = vim.uv.now() },
+    }
+    update_tool_part(message_id, live.tool_parts[event.toolCallId].id, event.toolName, event.args or {}, {
+      callID = event.toolCallId,
+      time = live.tool_parts[event.toolCallId].time,
+      status = 'running',
+    })
     return
   end
 
   if event.type == 'tool_execution_update' or event.type == 'tool_execution_end' then
     local message_id = ensure_live_assistant()
-    local part_id = live.tool_parts[event.toolCallId] or next_id('pi_prt', 'part')
-    live.tool_parts[event.toolCallId] = part_id
+    local cached = live.tool_parts[event.toolCallId]
+    if type(cached) ~= 'table' then
+      cached = { id = cached or next_id('pi_prt', 'part'), tool = event.toolName, input = event.args or {}, time = {} }
+      live.tool_parts[event.toolCallId] = cached
+    end
     local result = event.partialResult or event.result or {}
-    update_text_part(message_id, part_id, content_to_text(result.content), true)
+    local status = event.type == 'tool_execution_end' and 'completed' or 'running'
+    if result.isError or event.error then
+      status = 'error'
+    end
+    cached.time['end'] = event.type == 'tool_execution_end' and vim.uv.now() or cached.time['end']
+    update_tool_part(message_id, cached.id, event.toolName or cached.tool, event.args or cached.input or {}, {
+      callID = event.toolCallId,
+      time = cached.time,
+      status = status,
+      output = content_to_text(result.content),
+      error = event.error or result.error,
+      metadata = result.metadata or {},
+    })
     if event.type == 'tool_execution_end' then
       vim.cmd('checktime')
     end

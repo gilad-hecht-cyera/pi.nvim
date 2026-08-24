@@ -41,6 +41,24 @@ function M.clear_windows()
   return store.set('windows', nil)
 end
 
+---@param key string
+---@param value string|nil
+function M.set_extension_status(key, value)
+  if not key or key == '' then
+    return store.get('extension_statuses')
+  end
+
+  return store.update('extension_statuses', function(current)
+    local updated = vim.deepcopy(current or {})
+    if value == nil or value == '' then
+      updated[key] = nil
+    else
+      updated[key] = value
+    end
+    return updated
+  end)
+end
+
 ---@param folds { ranges: {from: integer, to: integer}[] }|nil
 function M.set_output_folds(folds)
   return store.mutate('windows', function(win)
