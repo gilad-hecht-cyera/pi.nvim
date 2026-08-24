@@ -1,0 +1,355 @@
+local state = require('pi.state')
+
+local M = {}
+
+local counters = { message = 0, part = 0, session = 0 }
+local live = { assistant_message_id = nil, text_parts = {}, thinking_parts = {}, tool_parts = {} }
+
+local function next_id(prefix, key)
+  counters[key] = (counters[key] or 0) + 1
+  return prefix .. '_' .. tostring(counters[key])
+end
+
+local function session_id()
+  if state.active_session and state.active_session.id then
+    return state.active_session.id
+  end
+  return 'pi_session'
+end
+
+local function emit(event_type, properties)
+  if state.event_manager then
+    state.event_manager.throttling_emitter:enqueue({ type = event_type, properties = properties })
+  end
+end
+
+local function message_info(role, id, message)
+  return {
+    id = id,
+    role = role,
+    sessionID = session_id(),
+    providerID = message and message.provider,
+    modelID = message and message.model,
+    time = { created = message and message.timestamp or vim.uv.now() },
+  }
+end
+
+local function update_message(role, id, message)
+  emit('message.updated', { info = message_info(role, id, message) })
+end
+
+local function update_text_part(message_id, part_id, text, synthetic)
+  emit('message.part.updated', {
+    part = {
+      id = part_id,
+      messageID = message_id,
+      sessionID = session_id(),
+      type = 'text',
+      text = text or '',
+      synthetic = synthetic or nil,
+    },
+  })
+end
+
+local function content_to_text(content)
+  if type(content) == 'string' then
+    return content
+  end
+  if type(content) ~= 'table' then
+    return tostring(content or '')
+  end
+  local chunks = {}
+  for _, item in ipairs(content) do
+    if type(item) == 'string' then
+      table.insert(chunks, item)
+    elseif item.type == 'text' then
+      table.insert(chunks, item.text or '')
+    elseif item.type == 'thinking' then
+      table.insert(chunks, item.thinking or '')
+    elseif item.type == 'toolCall' then
+      table.insert(chunks, string.format('Called %s with %s', item.name or 'tool', vim.json.encode(item.arguments or {})))
+    elseif item.type == 'image' then
+      table.insert(chunks, '[image]')
+    end
+  end
+  return table.concat(chunks, '\n')
+end
+
+local function emit_full_message(message, index)
+  local role = message.role == 'toolResult' and 'assistant' or message.role
+  if role ~= 'user' and role ~= 'assistant' then
+    role = 'assistant'
+  end
+  local message_id = 'pi_msg_' .. tostring(index)
+  update_message(role, message_id, message)
+
+  if message.role == 'toolResult' then
+    update_text_part(message_id, message_id .. '_part_1', content_to_text(message.content), true)
+    return
+  end
+
+  if type(message.content) == 'table' then
+    for i, item in ipairs(message.content) do
+      local part_id = message_id .. '_part_' .. tostring(i)
+      if item.type == 'thinking' then
+        update_text_part(message_id, part_id, item.thinking or '', true)
+      elseif item.type == 'toolCall' then
+        update_text_part(message_id, part_id, string.format('Called %s with %s', item.name or 'tool', vim.json.encode(item.arguments or {})), true)
+      else
+        update_text_part(message_id, part_id, content_to_text({ item }), nil)
+      end
+    end
+  else
+    update_text_part(message_id, message_id .. '_part_1', content_to_text(message.content), nil)
+  end
+end
+
+function M.messages_from_pi(messages)
+  local converted = {}
+  for i, message in ipairs(messages or {}) do
+    local role = message.role == 'toolResult' and 'assistant' or message.role
+    if role ~= 'user' and role ~= 'assistant' then
+      role = 'assistant'
+    end
+
+    local message_id = 'pi_msg_' .. tostring(i)
+    local parts = {}
+
+    if message.role == 'toolResult' then
+      table.insert(parts, {
+        id = message_id .. '_part_1',
+        messageID = message_id,
+        sessionID = session_id(),
+        type = 'text',
+        text = content_to_text(message.content),
+        synthetic = true,
+      })
+    elseif type(message.content) == 'table' then
+      if #message.content == 0 and (message.stopReason == 'error' or message.stopReason == 'aborted') then
+        table.insert(parts, {
+          id = message_id .. '_part_1',
+          messageID = message_id,
+          sessionID = session_id(),
+          type = 'text',
+          text = 'Pi stopped: ' .. tostring(message.errorMessage or message.stopReason),
+          synthetic = true,
+        })
+      end
+      for part_index, item in ipairs(message.content) do
+        local part = {
+          id = message_id .. '_part_' .. tostring(part_index),
+          messageID = message_id,
+          sessionID = session_id(),
+          type = 'text',
+        }
+        if item.type == 'thinking' then
+          part.text = item.thinking or ''
+          part.synthetic = true
+        elseif item.type == 'toolCall' then
+          part.text = string.format('Called %s with %s', item.name or 'tool', vim.json.encode(item.arguments or {}))
+          part.synthetic = true
+        else
+          part.text = content_to_text({ item })
+        end
+        table.insert(parts, part)
+      end
+    else
+      table.insert(parts, {
+        id = message_id .. '_part_1',
+        messageID = message_id,
+        sessionID = session_id(),
+        type = 'text',
+        text = content_to_text(message.content),
+      })
+    end
+
+    table.insert(converted, {
+      info = message_info(role, message_id, message),
+      parts = parts,
+    })
+  end
+  return converted
+end
+
+function M.emit_messages(messages)
+  for i, message in ipairs(messages or {}) do
+    emit_full_message(message, i)
+  end
+end
+
+local function ensure_live_assistant(message)
+  if live.assistant_message_id then
+    return live.assistant_message_id
+  end
+  live.assistant_message_id = next_id('pi_msg', 'message')
+  update_message('assistant', live.assistant_message_id, message)
+  return live.assistant_message_id
+end
+
+function M.handle_event(event)
+  if not event or not event.type then
+    return
+  end
+
+  if event.type == 'agent_start' then
+    emit('session.status', { sessionID = session_id(), status = { type = 'busy', message = 'Pi is working' } })
+    return
+  end
+
+  if event.type == 'agent_end' then
+    emit('session.status', { sessionID = session_id(), status = { type = event.willRetry and 'retry' or 'idle' } })
+    return
+  end
+
+  if event.type == 'auto_retry_start' then
+    emit('session.status', {
+      sessionID = session_id(),
+      status = {
+        type = 'retry',
+        message = event.errorMessage,
+        attempt = event.attempt,
+        next = event.delayMs and (vim.uv.now() + event.delayMs) or nil,
+      },
+    })
+    return
+  end
+
+  if event.type == 'auto_retry_end' and event.success == false then
+    local message_id = ensure_live_assistant()
+    update_text_part(message_id, next_id('pi_prt', 'part'), 'Pi retry failed: ' .. tostring(event.finalError or 'unknown error'), true)
+    emit('session.status', { sessionID = session_id(), status = { type = 'idle' } })
+    return
+  end
+
+  if event.type == 'compaction_start' then
+    emit('session.status', { sessionID = session_id(), status = { type = 'busy', message = 'Compacting session' } })
+    return
+  end
+
+  if event.type == 'compaction_end' then
+    local message_id = ensure_live_assistant()
+    local text = event.aborted and 'Compaction aborted' or 'Compaction complete'
+    if event.errorMessage then
+      text = 'Compaction failed: ' .. event.errorMessage
+    elseif event.result and event.result.summary then
+      text = text .. '\n\n' .. event.result.summary
+    end
+    update_text_part(message_id, next_id('pi_prt', 'part'), text, true)
+    emit('session.status', { sessionID = session_id(), status = { type = event.willRetry and 'retry' or 'idle' } })
+    return
+  end
+
+  if event.type == 'extension_error' then
+    local message_id = ensure_live_assistant()
+    update_text_part(message_id, next_id('pi_prt', 'part'), 'Pi extension error: ' .. tostring(event.error or 'unknown error'), true)
+    return
+  end
+
+  if event.type == 'message_start' and event.message then
+    if event.message.role == 'assistant' then
+      live.assistant_message_id = next_id('pi_msg', 'message')
+      live.text_parts = {}
+      live.thinking_parts = {}
+      update_message('assistant', live.assistant_message_id, event.message)
+    elseif event.message.role == 'user' then
+      local message_id = next_id('pi_msg', 'message')
+      update_message('user', message_id, event.message)
+      update_text_part(message_id, next_id('pi_prt', 'part'), content_to_text(event.message.content), nil)
+    end
+    return
+  end
+
+  if event.type == 'message_update' then
+    local delta = event.assistantMessageEvent or {}
+    local message_id = ensure_live_assistant(event.message)
+    local key = tostring(delta.contentIndex or 0)
+    if delta.type == 'text_start' then
+      live.text_parts[key] = { id = next_id('pi_prt', 'part'), text = '' }
+      update_text_part(message_id, live.text_parts[key].id, '', nil)
+    elseif delta.type == 'text_delta' then
+      live.text_parts[key] = live.text_parts[key] or { id = next_id('pi_prt', 'part'), text = '' }
+      live.text_parts[key].text = live.text_parts[key].text .. (delta.delta or '')
+      update_text_part(message_id, live.text_parts[key].id, live.text_parts[key].text, nil)
+    elseif delta.type == 'thinking_start' then
+      live.thinking_parts[key] = { id = next_id('pi_prt', 'part'), text = '' }
+      update_text_part(message_id, live.thinking_parts[key].id, '', true)
+    elseif delta.type == 'thinking_delta' then
+      live.thinking_parts[key] = live.thinking_parts[key] or { id = next_id('pi_prt', 'part'), text = '' }
+      live.thinking_parts[key].text = live.thinking_parts[key].text .. (delta.delta or '')
+      update_text_part(message_id, live.thinking_parts[key].id, live.thinking_parts[key].text, true)
+    elseif delta.type == 'toolcall_end' and delta.toolCall then
+      local tool = delta.toolCall
+      update_text_part(message_id, next_id('pi_prt', 'part'), string.format('Called %s with %s', tool.name or 'tool', vim.json.encode(tool.arguments or {})), true)
+    elseif delta.type == 'error' then
+      update_text_part(message_id, next_id('pi_prt', 'part'), 'Pi error: ' .. tostring(delta.reason or 'unknown error'), true)
+    end
+    return
+  end
+
+  if event.type == 'message_end' and event.message and event.message.role == 'assistant' then
+    local message_id = ensure_live_assistant(event.message)
+    update_message('assistant', message_id, event.message)
+
+    if type(event.message.content) == 'table' then
+      if #event.message.content == 0 and (event.message.stopReason == 'error' or event.message.stopReason == 'aborted') then
+        update_text_part(
+          message_id,
+          next_id('pi_prt', 'part'),
+          'Pi stopped: ' .. tostring(event.message.errorMessage or event.message.stopReason),
+          true
+        )
+      end
+      for content_index, item in ipairs(event.message.content) do
+        local key = tostring(content_index - 1)
+        if item.type == 'text' then
+          live.text_parts[key] = live.text_parts[key] or { id = next_id('pi_prt', 'part'), text = '' }
+          live.text_parts[key].text = item.text or live.text_parts[key].text or ''
+          update_text_part(message_id, live.text_parts[key].id, live.text_parts[key].text, nil)
+        elseif item.type == 'thinking' then
+          live.thinking_parts[key] = live.thinking_parts[key] or { id = next_id('pi_prt', 'part'), text = '' }
+          live.thinking_parts[key].text = item.thinking or live.thinking_parts[key].text or ''
+          update_text_part(message_id, live.thinking_parts[key].id, live.thinking_parts[key].text, true)
+        elseif item.type == 'toolCall' then
+          update_text_part(message_id, next_id('pi_prt', 'part'), string.format('Called %s with %s', item.name or 'tool', vim.json.encode(item.arguments or {})), true)
+        end
+      end
+    elseif type(event.message.content) == 'string' and event.message.content ~= '' then
+      live.text_parts['0'] = live.text_parts['0'] or { id = next_id('pi_prt', 'part'), text = '' }
+      live.text_parts['0'].text = event.message.content
+      update_text_part(message_id, live.text_parts['0'].id, event.message.content, nil)
+    elseif event.message.stopReason == 'error' or event.message.stopReason == 'aborted' then
+      update_text_part(message_id, next_id('pi_prt', 'part'), 'Pi stopped: ' .. tostring(event.message.stopReason), true)
+    end
+    return
+  end
+
+  if event.type == 'tool_execution_start' then
+    local message_id = ensure_live_assistant()
+    live.tool_parts[event.toolCallId] = next_id('pi_prt', 'part')
+    update_text_part(message_id, live.tool_parts[event.toolCallId], string.format('Running %s with %s', event.toolName or 'tool', vim.json.encode(event.args or {})), true)
+    return
+  end
+
+  if event.type == 'tool_execution_update' or event.type == 'tool_execution_end' then
+    local message_id = ensure_live_assistant()
+    local part_id = live.tool_parts[event.toolCallId] or next_id('pi_prt', 'part')
+    live.tool_parts[event.toolCallId] = part_id
+    local result = event.partialResult or event.result or {}
+    update_text_part(message_id, part_id, content_to_text(result.content), true)
+    if event.type == 'tool_execution_end' then
+      vim.cmd('checktime')
+    end
+    return
+  end
+
+  if event.type == 'agent_settled' then
+    emit('session.status', { sessionID = session_id(), status = { type = 'idle' } })
+    emit('session.idle', { sessionID = session_id() })
+    live.assistant_message_id = nil
+    live.text_parts = {}
+    live.thinking_parts = {}
+    live.tool_parts = {}
+  end
+end
+
+return M

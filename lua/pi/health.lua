@@ -1,0 +1,254 @@
+local M = {}
+
+local health = vim.health or require('health')
+local config = require('pi.config')
+local util = require('pi.util')
+
+local function command_exists(cmd)
+  return vim.fn.executable(cmd) == 1
+end
+
+local function get_pi_version()
+  if not command_exists(config.pi_executable) then
+    return nil, 'pi command not found'
+  end
+
+  local result = vim.system({ config.pi_executable, '--version' }):wait()
+  if result.code ~= 0 then
+    return nil, 'Failed to get pi version: ' .. (result.stderr or 'unknown error')
+  end
+
+  local out = (result.stdout or ''):gsub('%s+$', '')
+  local version = out:match('(%d+%.%d+%.%d+)') or out
+  return version, nil
+end
+
+local function check_pi_cli()
+  health.start('Pi CLI')
+
+  local state = require('pi.state')
+  local required_version = state.required_version
+
+  if not command_exists(config.pi_executable) then
+    health.error('pi command not found', {
+      'Install pi CLI from: https://docs.pi.com/installation',
+      'Ensure pi is in your PATH',
+    })
+    return
+  end
+
+  health.ok('pi command found')
+
+  local version, err = get_pi_version()
+  if not version then
+    health.error('Could not determine pi version: ' .. (err or 'unknown error'))
+    return
+  end
+
+  if not util.is_version_greater_or_equal(version, required_version) then
+    health.error(string.format('Unsupported pi CLI version: %s (requires >= %s)', version, required_version), {
+      'Update pi CLI to the latest version',
+      'Visit: https://docs.pi.com/installation',
+    })
+    return
+  end
+
+  health.ok(string.format('pi CLI version: %s (>= %s required)', version, required_version))
+end
+
+local function check_pi_server()
+  health.start('Pi Server')
+  local pi_server = require('pi.pi_server').new()
+  local server = pi_server:spawn():wait() --[[@as PiServer]]
+  if server and server.url then
+    health.ok('pi server started successfully at ' .. server.url)
+  else
+    health.error('Failed to start pi server')
+  end
+
+  -- Ensure the server is really running by making a simple request
+  local server_job = require('pi.server_job')
+  local result = server_job.call_api(server.url .. '/config', 'GET', nil):wait()
+  if result and result then
+    health.ok('pi server is reachable')
+    if result['$schema'] then
+      health.ok('pi server configuration available')
+    else
+      health.error('pi server configuration not available')
+    end
+  else
+    health.error('pi server did not respond as expected')
+  end
+
+  local shutdown_promise = server:shutdown()
+  shutdown_promise:wait()
+  if shutdown_promise:is_resolved() then
+    health.ok('pi server shut down successfully')
+  else
+    health.error('Failed to shut down pi server')
+  end
+end
+
+local function check_configuration()
+  health.start('Configuration')
+
+  local config_ok, config = pcall(require, 'pi.config')
+  if not config_ok then
+    health.error('Failed to load pi configuration')
+    return
+  end
+
+  ---@cast config PiConfig
+
+  local valid_positions = { 'left', 'right', 'top', 'bottom', 'current' }
+  if not vim.tbl_contains(valid_positions, config.ui.position) then
+    health.warn(
+      string.format('Invalid UI position: %s', config.ui.position),
+      { 'Valid positions: ' .. table.concat(valid_positions, ', ') }
+    )
+  else
+    health.ok(string.format('UI position: %s', config.ui.position))
+  end
+
+  if config.ui.window_width <= 0 or config.ui.window_width > 1 then
+    health.warn(
+      string.format('Invalid window width: %s', config.ui.window_width),
+      { 'Window width should be between 0 and 1 (percentage of screen)' }
+    )
+  else
+    health.ok(string.format('Window width: %s', config.ui.window_width))
+  end
+
+  local min_height = config.ui.input.min_height
+  local max_height = config.ui.input.max_height
+  if type(min_height) ~= 'number' or type(max_height) ~= 'number' then
+    health.warn(
+      'Input min/max height configuration incomplete',
+      { 'Set both ui.input.min_height and ui.input.max_height to enable auto-resize' }
+    )
+  else
+    if min_height <= 0 or min_height > 1 then
+      health.warn(
+        string.format('Invalid input min height: %s', min_height),
+        { 'Input min height should be between 0 and 1 (percentage of screen)' }
+      )
+    else
+      health.ok(string.format('Input min height: %s', min_height))
+    end
+
+    if max_height <= 0 or max_height > 1 then
+      health.warn(
+        string.format('Invalid input max height: %s', max_height),
+        { 'Input max height should be between 0 and 1 (percentage of screen)' }
+      )
+    else
+      health.ok(string.format('Input max height: %s', max_height))
+    end
+
+    if min_height > max_height then
+      health.warn(
+        'Input min height exceeds max height',
+        { 'Ensure ui.input.min_height is less than or equal to ui.input.max_height' }
+      )
+    end
+  end
+
+  health.ok('Configuration loaded successfully')
+end
+
+local function check_environment()
+  health.start('Environment')
+
+  local git_dir = vim.fn.system('git rev-parse --git-dir 2>/dev/null'):gsub('\n', '')
+  if vim.v.shell_error == 0 and git_dir ~= '' then
+    health.ok('Git repository detected')
+  else
+    health.info('Not in a git repository (optional but recommended for pi)')
+  end
+
+  local cwd = vim.fn.getcwd()
+  if cwd and cwd ~= '' then
+    health.ok(string.format('Working directory: %s', cwd))
+  else
+    health.warn('Could not determine current working directory')
+  end
+end
+
+local function check_integrations()
+  health.start('Optional Integrations')
+
+  local telescope_ok, _ = pcall(require, 'telescope')
+  if telescope_ok then
+    health.ok('telescope.nvim found (enhanced file picker available)')
+  else
+    health.info('telescope.nvim not found (using vim.ui.select for file picker)')
+  end
+
+  local mini_pick_ok, _ = pcall(require, 'mini.pick')
+  if mini_pick_ok then
+    health.ok('mini.pick found (enhanced file picker available)')
+  else
+    health.info('mini.pick not found')
+  end
+
+  local fzf_lua_ok, _ = pcall(require, 'fzf-lua')
+  if fzf_lua_ok then
+    health.ok('fzf-lua found (enhanced file picker available)')
+  else
+    health.info('fzf-lua not found')
+  end
+
+  local snacks_ok, _ = pcall(require, 'snacks')
+  if snacks_ok then
+    health.ok('snacks.nvim found (enhanced file picker available)')
+  else
+    health.info('snacks.nvim not found')
+  end
+
+  local blink_ok, _ = pcall(require, 'blink.cmp')
+  if blink_ok then
+    health.ok('blink found (enhanced completion available)')
+  else
+    health.info('blink not found')
+  end
+
+  local cmp_ok, _ = pcall(require, 'cmp')
+  if cmp_ok then
+    health.ok('nvim-cmp found (enhanced completion available)')
+  else
+    health.info('nvim-cmp not found')
+  end
+
+  if not blink_ok and not cmp_ok then
+    health.warn('No completion engine found, will fallback to vim_complete (consider installing blink or nvim-cmp)')
+  end
+end
+
+local function check_finder_cli_tools()
+  health.start('Finder CLI Tools')
+
+  local find_cmds = { 'fd', 'rg', 'git' }
+  local found = false
+  for _, cmd in ipairs(find_cmds) do
+    if command_exists(cmd) then
+      health.ok(string.format('Found file finder command: %s', cmd))
+      found = true
+      break
+    end
+  end
+
+  if not found then
+    health.warn('No file finder command found (consider installing fd, rg, git, or find)')
+  end
+end
+
+function M.check()
+  check_pi_cli()
+  check_pi_server()
+  check_configuration()
+  check_environment()
+  check_integrations()
+  check_finder_cli_tools()
+end
+
+return M
