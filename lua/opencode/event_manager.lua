@@ -571,7 +571,7 @@ end
 --- Subscribe to server-sent events from the API
 --- @param server table The server instance
 function EventManager:_subscribe_to_server_events(server)
-  if not server.url then
+  if not server.url or server.mode == 'pi-rpc' then
     return
   end
 

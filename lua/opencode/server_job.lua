@@ -196,9 +196,57 @@ local function _start_server()
   return promise
 end
 
+local function pi_rpc_server()
+  local spawn_promise = Promise.new()
+  local shutdown_promise = Promise.new()
+  local server = {
+    url = 'pi-rpc://local',
+    mode = 'pi-rpc',
+    spawn_promise = spawn_promise,
+    shutdown_promise = shutdown_promise,
+  }
+  function server:is_running()
+    return require('opencode.pi_process').get():is_running()
+  end
+  function server:check_health()
+    return Promise.new():resolve(true)
+  end
+  function server:get_spawn_promise()
+    return self.spawn_promise
+  end
+  function server:get_shutdown_promise()
+    return self.shutdown_promise
+  end
+  function server:shutdown()
+    require('opencode.pi_process').get():stop()
+    self.shutdown_promise:resolve(true)
+    return self.shutdown_promise
+  end
+  require('opencode.rpc_client').get().process:start():and_then(function()
+    spawn_promise:resolve(server)
+  end):catch(function(err)
+    spawn_promise:reject(err)
+  end)
+  return server
+end
+
 --- Ensure the opencode server is running, starting it if necessary.
 --- @return Promise<OpencodeServer>
 function M.ensure_server()
+  if config.backend == 'pi' then
+    if state.opencode_server and state.opencode_server.mode == 'pi-rpc' then
+      if require('opencode.pi_process').get():is_running() then
+        return Promise.new():resolve(state.opencode_server)
+      end
+      return require('opencode.rpc_client').get().process:start():and_then(function()
+        return state.opencode_server
+      end)
+    end
+    local server = pi_rpc_server()
+    state.jobs.set_server(server)
+    return server:get_spawn_promise()
+  end
+
   if state.opencode_server and state.opencode_server:is_running() then
     return state.opencode_server:check_health():and_then(function(healthy)
       if healthy then

@@ -295,6 +295,18 @@ M.cancel = Promise.async(function()
 end)
 
 M.opencode_ok = Promise.async(function()
+  if config.backend == 'pi' then
+    if vim.fn.executable(config.pi_executable) == 0 then
+      vim.notify('pi command not found - please install and configure pi before using this plugin', vim.log.levels.ERROR)
+      return false
+    end
+    local promise = Promise.system({ config.pi_executable, '--version' }):and_then(function(result)
+      return Promise.new():resolve((result and result.stdout or ''):gsub('%s+$', ''))
+    end)
+    state.jobs.set_opencode_cli_version(promise)
+    return true
+  end
+
   if vim.fn.executable(config.opencode_executable) == 0 then
     vim.notify(
       'opencode command not found - please install and configure opencode before using this plugin',

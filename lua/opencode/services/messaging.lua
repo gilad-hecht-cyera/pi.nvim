@@ -32,6 +32,38 @@ M.send_message = Promise.async(function(prompt, opts)
 
   opts = opts or {}
 
+  if config.backend == 'pi' then
+    opts.context = vim.tbl_deep_extend('force', state.current_context_config or {}, opts.context or {})
+    state.context.set_current_context_config(opts.context)
+    context.load()
+    local parts = context.format_message(prompt, opts.context):await()
+    local text = {}
+    for _, part in ipairs(parts or {}) do
+      if part.text and part.text ~= '' then
+        table.insert(text, part.text)
+      end
+    end
+    local session_id = state.active_session.id
+    local sent_context = vim.deepcopy(context.get_context())
+    context.unload_attachments()
+    local sent_message_count = vim.deepcopy(state.user_message_count)
+    sent_message_count[session_id] = (sent_message_count[session_id] or 0) + 1
+    state.session.set_user_message_count(sent_message_count)
+    require('opencode.rpc_client').get():prompt(table.concat(text, '\n\n')):and_then(function()
+      sent_message_count = vim.deepcopy(state.user_message_count)
+      sent_message_count[session_id] = math.max(0, (sent_message_count[session_id] or 1) - 1)
+      state.session.set_user_message_count(sent_message_count)
+      M.after_run(prompt, sent_context)
+    end):catch(function(err)
+      log.notify('Error sending message to pi: ' .. vim.inspect(err), vim.log.levels.ERROR)
+      sent_message_count = vim.deepcopy(state.user_message_count)
+      sent_message_count[session_id] = math.max(0, (sent_message_count[session_id] or 1) - 1)
+      state.session.set_user_message_count(sent_message_count)
+      session_runtime.cancel():await()
+    end):await()
+    return
+  end
+
   opts.context = vim.tbl_deep_extend('force', state.current_context_config or {}, opts.context or {})
   state.context.set_current_context_config(opts.context)
   context.load()

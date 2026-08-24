@@ -1,5 +1,6 @@
 local server_job = require('opencode.server_job')
 local state = require('opencode.state')
+local config = require('opencode.config')
 local url_encode = require('opencode.util').url_encode
 local apply_path_map = require('opencode.util').apply_path_map
 local reverse_transform_paths_recursive = require('opencode.util').reverse_transform_paths_recursive
@@ -152,6 +153,13 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<OpencodeProject>
 function OpencodeApiClient:get_current_project(directory)
+  if config.backend == 'pi' then
+    return require('opencode.promise').new():resolve({
+      id = vim.fn.sha256(vim.fn.getcwd()),
+      directory = vim.fn.getcwd(),
+      name = vim.fn.fnamemodify(vim.fn.getcwd(), ':t'),
+    })
+  end
   return self:_call('/project/current', 'GET', nil, { directory = directory })
 end
 
@@ -161,6 +169,13 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<OpencodeConfig>
 function OpencodeApiClient:get_config(directory)
+  if config.backend == 'pi' then
+    return require('opencode.promise').new():resolve({
+      agent = {},
+      command = {},
+      mcp = {},
+    })
+  end
   return self:_call('/config', 'GET', nil, { directory = directory })
 end
 
@@ -176,6 +191,28 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<OpencodeProvidersResponse>
 function OpencodeApiClient:list_providers(directory)
+  if config.backend == 'pi' then
+    return require('opencode.rpc_client').get():get_available_models():and_then(function(data)
+      local providers = {}
+      for _, model in ipairs(data.models or {}) do
+        local provider = providers[model.provider]
+        if not provider then
+          provider = { id = model.provider, name = model.provider, models = {} }
+          providers[model.provider] = provider
+        end
+        provider.models[model.id] = {
+          id = model.id,
+          name = model.name or model.id,
+          providerID = model.provider,
+        }
+      end
+      local list = {}
+      for _, provider in pairs(providers) do
+        table.insert(list, provider)
+      end
+      return { providers = list }
+    end)
+  end
   return self:_call('/config/providers', 'GET', nil, { directory = directory })
 end
 
@@ -192,6 +229,9 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<Session[]>
 function OpencodeApiClient:list_sessions(directory)
+  if config.backend == 'pi' then
+    return require('opencode.promise').new():resolve({})
+  end
   return self:_call('/session', 'GET', nil, { directory = directory })
 end
 
@@ -218,6 +258,19 @@ end
 --- @param directory string|nil  Directory path
 --- @return Promise<Session>
 function OpencodeApiClient:create_session(session_data, directory)
+  if config.backend == 'pi' then
+    return require('opencode.rpc_client').get():new_session():and_then(function()
+      return require('opencode.rpc_client').get():get_state()
+    end):and_then(function(pi_state)
+      local id = pi_state.sessionId or pi_state.sessionFile or 'pi-session'
+      return {
+        id = id,
+        title = pi_state.sessionName or 'Pi session',
+        directory = vim.fn.getcwd(),
+        time = { created = vim.uv.now(), updated = vim.uv.now() },
+      }
+    end)
+  end
   return self:_call('/session', 'POST', session_data or false, { directory = directory })
 end
 
@@ -226,6 +279,16 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<Session>
 function OpencodeApiClient:get_session(id, directory)
+  if config.backend == 'pi' then
+    return require('opencode.rpc_client').get():get_state():and_then(function(pi_state)
+      return {
+        id = pi_state.sessionId or id or pi_state.sessionFile or 'pi-session',
+        title = pi_state.sessionName or 'Pi session',
+        directory = vim.fn.getcwd(),
+        time = { created = vim.uv.now(), updated = vim.uv.now() },
+      }
+    end)
+  end
   return self:_call('/session/' .. id, 'GET', nil, { directory = directory })
 end
 
@@ -268,6 +331,9 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<boolean>
 function OpencodeApiClient:abort_session(id, directory)
+  if config.backend == 'pi' then
+    return require('opencode.rpc_client').get():abort()
+  end
   return self:_call('/session/' .. id .. '/abort', 'POST', nil, { directory = directory })
 end
 
@@ -313,6 +379,12 @@ end
 --- @param opts? { limit?: number } Optional query parameters
 --- @return Promise<OpencodeMessage[]>
 function OpencodeApiClient:list_messages(id, directory, opts)
+  if config.backend == 'pi' then
+    return require('opencode.rpc_client').get():get_messages():and_then(function(data)
+      require('opencode.event_adapter').emit_messages(data.messages or {})
+      return {}
+    end)
+  end
   local query = { directory = directory }
   if opts then
     for k, v in pairs(opts) do
@@ -328,6 +400,20 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<{info: MessageInfo, parts: OpencodeMessagePart[]}>
 function OpencodeApiClient:create_message(id, message_data, directory)
+  if config.backend == 'pi' then
+    local text = {}
+    for _, part in ipairs(message_data.parts or {}) do
+      if part.text and part.text ~= '' then
+        table.insert(text, part.text)
+      end
+    end
+    return require('opencode.rpc_client').get():prompt(table.concat(text, '\n\n')):and_then(function()
+      return {
+        info = { id = 'pi-user-accepted', role = 'user', sessionID = id, time = { created = vim.uv.now() } },
+        parts = message_data.parts or {},
+      }
+    end)
+  end
   return self:_call('/session/' .. id .. '/message', 'POST', message_data, { directory = directory })
 end
 
@@ -379,6 +465,9 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<OpencodePermission[]>
 function OpencodeApiClient:list_permissions(directory)
+  if config.backend == 'pi' then
+    return require('opencode.promise').new():resolve({})
+  end
   return self:_call('/permission', 'GET', nil, { directory = directory })
 end
 
@@ -403,6 +492,9 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<boolean>
 function OpencodeApiClient:reply_to_permission(requestID, response_data, directory)
+  if config.backend == 'pi' then
+    return require('opencode.promise').new():resolve(true)
+  end
   return self:_call('/permission/' .. requestID .. '/reply', 'POST', response_data, { directory = directory })
 end
 

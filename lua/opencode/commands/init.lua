@@ -116,6 +116,14 @@ function M.setup()
     range = true,
     complete = M.complete_command,
   })
+  if require('opencode.config').backend == 'pi' then
+    vim.api.nvim_create_user_command('Pi', M.execute_command_opts, {
+      desc = 'pi.nvim main command with nested subcommands',
+      nargs = '*',
+      range = true,
+      complete = M.complete_command,
+    })
+  end
 end
 
 return M
