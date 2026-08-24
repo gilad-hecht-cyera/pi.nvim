@@ -371,3 +371,4 @@ return {
 5. Wire one keymap/action to send a hardcoded prompt and print streamed deltas into an output buffer.
 6. Replace the normal input submit path with Pi `prompt`.
 7. Iterate toward the existing sidebar renderer once basic streaming works.
+ 

@@ -119,6 +119,10 @@ end
 
 ---@type fun(): Promise<string[]>
 M.get_opencode_agents = Promise.async(function()
+  if require('opencode.config').backend == 'pi' then
+    return { 'pi' }
+  end
+
   local cfg = M.get_opencode_config():await()
   if not cfg then
     return {}
@@ -146,6 +150,10 @@ end)
 
 ---@type fun(): Promise<string[]>
 M.get_subagents = Promise.async(function()
+  if require('opencode.config').backend == 'pi' then
+    return {}
+  end
+
   local cfg = M.get_opencode_config():await()
   if not cfg then
     return {}
@@ -173,6 +181,24 @@ end)
 
 ---@type fun(): Promise<table<string, table>|nil>
 M.get_user_commands = Promise.async(function()
+  if require('opencode.config').backend == 'pi' then
+    local ok, data = pcall(function()
+      return require('opencode.rpc_client').get():get_commands():await()
+    end)
+    if not ok or not data then
+      return {}
+    end
+    local commands = {}
+    for _, command in ipairs(data.commands or {}) do
+      commands[command.name] = {
+        description = command.description,
+        template = '$ARGUMENTS',
+        _pi_source = command.source,
+      }
+    end
+    return commands
+  end
+
   local cfg = M.get_opencode_config():await()
   return cfg and cfg.command or nil
 end)

@@ -230,7 +230,7 @@ end
 --- @return Promise<Session[]>
 function OpencodeApiClient:list_sessions(directory)
   if config.backend == 'pi' then
-    return require('opencode.promise').new():resolve({})
+    return require('opencode.promise').new():resolve(require('opencode.pi_sessions').list_workspace_sessions(directory or vim.fn.getcwd()))
   end
   return self:_call('/session', 'GET', nil, { directory = directory })
 end
@@ -239,6 +239,20 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<{[string]: OpencodeSessionStatusInfo}>
 function OpencodeApiClient:list_session_status(directory)
+  if config.backend == 'pi' then
+    return require('opencode.rpc_client').get():get_state():and_then(function(pi_state)
+      local id = pi_state.sessionFile or pi_state.sessionId or (state.active_session and state.active_session.id)
+      if not id then
+        return {}
+      end
+      return {
+        [id] = {
+          type = pi_state.isStreaming and 'busy' or 'idle',
+          message = pi_state.isCompacting and 'Compacting session' or nil,
+        },
+      }
+    end)
+  end
   return self:_call('/session/status', 'GET', nil, { directory = directory })
 end
 
@@ -280,11 +294,33 @@ end
 --- @return Promise<Session>
 function OpencodeApiClient:get_session(id, directory)
   if config.backend == 'pi' then
-    return require('opencode.rpc_client').get():get_state():and_then(function(pi_state)
+    local rpc = require('opencode.rpc_client').get()
+    return rpc:get_state():and_then(function(pi_state)
+      local target = require('opencode.pi_sessions').get_by_path(id)
+      if target and pi_state.sessionFile ~= target.path then
+        return rpc:switch_session(target.path):and_then(function(result)
+          if result and result.cancelled then
+            return target
+          end
+          return rpc:get_state():and_then(function(new_state)
+            target.sessionID = new_state.sessionId or target.sessionID
+            target.title = new_state.sessionName or target.title
+            return target
+          end)
+        end)
+      end
+
+      if target then
+        return target
+      end
+
       return {
-        id = pi_state.sessionId or id or pi_state.sessionFile or 'pi-session',
+        id = pi_state.sessionFile or pi_state.sessionId or id or 'pi-session',
         title = pi_state.sessionName or 'Pi session',
         directory = vim.fn.getcwd(),
+        path = pi_state.sessionFile,
+        sessionFile = pi_state.sessionFile,
+        sessionID = pi_state.sessionId,
         time = { created = vim.uv.now(), updated = vim.uv.now() },
       }
     end)
@@ -359,6 +395,9 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<boolean>
 function OpencodeApiClient:summarize_session(id, summary_data, directory)
+  if config.backend == 'pi' then
+    return require('opencode.rpc_client').get():compact()
+  end
   return self:_call('/session/' .. id .. '/summarize', 'POST', summary_data, { directory = directory })
 end
 
@@ -368,6 +407,13 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<Session>
 function OpencodeApiClient:fork_session(id, fork_data, directory)
+  if config.backend == 'pi' then
+    local rpc = require('opencode.rpc_client').get()
+    if fork_data and fork_data.messageID then
+      return rpc:fork(fork_data.messageID)
+    end
+    return rpc:clone()
+  end
   return self:_call('/session/' .. id .. '/fork', 'POST', fork_data, { directory = directory })
 end
 
@@ -381,8 +427,7 @@ end
 function OpencodeApiClient:list_messages(id, directory, opts)
   if config.backend == 'pi' then
     return require('opencode.rpc_client').get():get_messages():and_then(function(data)
-      require('opencode.event_adapter').emit_messages(data.messages or {})
-      return {}
+      return require('opencode.event_adapter').messages_from_pi(data.messages or {})
     end)
   end
   local query = { directory = directory }
@@ -432,6 +477,13 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<OpencodeMessage>
 function OpencodeApiClient:send_command(id, command_data, directory)
+  if config.backend == 'pi' then
+    local message = '/' .. tostring(command_data.command or '')
+    if command_data.arguments and command_data.arguments ~= '' then
+      message = message .. ' ' .. command_data.arguments
+    end
+    return require('opencode.rpc_client').get():prompt(message)
+  end
   return self:_call('/session/' .. id .. '/command', 'POST', command_data, { directory = directory })
 end
 
@@ -594,6 +646,9 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<OpencodeQuestionRequest[]>
 function OpencodeApiClient:list_questions(directory)
+  if config.backend == 'pi' then
+    return require('opencode.promise').new():resolve({})
+  end
   return self:_call('/question', 'GET', nil, { directory = directory })
 end
 
@@ -603,6 +658,9 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<boolean>
 function OpencodeApiClient:reply_question(requestID, answers, directory)
+  if config.backend == 'pi' then
+    return require('opencode.promise').new():resolve(true)
+  end
   return self:_call('/question/' .. requestID .. '/reply', 'POST', { answers = answers }, { directory = directory })
 end
 
@@ -611,6 +669,9 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<boolean>
 function OpencodeApiClient:reject_question(requestID, directory)
+  if config.backend == 'pi' then
+    return require('opencode.promise').new():resolve(true)
+  end
   return self:_call('/question/' .. requestID .. '/reject', 'POST', nil, { directory = directory })
 end
 
@@ -687,6 +748,21 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<OpencodeSkill[]>
 function OpencodeApiClient:list_skills(directory)
+  if config.backend == 'pi' then
+    return require('opencode.rpc_client').get():get_commands():and_then(function(data)
+      local skills = {}
+      for _, command in ipairs(data.commands or {}) do
+        if command.source == 'skill' then
+          table.insert(skills, {
+            name = command.name:gsub('^skill:', ''),
+            description = command.description,
+            content = '/' .. command.name,
+          })
+        end
+      end
+      return skills
+    end)
+  end
   return self:_call('/skill', 'GET', nil, { directory = directory })
 end
 

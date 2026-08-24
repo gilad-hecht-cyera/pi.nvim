@@ -34,6 +34,72 @@ function RpcClient.get()
   return instance
 end
 
+local function notify_type(level)
+  if level == 'error' then
+    return vim.log.levels.ERROR
+  elseif level == 'warning' then
+    return vim.log.levels.WARN
+  end
+  return vim.log.levels.INFO
+end
+
+function RpcClient:_handle_extension_ui_request(event)
+  local method = event.method
+  if method == 'notify' then
+    vim.notify(event.message or '', notify_type(event.notifyType))
+    return
+  elseif method == 'set_editor_text' then
+    local ok, input_window = pcall(require, 'opencode.ui.input_window')
+    if ok and input_window.set_content then
+      input_window.set_content(event.text or '')
+    end
+    return
+  elseif method == 'setTitle' then
+    if event.title and event.title ~= '' then
+      vim.opt.titlestring = event.title
+      vim.opt.title = true
+    end
+    return
+  elseif method == 'setStatus' or method == 'setWidget' then
+    return
+  end
+
+  if method == 'select' then
+    vim.ui.select(event.options or {}, { prompt = event.title or 'Pi' }, function(choice)
+      if choice == nil then
+        self:notify({ type = 'extension_ui_response', id = event.id, cancelled = true })
+      else
+        self:notify({ type = 'extension_ui_response', id = event.id, value = choice })
+      end
+    end)
+  elseif method == 'confirm' then
+    local choices = { 'Yes', 'No' }
+    vim.ui.select(choices, { prompt = event.title or event.message or 'Confirm' }, function(choice)
+      if choice == nil then
+        self:notify({ type = 'extension_ui_response', id = event.id, cancelled = true })
+      else
+        self:notify({ type = 'extension_ui_response', id = event.id, confirmed = choice == 'Yes' })
+      end
+    end)
+  elseif method == 'input' then
+    vim.ui.input({ prompt = event.title or 'Input', default = event.default or '', completion = event.completion }, function(value)
+      if value == nil then
+        self:notify({ type = 'extension_ui_response', id = event.id, cancelled = true })
+      else
+        self:notify({ type = 'extension_ui_response', id = event.id, value = value })
+      end
+    end)
+  elseif method == 'editor' then
+    vim.ui.input({ prompt = event.title or 'Edit', default = event.prefill or '' }, function(value)
+      if value == nil then
+        self:notify({ type = 'extension_ui_response', id = event.id, cancelled = true })
+      else
+        self:notify({ type = 'extension_ui_response', id = event.id, value = value })
+      end
+    end)
+  end
+end
+
 function RpcClient:_handle_event(event)
   if event.type == 'response' and event.id and self.pending[event.id] then
     local promise = self.pending[event.id]
@@ -43,6 +109,12 @@ function RpcClient:_handle_event(event)
     else
       promise:resolve(event.data ~= nil and event.data or event)
     end
+    return
+  end
+
+  if event.type == 'extension_ui_request' then
+    self:_handle_extension_ui_request(event)
+    event_adapter.handle_event(event)
     return
   end
 
@@ -90,8 +162,22 @@ function RpcClient:abort()
   return self:request({ type = 'abort' })
 end
 
+local function sync_state_from_pi(pi_state)
+  if not pi_state then
+    return pi_state
+  end
+  local ok, state = pcall(require, 'opencode.state')
+  if ok and pi_state.model and pi_state.model.provider and pi_state.model.id then
+    state.model.set_model(pi_state.model.provider .. '/' .. pi_state.model.id)
+  end
+  if ok and pi_state.thinkingLevel then
+    state.model.set_variant(pi_state.thinkingLevel)
+  end
+  return pi_state
+end
+
 function RpcClient:get_state()
-  return self:request({ type = 'get_state' })
+  return self:request({ type = 'get_state' }):and_then(sync_state_from_pi)
 end
 
 function RpcClient:get_messages()
@@ -111,7 +197,55 @@ function RpcClient:get_available_models()
 end
 
 function RpcClient:set_model(provider, model_id)
-  return self:request({ type = 'set_model', provider = provider, modelId = model_id })
+  return self:request({ type = 'set_model', provider = provider, modelId = model_id }):and_then(function(model)
+    sync_state_from_pi({ model = model })
+    return model
+  end)
+end
+
+function RpcClient:cycle_model()
+  return self:request({ type = 'cycle_model' }):and_then(function(data)
+    if data then
+      sync_state_from_pi(data)
+    end
+    return data
+  end)
+end
+
+function RpcClient:set_thinking_level(level)
+  return self:request({ type = 'set_thinking_level', level = level })
+end
+
+function RpcClient:cycle_thinking_level()
+  return self:request({ type = 'cycle_thinking_level' })
+end
+
+function RpcClient:get_commands()
+  return self:request({ type = 'get_commands' })
+end
+
+function RpcClient:get_session_stats()
+  return self:request({ type = 'get_session_stats' })
+end
+
+function RpcClient:compact(custom_instructions)
+  return self:request({ type = 'compact', customInstructions = custom_instructions })
+end
+
+function RpcClient:get_entries(since)
+  return self:request({ type = 'get_entries', since = since })
+end
+
+function RpcClient:get_tree()
+  return self:request({ type = 'get_tree' })
+end
+
+function RpcClient:fork(entry_id)
+  return self:request({ type = 'fork', entryId = entry_id })
+end
+
+function RpcClient:clone()
+  return self:request({ type = 'clone' })
 end
 
 return RpcClient

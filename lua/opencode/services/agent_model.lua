@@ -18,7 +18,11 @@ function M.configure_provider()
     local model_str = string.format('%s/%s', selection.provider, selection.model)
     state.model.set_model(model_str)
 
-    if state.current_mode then
+    if require('opencode.config').backend == 'pi' then
+      require('opencode.rpc_client').get():set_model(selection.provider, selection.model):catch(function(err)
+        log.notify('Failed to switch Pi model: ' .. vim.inspect(err), vim.log.levels.ERROR)
+      end)
+    elseif state.current_mode then
       state.model.set_mode_model_override(state.current_mode, model_str)
     end
 
@@ -31,6 +35,24 @@ function M.configure_provider()
 end
 
 function M.configure_variant()
+  if require('opencode.config').backend == 'pi' then
+    local levels = { 'off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max' }
+    vim.ui.select(levels, { prompt = 'Select thinking level' }, function(level)
+      if not level then
+        if state.ui.is_visible() then
+          ui.focus_input()
+        end
+        return
+      end
+      require('opencode.rpc_client').get():set_thinking_level(level):and_then(function()
+        state.model.set_variant(level)
+      end):catch(function(err)
+        log.notify('Failed to switch Pi thinking level: ' .. vim.inspect(err), vim.log.levels.ERROR)
+      end)
+    end)
+    return
+  end
+
   require('opencode.variant_picker').select(function(selection)
     if not selection then
       if state.ui.is_visible() then
@@ -50,6 +72,15 @@ function M.configure_variant()
 end
 
 M.cycle_variant = Promise.async(function()
+  if require('opencode.config').backend == 'pi' then
+    local result = require('opencode.rpc_client').get():cycle_thinking_level():await()
+    if result and result.level then
+      state.model.set_variant(result.level)
+      log.notify('Changed thinking level to ' .. result.level, vim.log.levels.INFO)
+    end
+    return
+  end
+
   if not state.current_model then
     log.notify('No model selected', vim.log.levels.WARN)
     return
