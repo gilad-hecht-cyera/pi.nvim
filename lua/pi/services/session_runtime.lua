@@ -199,7 +199,7 @@ M.open = Promise.async(function(opts)
     else
       agent_model.ensure_current_mode():await()
       if not state.active_session then
-        state.session.set_active(session.get_last_workspace_session():await())
+        state.session.set_active(session.load_last_workspace_session():await())
         if not state.active_session then
           state.session.set_active(M.create_new_session():await())
         end
@@ -387,7 +387,7 @@ M.handle_directory_change = Promise.async(function()
   state.session.clear_active()
   context.unload_attachments()
 
-  state.session.set_active(session.get_last_workspace_session():await() or M.create_new_session():await())
+  state.session.set_active(session.load_last_workspace_session():await() or M.create_new_session():await())
 
   log.debug('Loaded session for new working dir ' .. vim.inspect({ session = state.active_session }))
 end)

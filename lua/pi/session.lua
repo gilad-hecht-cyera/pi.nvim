@@ -97,6 +97,19 @@ M.get_last_workspace_session = Promise.async(function()
   return main_sessions[1]
 end)
 
+---Get the most recent main workspace session and make it the backend's active one.
+---`get_by_id` is what actually attaches the session in the backend (for the pi RPC
+---backend it issues `switch_session`), so a session discovered on disk must be
+---resolved through it before its messages can be fetched.
+---@return Promise<Session|nil>
+M.load_last_workspace_session = Promise.async(function()
+  local last = M.get_last_workspace_session():await()
+  if not last then
+    return nil
+  end
+  return M.get_by_id(last.id):await() or last
+end)
+
 ---Get a session by its id
 ---@param id string
 ---@return Promise<Session|nil>
