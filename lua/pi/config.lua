@@ -184,6 +184,17 @@ M.defaults = {
         markdown_on_idle_threshold = nil,
         event_throttle_ms = 40,
         event_collapsing = true,
+        tables = {
+          -- Reflow markdown tables so each cell wraps inside its own column
+          -- instead of emitting one very long soft-wrapped line.
+          reflow = true,
+          -- Narrowest a column may be shrunk to before other columns give up space.
+          min_column_width = 8,
+          -- Fixed table width in cells. Defaults to the output window width.
+          max_width = nil,
+          -- Rule between body rows: 'auto' (only when some row wraps), 'always', 'never'.
+          row_separator = 'auto',
+        },
       },
       tools = {
         show_output = true,

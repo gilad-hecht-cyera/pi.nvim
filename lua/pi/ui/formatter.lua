@@ -8,6 +8,7 @@ local snapshot = require('pi.snapshot')
 local mention = require('pi.ui.mention')
 local permission_window = require('pi.ui.permission_window')
 local symbol_tokens = require('pi.ui.symbol_tokens')
+local markdown_table = require('pi.ui.markdown_table')
 local tool_formatters = require('pi.ui.formatter.tools')
 local format_utils = require('pi.ui.formatter.utils')
 
@@ -79,7 +80,7 @@ function M._format_reasoning(output, part)
   local use_folds = config.ui.output.tools.use_folds
   if (show or use_folds) and text ~= '' then
     output:add_empty_line()
-    output:add_lines(vim.split(text, '\n'))
+    output:add_lines(vim.split((markdown_table.reflow(text)), '\n'))
     output:add_empty_line()
     output:add_fold_with_threshold(start_line, show, use_folds)
   end
@@ -917,6 +918,14 @@ function M._format_assistant_message(output, text, part, message, context)
   local references = current_part_text_references(part, message, text, context)
   local rendered, rendered_reference_ranges, rendered_mention_ranges =
     rendered_text_with_reference_ranges(text, references, available_file_set(context))
+
+  local reflowed, table_segments = markdown_table.reflow(rendered)
+  if table_segments then
+    rendered = reflowed
+    rendered_reference_ranges = markdown_table.map_ranges(rendered_reference_ranges, table_segments)
+    rendered_mention_ranges = markdown_table.map_ranges(rendered_mention_ranges, table_segments)
+  end
+
   local first_line_idx = output:get_line_count()
 
   output:add_lines(vim.split(rendered, '\n'))

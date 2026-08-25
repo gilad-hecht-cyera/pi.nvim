@@ -2,6 +2,36 @@ local input_window = require('pi.ui.input_window')
 local output_window = require('pi.ui.output_window')
 local M = {}
 
+---Reflowed tables are laid out for a specific window width, so a width change
+---requires re-rendering from cache. Debounced to avoid thrashing during drags.
+local reflow_tables_on_width_change = require('pi.util').debounce(function()
+  local config = require('pi.config')
+  local tables = config.ui.output.rendering.tables
+  if not tables or tables.reflow == false or tables.max_width then
+    return
+  end
+  if not output_window.mounted() then
+    return
+  end
+  require('pi.ui.ui').render_output_from_cache()
+end, 120)
+
+---@param windows PiWindowState?
+---@return boolean changed
+local function output_width_changed(windows)
+  local win = windows and windows.output_win
+  if not win or not vim.api.nvim_win_is_valid(win) then
+    return false
+  end
+
+  local width = vim.api.nvim_win_get_width(win)
+  if M._last_output_width == width then
+    return false
+  end
+  M._last_output_width = width
+  return true
+end
+
 function M.setup_autocmds(windows)
   local group = vim.api.nvim_create_augroup('PiWindows', { clear = true })
   input_window.setup_autocmds(windows, group)
@@ -134,6 +164,9 @@ function M.setup_resize_handler(windows)
       require('pi.ui.footer').update_window(windows)
       input_window.update_dimensions(windows)
       output_window.update_dimensions(windows)
+      if output_width_changed(windows) then
+        reflow_tables_on_width_change()
+      end
     end,
   })
   vim.api.nvim_create_autocmd('WinResized', {
@@ -151,6 +184,9 @@ function M.setup_resize_handler(windows)
 
       require('pi.ui.topbar').render()
       require('pi.ui.footer').update_window(windows)
+      if output_width_changed(windows) then
+        reflow_tables_on_width_change()
+      end
     end,
   })
 end

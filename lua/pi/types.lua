@@ -266,12 +266,19 @@
 ---@class PiHighlightConfig
 ---@field vertical_borders? { tool?: { fg?: string, bg?: string }, user?: { fg?: string, bg?: string }, assistant?: { fg?: string, bg?: string } }
 
+---@class PiUIOutputTablesConfig
+---@field reflow boolean # Wrap table cell content inside each column instead of one long line
+---@field min_column_width integer # Narrowest width a column may shrink to
+---@field max_width integer|nil # Fixed table width in cells; output window width when nil
+---@field row_separator 'auto'|'always'|'never' # Draw a rule between body rows
+
 ---@class PiUIOutputRenderingConfig
 ---@field markdown_debounce_ms number
 ---@field on_data_rendered (fun(buf: integer, win: integer)|boolean)|nil
 ---@field markdown_on_idle boolean
 ---@field event_throttle_ms number
 ---@field event_collapsing boolean
+---@field tables PiUIOutputTablesConfig
 
 ---@class PiUIOutputToolsConfig
 ---@field show_output boolean

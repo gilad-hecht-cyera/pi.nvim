@@ -82,6 +82,41 @@ require("pi").setup({
 })
 ```
 
+## Markdown table rendering
+
+Wide markdown tables are reflowed so each cell wraps inside its own column
+instead of producing one very long line that soft-wraps into an unreadable
+blob. Column widths are fitted to the output window using display width (so
+emoji and CJK text keep the borders aligned); the widest columns give up space
+first, and header rows are truncated with `…` so the table stays valid GFM.
+
+Long unbreakable tokens are split at `_ - . / , : )` boundaries where possible,
+and inline code spans are re-fenced on each line so backticks stay balanced.
+
+```lua
+require("pi").setup({
+  ui = {
+    output = {
+      rendering = {
+        tables = {
+          reflow = true, -- set false to keep the raw table text
+          min_column_width = 8, -- narrowest a column may shrink to
+          max_width = nil, -- fixed width in cells; output window width when nil
+          row_separator = "auto", -- 'auto' | 'always' | 'never'
+        },
+      },
+    },
+  },
+})
+```
+
+`row_separator` draws a rule between body rows, which makes multi-line rows much
+easier to scan:
+
+- `auto` (default) — only when at least one body row wraps
+- `always` — between every body row
+- `never` — no rules
+
 ## Development
 
 Run tests:
