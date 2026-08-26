@@ -91,25 +91,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_9d7287269001C5gRusYfX7A1w1]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             " 2025-10-12 06:42:56",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -148,7 +148,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -168,7 +168,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -186,7 +186,7 @@
         "end_right_gravity": false,
         "end_row": 3,
         "hl_eol": false,
-        "hl_group": "OpencodeMention",
+        "hl_group": "PiMention",
         "ns_id": 3,
         "priority": 1000,
         "right_gravity": true
@@ -203,7 +203,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -223,7 +223,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -243,25 +243,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/claude-sonnet-4.5",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_9d7287287001HVwpPaH7WkRVdN]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -281,7 +281,7 @@
         "virt_text": [
           [
             " 2025-10-12 06:42:56",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -300,7 +300,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -320,7 +320,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -340,7 +340,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -358,22 +358,22 @@
         "end_right_gravity": false,
         "end_row": 14,
         "hl_eol": true,
-        "hl_group": "OpencodeDiffDelete",
+        "hl_group": "PiDiffDelete",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
             "1",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ],
           [
             "-",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ],
           [
             " ",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -392,7 +392,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -410,22 +410,22 @@
         "end_right_gravity": false,
         "end_row": 15,
         "hl_eol": true,
-        "hl_group": "OpencodeDiffAdd",
+        "hl_group": "PiDiffAdd",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
             "1",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ],
           [
             "+",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ],
           [
             " ",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -444,7 +444,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -464,7 +464,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -484,7 +484,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -504,25 +504,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/claude-sonnet-4.5",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_9d7288f2f001hW6NqqhtBc72UU]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -542,7 +542,7 @@
         "virt_text": [
           [
             " 2025-10-12 06:43:03",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,

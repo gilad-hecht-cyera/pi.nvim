@@ -14,7 +14,7 @@ local function focus_input()
   end
 end
 
-local function send_pi_command(name, args)
+function M.send_pi_command(name, args)
   local message = '/' .. name
   local arg_text = join_args(args)
   if arg_text ~= '' then
@@ -45,7 +45,7 @@ end
 
 local function pi_command(slash_cmd, desc, name, takes_args)
   return local_command(slash_cmd, desc, function(args)
-    return send_pi_command(name or slash_cmd:gsub('^/', ''), args)
+    return M.send_pi_command(name or slash_cmd:gsub('^/', ''), args)
   end, takes_args)
 end
 
@@ -66,6 +66,9 @@ local function builtin_commands()
     local_command('/resume', 'Select Pi session', function()
       return require('pi.services.session_runtime').select_session()
     end),
+    local_command('/sessions', 'Select Pi session', function()
+      return require('pi.services.session_runtime').select_session()
+    end),
     local_command('/compact', 'Compact current Pi session', function(args)
       local custom = join_args(args)
       return require('pi.rpc_client').get():compact(custom ~= '' and custom or nil):and_then(function()
@@ -82,6 +85,16 @@ local function builtin_commands()
     local_command('/clear_selections', 'Clear selections from pi.nvim context', function()
       require('pi.context').clear_selections()
       focus_input()
+    end),
+    local_command('/rename', 'Rename Pi session (or ask Pi to choose with no args)', function(args)
+      local title = join_args(args)
+      if title ~= '' then
+        return require('pi.commands.handlers.session').actions.rename_session(nil, title)
+      end
+      return require('pi.commands.handlers.session').actions.autoname_session()
+    end, true),
+    local_command('/autoname', 'Ask Pi to choose a concise session name', function()
+      return require('pi.commands.handlers.session').actions.autoname_session()
     end),
     pi_command('/name', 'Set Pi session display name', 'name', true),
     pi_command('/session', 'Show Pi session info', 'session', false),

@@ -46,7 +46,7 @@
       0,
       0,
       {
-        "line_hl_group": "OpencodeBorder",
+        "line_hl_group": "PiBorder",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -63,25 +63,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_after_user]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -101,7 +101,7 @@
         "virt_text": [
           [
             " 2023-11-14 22:13:20",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -120,7 +120,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -140,7 +140,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -160,25 +160,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "ORCHESTRATOR",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "openai/gpt-5.5",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_after_assistant]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -198,7 +198,7 @@
         "virt_text": [
           [
             " 2023-11-14 22:13:20",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,

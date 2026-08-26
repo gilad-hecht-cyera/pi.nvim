@@ -1,12 +1,12 @@
-local state = require('opencode.state')
-local store = require('opencode.state.store')
-local config = require('opencode.config')
-local api = require('opencode.api')
-local ui = require('opencode.ui.ui')
-local input_window = require('opencode.ui.input_window')
-local renderer = require('opencode.ui.renderer')
-local Promise = require('opencode.promise')
-local EventManager = require('opencode.event_manager')
+local state = require('pi.state')
+local store = require('pi.state.store')
+local config = require('pi.config')
+local api = require('pi.api')
+local ui = require('pi.ui.ui')
+local input_window = require('pi.ui.input_window')
+local renderer = require('pi.ui.renderer')
+local Promise = require('pi.promise')
+local EventManager = require('pi.event_manager')
 local stub = require('luassert.stub')
 
 -- persist_state coverage matrix
@@ -97,7 +97,7 @@ describe('persist_state', function()
   local code_buf
   local code_win
   local tmpfile
-  local original_opencode_server_new
+  local original_pi_server_new
 
   local function setup_ui(opts)
     local ui_opts = vim.tbl_deep_extend('force', {
@@ -185,13 +185,13 @@ describe('persist_state', function()
     state.ui.clear_hidden_window_state()
     store.set('current_code_view', nil)
     store.set('current_code_buf', nil)
-    store.set('last_code_win_before_opencode', nil)
+    store.set('last_code_win_before_pi', nil)
     state.session.set_active(nil)
     state.renderer.set_messages({})
 
-    -- Mock opencode_server to prevent spawning real process in CI
-    local opencode_server = require('opencode.opencode_server')
-    original_opencode_server_new = opencode_server.new
+    -- Mock pi_server to prevent spawning real process in CI
+    local pi_server = require('pi.pi_server')
+    original_pi_server_new = pi_server.new
     local mock_server = {
       url = 'http://127.0.0.1:4000',
       is_running = function()
@@ -211,11 +211,11 @@ describe('persist_state', function()
         return Promise.new():resolve(true)
       end,
     }
-    opencode_server.new = function()
+    pi_server.new = function()
       return mock_server
     end
     -- Pre-set the server to skip ensure_server
-    store.set('opencode_server', mock_server)
+    store.set('pi_server', mock_server)
   end)
 
   after_each(function()
@@ -245,13 +245,13 @@ describe('persist_state', function()
     config.values = original_config
     store.set('current_code_view', nil)
     store.set('current_code_buf', nil)
-    store.set('last_code_win_before_opencode', nil)
+    store.set('last_code_win_before_pi', nil)
     state.ui.clear_hidden_window_state()
 
-    -- Restore mocked opencode_server
-    if original_opencode_server_new then
-      local opencode_server = require('opencode.opencode_server')
-      opencode_server.new = original_opencode_server_new
+    -- Restore mocked pi_server
+    if original_pi_server_new then
+      local pi_server = require('pi.pi_server')
+      pi_server.new = original_pi_server_new
     end
   end)
 
@@ -395,7 +395,7 @@ describe('persist_state', function()
       state.session.set_active({ id = 'sess1' })
       toggle_wait('visible')
 
-      local question_window = require('opencode.ui.question_window')
+      local question_window = require('pi.ui.question_window')
       question_window.show_question({
         id = 'question_restore_hidden',
         sessionID = 'sess1',
@@ -406,7 +406,7 @@ describe('persist_state', function()
           },
         },
       })
-      require('opencode.ui.renderer.flush').flush()
+      require('pi.ui.renderer.flush').flush()
 
       question_window._dialog:set_selection(2)
       question_window._dialog:select()
@@ -450,7 +450,7 @@ describe('persist_state', function()
       toggle_wait('visible')
 
       local output_buf = state.windows.output_buf
-      local contextual_actions = require('opencode.ui.contextual_actions')
+      local contextual_actions = require('pi.ui.contextual_actions')
       contextual_actions.show_contextual_actions_menu(output_buf, {
         { key = 'a', text = 'Temporary A', display_line = 0 },
       }, vim.api.nvim_create_namespace('persist-state-mapping-test'))

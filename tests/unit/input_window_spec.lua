@@ -1,5 +1,5 @@
-local input_window = require('opencode.ui.input_window')
-local state = require('opencode.state')
+local input_window = require('pi.ui.input_window')
+local state = require('pi.state')
 
 describe('input_window', function()
   describe('shell command execution', function()
@@ -76,7 +76,7 @@ describe('input_window', function()
 
     it('should display command output in output window', function()
       local output_lines = nil
-      local output_window = require('opencode.ui.output_window')
+      local output_window = require('pi.ui.output_window')
       local original_set_lines = output_window.set_lines
       local original_clear = output_window.clear
 
@@ -363,7 +363,7 @@ describe('input_window', function()
     local original_config
 
     before_each(function()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       original_config = vim.deepcopy(config.ui)
 
       input_buf = vim.api.nvim_create_buf(false, true)
@@ -396,7 +396,7 @@ describe('input_window', function()
     end)
 
     after_each(function()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       config.ui = original_config
 
       pcall(vim.api.nvim_win_close, input_win, true)
@@ -576,7 +576,7 @@ describe('input_window', function()
 
     it('_show() proceeds for child session when child_readonly is false', function()
       state.session.set_active({ id = 'child1', parentID = 'parent1' })
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local orig_readonly = config.values.child_readonly
       config.values.child_readonly = false
       input_window._hidden = true
@@ -627,11 +627,11 @@ describe('input_window', function()
     it('emits @<path> tokens for file parts using filename', function()
       local prompt = input_window.build_prompt_from_message(make_message({
         { type = 'text', text = 'look at' },
-        { type = 'file', filename = 'lua/opencode/foo.lua' },
+        { type = 'file', filename = 'lua/pi/foo.lua' },
         { type = 'text', text = 'thanks' },
       }))
-      assert.same({ 'look at', '@lua/opencode/foo.lua ', 'thanks' }, prompt.lines)
-      assert.same({ 'lua/opencode/foo.lua' }, prompt.mention_paths)
+      assert.same({ 'look at', '@lua/pi/foo.lua ', 'thanks' }, prompt.lines)
+      assert.same({ 'lua/pi/foo.lua' }, prompt.mention_paths)
     end)
 
     it('falls back to source.path when filename is missing', function()
@@ -774,7 +774,7 @@ describe('input_window', function()
       local input_buf, input_win, output_buf, output_win = open_input_window()
       local message = make_message({
         { type = 'text', text = 'look at' },
-        { type = 'file', filename = 'lua/opencode/foo.lua' },
+        { type = 'file', filename = 'lua/pi/foo.lua' },
         { type = 'text', text = 'thanks' },
       })
       input_window.refill_prompt_from_message(message)

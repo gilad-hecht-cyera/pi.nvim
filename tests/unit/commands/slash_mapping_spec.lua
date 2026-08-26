@@ -1,20 +1,22 @@
 local assert = require('luassert')
-local Promise = require('opencode.promise')
+local Promise = require('pi.promise')
 
 describe('slash command mapping', function()
   local slash
   local original_notify
   local captured_parsed
   local captured_ctx
-  local user_commands
+  local prompts
+  local rpc_commands
 
   before_each(function()
     original_notify = vim.notify
     captured_parsed = {}
     captured_ctx = {}
-    user_commands = nil
+    prompts = {}
+    rpc_commands = nil
 
-    package.loaded['opencode.commands'] = {
+    package.loaded['pi.commands'] = {
       get_commands = function()
         return {
           agent = { desc = 'Agent', nargs = '*' },
@@ -54,57 +56,68 @@ describe('slash command mapping', function()
       end,
     }
 
-    package.loaded['opencode.config_file'] = {
-      get_user_commands = function()
-        local p = Promise.new()
-        p:resolve(user_commands)
-        return p
+    package.loaded['pi.rpc_client'] = {
+      get = function()
+        return {
+          get_commands = function()
+            return Promise.new():resolve({ commands = rpc_commands or {} })
+          end,
+          prompt = function(_, message)
+            table.insert(prompts, message)
+            return Promise.new():resolve({})
+          end,
+        }
       end,
     }
 
-    package.loaded['opencode.log'] = {
+    package.loaded['pi.services.session_runtime'] = {
+      open = function()
+        return Promise.new():resolve({})
+      end,
+    }
+
+    package.loaded['pi.log'] = {
       notify = function() end,
     }
 
     vim.notify = function() end
 
-    package.loaded['opencode.commands.slash'] = nil
-    slash = require('opencode.commands.slash')
+    package.loaded['pi.commands.slash'] = nil
+    slash = require('pi.commands.slash')
   end)
 
   after_each(function()
     vim.notify = original_notify
 
-    package.loaded['opencode.commands'] = nil
-    package.loaded['opencode.commands.slash'] = nil
-    package.loaded['opencode.config_file'] = nil
-    package.loaded['opencode.log'] = nil
+    package.loaded['pi.commands'] = nil
+    package.loaded['pi.commands.slash'] = nil
+    package.loaded['pi.rpc_client'] = nil
+    package.loaded['pi.services.session_runtime'] = nil
+    package.loaded['pi.log'] = nil
   end)
 
-  it('maps builtin preset /agent to ParsedIntent and dispatches', function()
+  it('maps builtin local /help to ParsedIntent and dispatches', function()
     local slash_commands = slash.get_commands():wait()
     local cmd
     for _, entry in ipairs(slash_commands) do
-      if entry.slash_cmd == '/agent' then
+      if entry.slash_cmd == '/help' then
         cmd = entry
         break
       end
     end
 
     assert.truthy(cmd)
-    cmd.fn({ 'build' })
+    cmd.fn({})
 
     assert.equal(1, #captured_parsed)
-    assert.same('agent', captured_parsed[1].intent.name)
-    assert.same({ 'select', 'build' }, captured_parsed[1].intent.args)
-    assert.same({ 'agent', 'select', 'build' }, captured_parsed[1].intent.source.argv)
-    assert.equal('agent select build', captured_parsed[1].intent.source.raw_args)
+    assert.same('help', captured_parsed[1].intent.name)
+    assert.same({}, captured_parsed[1].intent.args)
     assert.equal(1, #captured_ctx)
   end)
 
-  it('maps user slash command to command intent and dispatches', function()
-    user_commands = {
-      build = { description = 'Build project' },
+  it('maps RPC slash command to Pi prompt', function()
+    rpc_commands = {
+      { name = 'build', description = 'Build project' },
     }
 
     local slash_commands = slash.get_commands():wait()
@@ -117,13 +130,8 @@ describe('slash command mapping', function()
     end
 
     assert.truthy(cmd)
-    cmd.fn({ '--fast' })
+    cmd.fn({ '--fast' }):wait()
 
-    assert.equal(1, #captured_parsed)
-    assert.same('command', captured_parsed[1].intent.name)
-    assert.same({ 'build', '--fast' }, captured_parsed[1].intent.args)
-    assert.same({ 'command', 'build', '--fast' }, captured_parsed[1].intent.source.argv)
-    assert.equal('command build --fast', captured_parsed[1].intent.source.raw_args)
-    assert.equal(1, #captured_ctx)
+    assert.same({ '/build --fast' }, prompts)
   end)
 end)

@@ -65,25 +65,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_cbe0c07af001FqFiaeygb5fC3O]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -103,7 +103,7 @@
         "virt_text": [
           [
             " 2026-03-05 12:49:45",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -122,7 +122,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -142,7 +142,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -162,25 +162,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/claude-sonnet-4.6",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_cbe0c07c80010ERhOWZYJtLMGJ]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -200,7 +200,7 @@
         "virt_text": [
           [
             " 2026-03-05 12:49:45",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -219,7 +219,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -239,7 +239,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -259,7 +259,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -279,7 +279,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -299,7 +299,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -319,7 +319,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -339,7 +339,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -359,7 +359,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -379,7 +379,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -399,7 +399,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -419,7 +419,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -439,7 +439,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -459,7 +459,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -479,7 +479,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -499,7 +499,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -519,7 +519,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -539,7 +539,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -559,7 +559,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -579,7 +579,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -599,7 +599,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -619,7 +619,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -639,7 +639,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -659,7 +659,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -679,7 +679,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -699,7 +699,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -719,7 +719,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -739,7 +739,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -759,7 +759,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -779,7 +779,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -799,7 +799,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -819,7 +819,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -839,7 +839,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -859,7 +859,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -879,7 +879,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -899,7 +899,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -919,7 +919,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -939,7 +939,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -959,7 +959,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -979,7 +979,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -999,7 +999,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1019,7 +1019,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1039,7 +1039,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1059,7 +1059,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1079,7 +1079,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1099,7 +1099,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1119,7 +1119,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1139,7 +1139,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1159,7 +1159,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1179,7 +1179,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1199,7 +1199,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1219,7 +1219,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1239,7 +1239,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1259,7 +1259,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1279,7 +1279,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1299,7 +1299,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1319,7 +1319,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1339,7 +1339,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1359,7 +1359,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1379,7 +1379,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1399,7 +1399,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1419,7 +1419,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1439,7 +1439,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1459,7 +1459,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1479,7 +1479,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1499,7 +1499,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1519,7 +1519,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1539,7 +1539,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1559,7 +1559,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1579,7 +1579,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1599,7 +1599,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1619,25 +1619,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/claude-sonnet-4.6",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_cbe0d01950013Y9CVnC8K3Yyef]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -1657,7 +1657,7 @@
         "virt_text": [
           [
             " 2026-03-05 12:50:49",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -1677,24 +1677,24 @@
     "",
     "**  task** `Find task tool rendering (@explore)` 60s",
     "",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/`",
     " **  glob** `**/*.lua`",
-    " **  grep** `/home/francis/Projects/_nvim/opencode.nvim/lua task`",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/ui/output.lua`",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/ui/formatter.lua`",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/types.lua`",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/ui/icons.lua`",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/ui/formatter.lua`",
-    " **  grep** `/home/francis/Projects/_nvim/opencode.nvim/lua format_tool_part\\|_format_task_tool\\|format_action`",
-    " **  grep** `/home/francis/Projects/_nvim/opencode.nvim/lua _format_tool\\b`",
-    " **  grep** `/home/francis/Projects/_nvim/opencode.nvim/tests task`",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/ui/formatter.lua`",
-    " **  grep** `/home/francis/Projects/_nvim/opencode.nvim/tests _format_task\\|task_tool\\|TaskTool`",
-    " **  grep** `/home/francis/Projects/_nvim/opencode.nvim/tests task`",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/tests/unit/formatter_spec.lua`",
-    " **  read** `/home/francis/Projects/_nvim/opencode.nvim/tests/replay/renderer_spec.lua`",
+    " **  grep** `/home/francis/Projects/_nvim/pi.nvim/lua task`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/lua/pi/ui/output.lua`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/lua/pi/ui/formatter.lua`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/lua/pi/types.lua`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/lua/pi/ui/icons.lua`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/lua/pi/ui/formatter.lua`",
+    " **  grep** `/home/francis/Projects/_nvim/pi.nvim/lua format_tool_part\\|_format_task_tool\\|format_action`",
+    " **  grep** `/home/francis/Projects/_nvim/pi.nvim/lua _format_tool\\b`",
+    " **  grep** `/home/francis/Projects/_nvim/pi.nvim/tests task`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/lua/pi/ui/formatter.lua`",
+    " **  grep** `/home/francis/Projects/_nvim/pi.nvim/tests _format_task\\|task_tool\\|TaskTool`",
+    " **  grep** `/home/francis/Projects/_nvim/pi.nvim/tests task`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/tests/unit/formatter_spec.lua`",
+    " **  read** `/home/francis/Projects/_nvim/pi.nvim/tests/replay/renderer_spec.lua`",
     " **  glob** `**/*.json`",
-    " **  grep** `/home/francis/Projects/_nvim/opencode.nvim/tests/data task`",
+    " **  grep** `/home/francis/Projects/_nvim/pi.nvim/tests/data task`",
     "",
     "task_id: ses_341f3e676ffez6WUF6zpok7dUZ (for resuming to continue this task if needed)",
     "",
@@ -1707,7 +1707,7 @@
     "",
     "### 1. Primary rendering logic",
     "",
-    "**`/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/ui/formatter.lua`**",
+    "**`/home/francis/Projects/_nvim/pi.nvim/lua/pi/ui/formatter.lua`**",
     "",
     "This is the main file where task tool rendering happens.",
     "",
@@ -1725,7 +1725,7 @@
     "",
     "### 2. Type definitions",
     "",
-    "**`/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/types.lua`**",
+    "**`/home/francis/Projects/_nvim/pi.nvim/lua/pi/types.lua`**",
     "",
     "| Lines | What it defines |",
     "|-------|----------------|",
@@ -1738,7 +1738,7 @@
     "",
     "### 3. Icon definitions",
     "",
-    "**`/home/francis/Projects/_nvim/opencode.nvim/lua/opencode/ui/icons.lua`**",
+    "**`/home/francis/Projects/_nvim/pi.nvim/lua/pi/ui/icons.lua`**",
     "",
     "| Lines | What it defines |",
     "|-------|----------------|",
@@ -1748,7 +1748,7 @@
     "----",
     "",
     "",
-    "The task tool is rendered primarily in `lua/opencode/ui/formatter.lua`:",
+    "The task tool is rendered primarily in `lua/pi/ui/formatter.lua`:",
     "",
     "- **Lines 665–735** — `M._format_tool()`: the central dispatch function that routes tool names to their specific formatters. The `'task'` branch is at **lines 700–707**.",
     "- **Lines 737–801** — `M._format_task_tool()`: the full task tool renderer, which:",
@@ -1757,8 +1757,8 @@
     "  - Attaches a `select_child_session` contextual action (lines 793–800)",
     "",
     "Supporting files:",
-    "- `lua/opencode/types.lua:228–308` — type definitions for `TaskToolInput`, `TaskToolMetadata`, and `TaskToolSummaryItem`",
-    "- `lua/opencode/ui/icons.lua:13,55` — icon definitions for the task tool",
+    "- `lua/pi/types.lua:228–308` — type definitions for `TaskToolInput`, `TaskToolMetadata`, and `TaskToolSummaryItem`",
+    "- `lua/pi/ui/icons.lua:13,55` — icon definitions for the task tool",
     "",
     ""
   ],

@@ -1,17 +1,17 @@
-local api = require('opencode.api')
-local commands = require('opencode.commands')
-local command_parse = require('opencode.commands.parse')
-local slash = require('opencode.commands.slash')
-local session_runtime = require('opencode.services.session_runtime')
-local messaging = require('opencode.services.messaging')
-local agent_model = require('opencode.services.agent_model')
-local context = require('opencode.context')
-local input_window = require('opencode.ui.input_window')
-local ui = require('opencode.ui.ui')
-local state = require('opencode.state')
+local api = require('pi.api')
+local commands = require('pi.commands')
+local command_parse = require('pi.commands.parse')
+local slash = require('pi.commands.slash')
+local session_runtime = require('pi.services.session_runtime')
+local messaging = require('pi.services.messaging')
+local agent_model = require('pi.services.agent_model')
+local context = require('pi.context')
+local input_window = require('pi.ui.input_window')
+local ui = require('pi.ui.ui')
+local state = require('pi.state')
 local stub = require('luassert.stub')
 local assert = require('luassert')
-local Promise = require('opencode.promise')
+local Promise = require('pi.promise')
 
 ---@param id string
 ---@return Session
@@ -26,9 +26,9 @@ local function mk_session(id)
   }
 end
 
----@return OpencodeApiClient
+---@return PiApiClient
 local function mk_api_client_for_test()
-  ---@type OpencodeApiClient
+  ---@type PiApiClient
   local client = {
     base_url = 'http://127.0.0.1:4000',
     create_message = function(_, _, _)
@@ -67,7 +67,7 @@ end
 ---@param user_commands table<string, any>|nil
 ---@param fn fun()
 local function with_user_commands(user_commands, fn)
-  local config_file = require('opencode.config_file')
+  local config_file = require('pi.config_file')
   local original_get_user_commands = config_file.get_user_commands
 
   config_file.get_user_commands = function()
@@ -81,18 +81,44 @@ local function with_user_commands(user_commands, fn)
   end
 end
 
+---@param rpc_commands table[]|nil
+---@param fn fun()
+local function with_rpc_commands(rpc_commands, fn)
+  local rpc_client = require('pi.rpc_client')
+  local original_get = rpc_client.get
+  local prompts = {}
+
+  rpc_client.get = function()
+    return {
+      get_commands = function()
+        return resolved({ commands = rpc_commands or {} })
+      end,
+      prompt = function(_, message)
+        table.insert(prompts, message)
+        return resolved('done')
+      end,
+    }
+  end
+
+  local ok, err = pcall(fn, prompts)
+  rpc_client.get = original_get
+  if not ok then
+    error(err)
+  end
+end
+
 ---@param config table
 ---@param fn fun()
-local function with_opencode_config(config, fn)
-  local config_file = require('opencode.config_file')
-  local original_get_opencode_config = config_file.get_opencode_config
+local function with_pi_config(config, fn)
+  local config_file = require('pi.config_file')
+  local original_get_pi_config = config_file.get_pi_config
 
-  config_file.get_opencode_config = function()
+  config_file.get_pi_config = function()
     return resolved(config)
   end
 
   local ok, err = pcall(fn)
-  config_file.get_opencode_config = original_get_opencode_config
+  config_file.get_pi_config = original_get_pi_config
   if not ok then
     error(err)
   end
@@ -142,7 +168,7 @@ local function find_slash_command(commands_list, slash_name)
   return nil
 end
 
-describe('opencode.api', function()
+describe('pi.api', function()
   local created_commands = {}
 
   before_each(function()
@@ -186,15 +212,13 @@ describe('opencode.api', function()
       assert.equal('user_commands', defs.command.completion_provider_id)
     end)
 
-    it('keeps slash command strings parseable against command schema', function()
-      local command_defs = commands.get_commands()
+    it('loads built-in slash commands alongside Pi RPC commands', function()
+      with_rpc_commands({ { name = 'build', description = 'Build the project' } }, function()
+        local slash_commands = slash.get_commands():wait()
 
-      for slash_name, slash_def in pairs(slash.get_builtin_command_definitions()) do
-        if slash_def.cmd_str then
-          local parsed = command_parse.command({ args = slash_def.cmd_str, range = 0 }, command_defs)
-          assert.is_true(parsed.ok, 'Slash command drift: ' .. slash_name)
-        end
-      end
+        assert.truthy(find_slash_command(slash_commands, '/help'))
+        assert.truthy(find_slash_command(slash_commands, '/build'))
+      end)
     end)
   end)
 
@@ -225,17 +249,17 @@ describe('opencode.api', function()
   end)
 
   describe('setup', function()
-    it('registers the main Opencode command', function()
+    it('registers the main Pi command', function()
       commands.setup()
 
       assert.equal(1, #created_commands)
-      assert.equal('Opencode', created_commands[1].name)
-      assert.equal('Opencode.nvim main command with nested subcommands', created_commands[1].opts.desc)
+      assert.equal('Pi', created_commands[1].name)
+      assert.equal('pi.nvim main command with nested subcommands', created_commands[1].opts.desc)
     end)
   end)
 
   describe('public boundary', function()
-    it('does not expose command layer APIs via opencode.api', function()
+    it('does not expose command layer APIs via pi.api', function()
       assert.is_nil(api.setup)
       assert.is_nil(api.get_slash_commands)
       assert.is_nil(api.commands)
@@ -244,7 +268,7 @@ describe('opencode.api', function()
 
   describe('actions consolidation', function()
     it('keeps display/permission/history/session APIs callable from api', function()
-      assert.is_nil(package.loaded['opencode.actions'])
+      assert.is_nil(package.loaded['pi.actions'])
 
       assert.is_function(api.close)
       assert.is_function(api.hide)
@@ -358,11 +382,11 @@ describe('opencode.api', function()
 
           local after_run_stub = stub(messaging, 'after_run')
           local send_message_stub = stub(messaging, 'send_message').invokes(function(prompt)
-            require('opencode.services.messaging').after_run(prompt)
+            require('pi.services.messaging').after_run(prompt)
             return true
           end)
           local handle_submit_stub = stub(input_window, 'handle_submit').invokes(function()
-            require('opencode.services.messaging').send_message('hello')
+            require('pi.services.messaging').send_message('hello')
             return true
           end)
           local is_hidden_stub = stub(input_window, 'is_hidden').returns(true)
@@ -436,7 +460,7 @@ describe('opencode.api', function()
 
         assert
           .stub(notify_stub)
-          .was_called_with('No user commands found. Please check your opencode config file.', vim.log.levels.WARN)
+          .was_called_with('No user commands found. Please check your pi config file.', vim.log.levels.WARN)
 
         notify_stub:revert()
       end)
@@ -449,7 +473,7 @@ describe('opencode.api', function()
         ['build'] = { description = 'Build the project' },
         ['deploy'] = { description = 'Deploy to production' },
       }, function()
-        local completions = commands.complete_command('b', 'Opencode command b', 18)
+        local completions = commands.complete_command('b', 'Pi command b', 18)
         assert.same({ 'build' }, completions)
       end)
     end)
@@ -460,14 +484,14 @@ describe('opencode.api', function()
         ['test'] = { description = 'Run tests' },
         ['deploy'] = { description = 'Deploy to production' },
       }, function()
-        local completions = commands.complete_command('', 'Opencode command ', 17)
+        local completions = commands.complete_command('', 'Pi command ', 17)
         assert.same({ 'build', 'deploy', 'test' }, completions)
       end)
     end)
 
     it('returns empty array when no user commands exist', function()
       with_user_commands(nil, function()
-        local completions = commands.complete_command('', 'Opencode command ', 17)
+        local completions = commands.complete_command('', 'Pi command ', 17)
         assert.same({}, completions)
       end)
     end)
@@ -482,7 +506,7 @@ describe('opencode.api', function()
       })
 
       assert.has_no.errors(function()
-        local completions = commands.complete_command('', 'Opencode broken ', 16)
+        local completions = commands.complete_command('', 'Pi broken ', 16)
         assert.same({}, completions)
       end)
 
@@ -496,72 +520,45 @@ describe('opencode.api', function()
         stub(api, 'open_input').invokes(function()
           return resolved('done')
         end)
-        local config_file = require('opencode.config_file')
-        stub(config_file, 'get_opencode_agents').returns(resolved({ 'plan', 'build' }))
+        local config_file = require('pi.config_file')
+        stub(config_file, 'get_pi_agents').returns(resolved({ 'plan', 'build' }))
       end)
 
       it('invokes run with correct model and agent', function()
-        with_user_commands({
-          ['test-with-model'] = {
-            description = 'Run tests',
-            template = 'Run tests with $ARGUMENTS',
-            model = 'openai/gpt-4',
-            agent = 'tester',
-          },
-        }, function()
-          with_session_client_snapshot(function()
-            state.session.set_active(mk_session('test-session'))
+        with_rpc_commands({
+          { name = 'test-with-model', description = 'Run tests' },
+        }, function(prompts)
+          local slash_commands = slash.get_commands():wait()
+          local test_with_model_cmd = find_slash_command(slash_commands, '/test-with-model')
 
-            local send_command_calls = {}
-            state.jobs.set_api_client({
-              base_url = 'http://127.0.0.1:4000',
-              send_command = function(_self, session_id, command_data)
-                table.insert(send_command_calls, { session_id = session_id, command_data = command_data })
-                return {
-                  and_then = function()
-                    return {}
-                  end,
-                }
-              end,
-            })
+          assert.truthy(test_with_model_cmd, 'Should find /test-with-model command')
 
-            local slash_commands = slash.get_commands():wait()
-            local test_with_model_cmd = find_slash_command(slash_commands, '/test-with-model')
-
-            assert.truthy(test_with_model_cmd, 'Should find /test-with-model command')
-
-            test_with_model_cmd.fn():wait()
-            assert.equal(1, #send_command_calls)
-            assert.equal('test-session', send_command_calls[1].session_id)
-            assert.equal('test-with-model', send_command_calls[1].command_data.command)
-            assert.equal('', send_command_calls[1].command_data.arguments)
-            assert.equal('openai/gpt-4', send_command_calls[1].command_data.model)
-            assert.equal('tester', send_command_calls[1].command_data.agent)
-          end)
+          test_with_model_cmd.fn({ 'unit' }):wait()
+          assert.same({ '/test-with-model unit' }, prompts)
         end)
       end)
     end)
 
     it('uses default description when none provided', function()
-      with_user_commands({ ['custom'] = {} }, function()
+      with_rpc_commands({ { name = 'custom' } }, function()
         local slash_commands = slash.get_commands():wait()
         local custom_cmd = find_slash_command(slash_commands, '/custom')
 
         assert.truthy(custom_cmd, 'Should include /custom command')
-        assert.equal('User command', custom_cmd.desc)
+        assert.equal('Pi command', custom_cmd.desc)
       end)
     end)
 
     it('includes built-in slash commands alongside user commands', function()
-      with_user_commands({
-        ['build'] = { description = 'Build the project' },
+      with_rpc_commands({
+        { name = 'build', description = 'Build the project' },
       }, function()
         local slash_commands = slash.get_commands():wait()
         local help_cmd = find_slash_command(slash_commands, '/help')
         local build_cmd = find_slash_command(slash_commands, '/build')
 
         assert.truthy(help_cmd, 'Should include built-in /help command')
-        assert.truthy(build_cmd, 'Should include user /build command')
+        assert.truthy(build_cmd, 'Should include Pi /build command')
       end)
     end)
   end)
@@ -582,7 +579,7 @@ describe('opencode.api', function()
         state.model.clear_mode()
         state.renderer.set_messages(nil)
 
-        with_opencode_config({ model = 'testmodel' }, function()
+        with_pi_config({ model = 'testmodel' }, function()
           local model = api.current_model():wait()
           assert.equal('testmodel', model)
         end)

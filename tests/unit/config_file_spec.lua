@@ -1,10 +1,12 @@
-local config_file = require('opencode.config_file')
-local Promise = require('opencode.promise')
-local state = require('opencode.state')
+local config_file = require('pi.config_file')
+local config = require('pi.config')
+local Promise = require('pi.promise')
+local state = require('pi.state')
 
 describe('config_file.setup', function()
   local original_schedule
   local original_api_client
+  local original_backend
 
   before_each(function()
     original_schedule = vim.schedule
@@ -12,12 +14,15 @@ describe('config_file.setup', function()
       fn()
     end
     original_api_client = state.api_client
+    original_backend = config.backend
+    config.backend = 'config_file'
     config_file.config_promise = nil
     config_file.project_promise = nil
   end)
 
   after_each(function()
     vim.schedule = original_schedule
+    config.backend = original_backend
     state.jobs.set_api_client(original_api_client)
   end)
 
@@ -41,17 +46,17 @@ describe('config_file.setup', function()
       assert.falsy(config_file.project_promise)
 
       -- Accessing config should trigger lazy loading
-      local resolved_cfg = config_file.get_opencode_config():await()
+      local resolved_cfg = config_file.get_pi_config():await()
       assert.same(cfg, resolved_cfg)
       assert.True(get_config_called)
 
       -- Project should be loaded when accessed
-      local project = config_file.get_opencode_project():await()
+      local project = config_file.get_pi_project():await()
       assert.True(get_project_called)
     end):wait()
   end)
 
-  it('get_opencode_agents returns primary + defaults', function()
+  it('get_pi_agents returns primary + defaults', function()
     Promise.spawn(function()
       state.jobs.set_api_client({
         get_config = function()
@@ -61,14 +66,14 @@ describe('config_file.setup', function()
           return Promise.new():resolve({ id = 'p1' })
         end,
       })
-      local agents = config_file.get_opencode_agents():await()
+      local agents = config_file.get_pi_agents():await()
       assert.True(vim.tbl_contains(agents, 'custom'))
       assert.True(vim.tbl_contains(agents, 'build'))
       assert.True(vim.tbl_contains(agents, 'plan'))
     end):wait()
   end)
 
-  it('get_opencode_agents respects disabled defaults', function()
+  it('get_pi_agents respects disabled defaults', function()
     Promise.spawn(function()
       state.jobs.set_api_client({
         get_config = function()
@@ -84,14 +89,14 @@ describe('config_file.setup', function()
           return Promise.new():resolve({ id = 'p1' })
         end,
       })
-      local agents = config_file.get_opencode_agents():await()
+      local agents = config_file.get_pi_agents():await()
       assert.True(vim.tbl_contains(agents, 'custom'))
       assert.False(vim.tbl_contains(agents, 'build'))
       assert.True(vim.tbl_contains(agents, 'plan'))
     end):wait()
   end)
 
-  it('get_opencode_agents filters out hidden agents', function()
+  it('get_pi_agents filters out hidden agents', function()
     Promise.spawn(function()
       state.jobs.set_api_client({
         get_config = function()
@@ -107,7 +112,7 @@ describe('config_file.setup', function()
           return Promise.new():resolve({ id = 'p1' })
         end,
       })
-      local agents = config_file.get_opencode_agents():await()
+      local agents = config_file.get_pi_agents():await()
       assert.True(vim.tbl_contains(agents, 'custom'))
       assert.False(vim.tbl_contains(agents, 'compaction'))
       assert.False(vim.tbl_contains(agents, 'title'))
@@ -195,7 +200,7 @@ describe('config_file.setup', function()
     end):wait()
   end)
 
-  it('get_opencode_project returns project', function()
+  it('get_pi_project returns project', function()
     Promise.spawn(function()
       local project = { id = 'p1', name = 'X' }
       state.jobs.set_api_client({
@@ -206,7 +211,7 @@ describe('config_file.setup', function()
           return Promise.new():resolve(project)
         end,
       })
-      local proj = config_file.get_opencode_project():await()
+      local proj = config_file.get_pi_project():await()
       assert.same(project, proj)
     end):wait()
   end)

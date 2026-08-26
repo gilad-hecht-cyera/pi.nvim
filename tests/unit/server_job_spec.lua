@@ -1,22 +1,22 @@
-local server_job = require('opencode.server_job')
-local Promise = require('opencode.promise')
+local server_job = require('pi.server_job')
+local Promise = require('pi.promise')
 
-local curl = require('opencode.curl')
+local curl = require('pi.curl')
 local assert = require('luassert')
 
 describe('server_job', function()
   local original_curl_request
-  local opencode_server = require('opencode.opencode_server')
+  local pi_server = require('pi.pi_server')
   local original_new
 
   before_each(function()
     original_curl_request = curl.request
-    original_new = opencode_server.new
+    original_new = pi_server.new
   end)
 
   after_each(function()
     curl.request = original_curl_request
-    opencode_server.new = original_new
+    pi_server.new = original_new
   end)
 
   it('exposes expected public functions', function()
@@ -26,7 +26,7 @@ describe('server_job', function()
   end)
 
   it('call_api resolves with decoded json and toggles is_job_running', function()
-    local state = require('opencode.state')
+    local state = require('pi.state')
     curl.request = function(opts)
       -- simulate async callback
       vim.schedule(function()
@@ -80,7 +80,10 @@ describe('server_job', function()
     assert.same({ 'part1', 'part2' }, collected)
   end)
 
-  it('ensure_server spawns a new opencode server only once', function()
+  it('ensure_server spawns a new pi server only once', function()
+    local config = require('pi.config')
+    local original_backend = config.values.backend
+    config.values.backend = 'http'
     local spawn_count = 0
     local fake = {
       url = 'http://127.0.0.1:4000',
@@ -98,7 +101,7 @@ describe('server_job', function()
         return Promise.new():resolve(true)
       end,
     }
-    opencode_server.new = function()
+    pi_server.new = function()
       return fake
     end
 
@@ -107,30 +110,33 @@ describe('server_job', function()
     local second = server_job.ensure_server():wait()
     assert.same(fake, second._value or second)
     assert.equal(1, spawn_count)
+    config.values.backend = original_backend
   end)
 
   describe('ensure_server with config.server.url set', function()
     local config
     local state
     local port_mapping
+    local original_backend
     local original_port
     local original_url
     local original_spawn_command
-    local original_opencode_server
+    local original_pi_server
     local original_find_any_existing_port
     local original_find_port_for_directory
     local original_started_by_nvim
     local original_register
 
     before_each(function()
-      config = require('opencode.config')
-      state = require('opencode.state')
-      port_mapping = require('opencode.port_mapping')
+      config = require('pi.config')
+      state = require('pi.state')
+      port_mapping = require('pi.port_mapping')
 
+      original_backend = config.values.backend
       original_port = config.values.server.port
       original_url = config.values.server.url
       original_spawn_command = config.values.server.spawn_command
-      original_opencode_server = state.opencode_server
+      original_pi_server = state.pi_server
 
       original_find_any_existing_port = port_mapping.find_any_existing_port
       original_find_port_for_directory = port_mapping.find_port_for_directory
@@ -142,14 +148,16 @@ describe('server_job', function()
         return false
       end
 
+      config.values.backend = 'http'
       state.jobs.clear_server()
     end)
 
     after_each(function()
+      config.values.backend = original_backend
       config.values.server.port = original_port
       config.values.server.url = original_url
       config.values.server.spawn_command = original_spawn_command
-      state.jobs.set_server(original_opencode_server)
+      state.jobs.set_server(original_pi_server)
 
       port_mapping.find_any_existing_port = original_find_any_existing_port
       port_mapping.find_port_for_directory = original_find_port_for_directory
@@ -219,7 +227,7 @@ describe('server_job', function()
         end,
         shutdown = function() end,
       }
-      opencode_server.new = function()
+      pi_server.new = function()
         return fake_local
       end
 
@@ -258,7 +266,7 @@ describe('server_job', function()
         end,
         shutdown = function() end,
       }
-      opencode_server.new = function()
+      pi_server.new = function()
         return fake_local
       end
 
@@ -371,7 +379,7 @@ describe('server_job', function()
       end
 
       local spawn_count = 0
-      opencode_server.new = function()
+      pi_server.new = function()
         return {
           url = 'http://127.0.0.1:8080',
           port = nil,
@@ -401,8 +409,8 @@ describe('server_job', function()
   end)
 
   describe('authentication headers', function()
-    local config = require('opencode.config')
-    local auth = require('opencode.auth')
+    local config = require('pi.config')
+    local auth = require('pi.auth')
     local original_password
     local original_username
     local original_env_password
@@ -412,26 +420,26 @@ describe('server_job', function()
       auth.clear_cache()
       original_password = config.values.server.password
       original_username = config.values.server.username
-      original_env_password = vim.env.OPENCODE_SERVER_PASSWORD
-      original_env_username = vim.env.OPENCODE_SERVER_USERNAME
+      original_env_password = vim.env.PI_SERVER_PASSWORD
+      original_env_username = vim.env.PI_SERVER_USERNAME
       config.values.server.password = nil
       config.values.server.username = nil
-      vim.env.OPENCODE_SERVER_PASSWORD = nil
-      vim.env.OPENCODE_SERVER_USERNAME = nil
+      vim.env.PI_SERVER_PASSWORD = nil
+      vim.env.PI_SERVER_USERNAME = nil
     end)
 
     after_each(function()
       config.values.server.password = original_password
       config.values.server.username = original_username
       if original_env_password then
-        vim.env.OPENCODE_SERVER_PASSWORD = original_env_password
+        vim.env.PI_SERVER_PASSWORD = original_env_password
       else
-        vim.env.OPENCODE_SERVER_PASSWORD = nil
+        vim.env.PI_SERVER_PASSWORD = nil
       end
       if original_env_username then
-        vim.env.OPENCODE_SERVER_USERNAME = original_env_username
+        vim.env.PI_SERVER_USERNAME = original_env_username
       else
-        vim.env.OPENCODE_SERVER_USERNAME = nil
+        vim.env.PI_SERVER_USERNAME = nil
       end
     end)
 

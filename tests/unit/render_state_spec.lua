@@ -1,5 +1,5 @@
-local RenderState = require('opencode.ui.render_state')
-local state = require('opencode.state')
+local RenderState = require('pi.ui.render_state')
+local state = require('pi.state')
 
 describe('RenderState', function()
   local render_state
@@ -372,7 +372,7 @@ describe('RenderState', function()
 
     it('adds and gets targets by line and column', function()
       render_state:add_targets('part1', {
-        target('file', 1, 3, 12, { path = 'lua/opencode/init.lua' }),
+        target('file', 1, 3, 12, { path = 'lua/pi/init.lua' }),
       })
 
       local result = render_state:get_target_at_position(1, 3)
@@ -381,7 +381,7 @@ describe('RenderState', function()
       assert.equals('file', result.kind)
       assert.equals('part1', result.part_id)
       assert.equals('msg1', result.message_id)
-      assert.equals('lua/opencode/init.lua', result.path)
+      assert.equals('lua/pi/init.lua', result.path)
       assert.is_nil(render_state:get_target_at_position(1, 12))
     end)
 

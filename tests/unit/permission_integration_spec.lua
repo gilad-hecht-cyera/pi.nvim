@@ -1,9 +1,9 @@
-local state = require('opencode.state')
-local permission_window = require('opencode.ui.permission_window')
-local events = require('opencode.ui.renderer.events')
-local ctx = require('opencode.ui.renderer.ctx')
-local output_window = require('opencode.ui.output_window')
-local flush = require('opencode.ui.renderer.flush')
+local state = require('pi.state')
+local permission_window = require('pi.ui.permission_window')
+local events = require('pi.ui.renderer.events')
+local ctx = require('pi.ui.renderer.ctx')
+local output_window = require('pi.ui.output_window')
+local flush = require('pi.ui.renderer.flush')
 local helpers = require('tests.helpers')
 
 describe('permission_integration', function()
@@ -414,7 +414,7 @@ describe('permission and question display ordering', function()
 
   after_each(function()
     if state.windows then
-      require('opencode.ui.ui').close_windows(state.windows)
+      require('pi.ui.ui').close_windows(state.windows)
     end
   end)
 
@@ -511,7 +511,7 @@ describe('permission prompt rendering', function()
     state.session.set_active({ id = 'session_123' })
     vim.api.nvim_set_current_win(state.windows.output_win)
 
-    local output_window_local = require('opencode.ui.output_window')
+    local output_window_local = require('pi.ui.output_window')
 
     local lines = {}
     for i = 1, 40 do
@@ -542,8 +542,8 @@ describe('permission prompt rendering', function()
 end)
 
 describe('cross-session realtime permission and question events', function()
-  local event_scope = require('opencode.ui.event_scope')
-  local question_window = require('opencode.ui.question_window')
+  local event_scope = require('pi.ui.event_scope')
+  local question_window = require('pi.ui.question_window')
 
   before_each(function()
     state.renderer.set_messages({})

@@ -5,16 +5,16 @@ local DEFAULT_WORKSPACE = '/Users/jimmy/myproject1'
 local DEFAULT_WORKSPACE_ID = 'Users-jimmy-myproject1'
 local NON_EXISTENT_WORKSPACE = '/non/existent/path'
 
-local session = require('opencode.session')
+local session = require('pi.session')
 -- Use the existing mock data
 local session_list_mock = require('tests.mocks.session_list')
-local util = require('opencode.util')
+local util = require('pi.util')
 local assert = require('luassert')
-local config_file = require('opencode.config_file')
-local state = require('opencode.state')
-local Promise = require('opencode.promise')
+local config_file = require('pi.config_file')
+local state = require('pi.state')
+local Promise = require('pi.promise')
 
-describe('opencode.session', function()
+describe('pi.session', function()
   local original_is_git_project
   local original_fs_stat
   local original_readfile
@@ -22,7 +22,7 @@ describe('opencode.session', function()
   local original_fs_dir
   local original_isdirectory
   local original_json_decode
-  local original_get_opencode_project
+  local original_get_pi_project
   local original_api_client
   local session_files = {}
   local mock_data = {}
@@ -41,10 +41,10 @@ describe('opencode.session', function()
     original_workspace = vim.fn.getcwd
     original_isdirectory = vim.fn.isdirectory
     original_json_decode = vim.fn.json_decode
-    original_get_opencode_project = config_file.get_opencode_project
+    original_get_pi_project = config_file.get_pi_project
     original_api_client = state.api_client
     -- mock vim.fs and isdirectory
-    config_file.get_opencode_project = function()
+    config_file.get_pi_project = function()
       local p = Promise.new()
       p:resolve({ id = DEFAULT_WORKSPACE_ID })
       return p
@@ -204,7 +204,7 @@ describe('opencode.session', function()
     vim.uv.fs_stat = original_fs_stat
     vim.fn.json_decode = original_json_decode
     util.is_git_project = original_is_git_project
-    config_file.get_opencode_project = original_get_opencode_project
+    config_file.get_pi_project = original_get_pi_project
     state.jobs.set_api_client(original_api_client)
     mock_data = {}
   end)
@@ -228,7 +228,7 @@ describe('opencode.session', function()
       -- Mock a workspace with no sessions
       mock_data.workspace = NON_EXISTENT_WORKSPACE
 
-      config_file.get_opencode_project = function()
+      config_file.get_pi_project = function()
         local p = Promise.new()
         p:resolve({ id = NON_EXISTENT_WORKSPACE })
         return p

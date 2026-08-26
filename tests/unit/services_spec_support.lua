@@ -1,6 +1,6 @@
-local state = require('opencode.state')
-local store = require('opencode.state.store')
-local Promise = require('opencode.promise')
+local state = require('pi.state')
+local store = require('pi.state.store')
+local Promise = require('pi.promise')
 
 local M = {}
 

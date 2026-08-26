@@ -254,6 +254,16 @@ function RpcClient:get_session_stats()
   return self:request({ type = 'get_session_stats' })
 end
 
+function RpcClient:get_last_assistant_text()
+  return self:request({ type = 'get_last_assistant_text' }):and_then(function(data)
+    return data and data.text or nil
+  end)
+end
+
+function RpcClient:set_session_name(name)
+  return self:request({ type = 'set_session_name', name = name })
+end
+
 function RpcClient:compact(custom_instructions)
   return self:request({ type = 'compact', customInstructions = custom_instructions })
 end

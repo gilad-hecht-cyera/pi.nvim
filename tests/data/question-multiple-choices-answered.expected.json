@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_f5cc36bf6001DoYmNlAd9dSCzU]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2026-07-13 18:35:38",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -149,25 +149,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
-            "opencode/deepseek-v4-flash-free",
-            "OpencodeHint"
+            "pi/deepseek-v4-flash-free",
+            "PiHint"
           ],
           [
             " [msg_f5cc36c09001f6XapanTWR8RCk]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -187,7 +187,7 @@
         "virt_text": [
           [
             " 2026-07-13 18:35:38",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -200,14 +200,14 @@
       8,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -221,14 +221,14 @@
       9,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -242,14 +242,14 @@
       10,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -263,14 +263,14 @@
       11,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -290,7 +290,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -310,7 +310,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -330,7 +330,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -350,7 +350,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -370,25 +370,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
-            "opencode/deepseek-v4-flash-free",
-            "OpencodeHint"
+            "pi/deepseek-v4-flash-free",
+            "PiHint"
           ],
           [
             " [msg_f5cc3d92f001GCOb0OGsbQwZaI]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -408,7 +408,7 @@
         "virt_text": [
           [
             " 2026-07-13 18:36:06",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -421,14 +421,14 @@
       20,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -442,14 +442,14 @@
       21,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -463,14 +463,14 @@
       22,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -484,14 +484,14 @@
       23,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,

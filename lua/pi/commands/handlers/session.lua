@@ -11,7 +11,7 @@ local M = {
 }
 
 local session_subcommands =
-  { 'new', 'select', 'navigate', 'compact', 'share', 'unshare', 'agents_init', 'rename', 'toggle_lock' }
+  { 'new', 'select', 'navigate', 'compact', 'share', 'unshare', 'agents_init', 'rename', 'autoname', 'info', 'toggle_lock' }
 
 ---@param message string
 local function invalid_arguments(message)
@@ -364,6 +364,22 @@ function M.actions.initialize()
   end)()
 end
 
+---@param title string
+---@return string
+local function normalize_session_title(title)
+  title = vim.trim(title or '')
+  title = title:gsub('^```[%w_-]*%s*', ''):gsub('%s*```$', '')
+  title = title:gsub('^#+%s*', ''):gsub("^[\"'`]+", ''):gsub("[\"'`%.]+$", '')
+  title = title:gsub('%s+', ' ')
+
+  local words = vim.split(title, '%s+', { trimempty = true })
+  if #words > 12 then
+    title = table.concat(vim.list_slice(words, 1, 12), ' ')
+  end
+
+  return vim.trim(title)
+end
+
 ---@param current_session? Session
 ---@param new_title? string
 function M.actions.rename_session(current_session, new_title)
@@ -415,6 +431,73 @@ function M.actions.rename_session(current_session, new_title)
 
     return promise
   end)(current_session, new_title)
+end
+
+function M.actions.autoname_session()
+  return with_active_session('No active session to rename', function(state_obj)
+    return Promise.async(function()
+      local rpc = require('pi.rpc_client').get()
+      local previous_text = normalize_session_title(rpc:get_last_assistant_text():await() or '')
+      local done = Promise.new()
+      local finished = false
+
+      local function finish()
+        if finished then
+          return
+        end
+        finished = true
+
+        local suggested = normalize_session_title(rpc:get_last_assistant_text():await() or '')
+        if suggested == '' or suggested == previous_text then
+          vim.notify('Pi did not suggest a session name', vim.log.levels.WARN)
+          done:resolve(nil)
+          return
+        end
+
+        rpc:set_session_name(suggested):await()
+        if state_obj.active_session then
+          state_obj.active_session.title = suggested
+        end
+        vim.notify('Session name set: ' .. suggested, vim.log.levels.INFO)
+        done:resolve(suggested)
+      end
+
+      local on_idle
+      on_idle = function()
+        state_obj.event_manager:unsubscribe('session.idle', on_idle)
+        Promise.async(finish)():catch(function(err)
+          vim.notify('Failed to auto-name session: ' .. vim.inspect(err), vim.log.levels.ERROR)
+          done:resolve(nil)
+        end)
+      end
+      state_obj.event_manager:subscribe('session.idle', on_idle)
+
+      vim.defer_fn(function()
+        if finished then
+          return
+        end
+        finished = true
+        state_obj.event_manager:unsubscribe('session.idle', on_idle)
+        vim.notify('Timed out waiting for Pi to suggest a session name', vim.log.levels.WARN)
+        done:resolve(nil)
+      end, 120000)
+
+      rpc:prompt('Suggest a concise display name for this session. Respond with only the title, no quotes, no punctuation. Max 12 words; ideally 5-6 words.'):catch(function(err)
+        finished = true
+        state_obj.event_manager:unsubscribe('session.idle', on_idle)
+        vim.notify('Failed to ask Pi for a session name: ' .. vim.inspect(err), vim.log.levels.ERROR)
+        done:resolve(nil)
+      end)
+
+      return done:await()
+    end)()
+  end)
+end
+
+function M.actions.show_session_info()
+  return session_runtime.open({ new_session = false, focus = 'output' }):and_then(function()
+    return require('pi.rpc_client').get():prompt('/session')
+  end)
 end
 
 ---@param state_obj PiState
@@ -654,6 +737,12 @@ local session_subcommand_actions = {
   rename = function(args)
     return M.actions.rename_session(nil, parse_title(args, 2))
   end,
+  autoname = function()
+    return M.actions.autoname_session()
+  end,
+  info = function()
+    return M.actions.show_session_info()
+  end,
   select = function()
     return M.actions.select_session()
   end,
@@ -691,7 +780,7 @@ local session_subcommand_actions = {
 
 M.command_defs = {
   session = {
-    desc = 'Manage sessions (new/select/navigate/compact/share/unshare/rename/toggle_lock)',
+    desc = 'Manage sessions (new/select/navigate/compact/share/unshare/rename/autoname/info/toggle_lock)',
     completions = session_subcommands,
     nested_subcommand = { allow_empty = false },
     execute = function(args)
@@ -717,6 +806,16 @@ M.command_defs = {
       return M.actions.select_session()
     end,
   },
+  sessions = {
+    desc = 'Select session',
+    execute = function()
+      return M.actions.select_session()
+    end,
+  },
+  session_info = {
+    desc = 'Show Pi session info',
+    execute = M.actions.show_session_info,
+  },
   navigate_session_tree = {
     desc = 'Navigate session tree (parent/child/sibling/forward/backward) or switch to a session by ID',
     execute = function(args)
@@ -730,8 +829,12 @@ M.command_defs = {
   rename_session = {
     desc = 'Rename session',
     execute = function(args)
-      return M.actions.rename_session(nil, args[1])
+      return M.actions.rename_session(nil, parse_title(args, 1))
     end,
+  },
+  autoname_session = {
+    desc = 'Ask Pi to choose a concise session name',
+    execute = M.actions.autoname_session,
   },
   undo = {
     desc = 'Undo last action',

@@ -1,9 +1,9 @@
 -- tests/minimal/plugin_spec.lua
 -- Integration tests for the full plugin (lightweight)
 
-local Promise = require('opencode.promise')
+local Promise = require('pi.promise')
 
-describe('opencode.nvim plugin', function()
+describe('pi.nvim plugin', function()
   local original_schedule
   local original_ensure_server
   local original_api_client_new
@@ -16,24 +16,24 @@ describe('opencode.nvim plugin', function()
       fn()
     end
 
-    -- Mock vim.system for opencode version check
+    -- Mock vim.system for pi version check
     original_system = vim.system
     vim.system = function(_cmd, _opts)
       return {
         wait = function()
-          return { stdout = 'opencode 0.6.3' }
+          return { stdout = 'pi 0.6.3' }
         end,
       }
     end
 
-    -- Mock vim.fn.executable for opencode check
+    -- Mock vim.fn.executable for pi check
     original_executable = vim.fn.executable
     vim.fn.executable = function(_)
       return 1
     end
 
     -- Stub ensure_server so no real process is spawned
-    local server_job = require('opencode.server_job')
+    local server_job = require('pi.server_job')
     original_ensure_server = server_job.ensure_server
     server_job.ensure_server = function()
       return {
@@ -45,7 +45,7 @@ describe('opencode.nvim plugin', function()
     end
 
     -- Stub api_client constructor to return mock with needed methods
-    local api_client_mod = require('opencode.api_client')
+    local api_client_mod = require('pi.api_client')
     original_api_client_new = api_client_mod.new
     api_client_mod.new = function(url)
       return {
@@ -74,23 +74,23 @@ describe('opencode.nvim plugin', function()
     vim.system = original_system
     vim.fn.executable = original_executable
     if original_ensure_server then
-      require('opencode.server_job').ensure_server = original_ensure_server
+      require('pi.server_job').ensure_server = original_ensure_server
     end
     if original_api_client_new then
-      require('opencode.api_client').new = original_api_client_new
+      require('pi.api_client').new = original_api_client_new
     end
   end)
 
   it('loads the plugin without errors', function()
-    local opencode = require('opencode')
-    assert.truthy(opencode, 'Plugin should be loaded')
-    assert.is_function(opencode.setup, 'setup function should be available')
+    local pi = require('pi')
+    assert.truthy(pi, 'Plugin should be loaded')
+    assert.is_function(pi.setup, 'setup function should be available')
   end)
 
   it('can be set up with custom config', function()
-    local opencode = require('opencode')
+    local pi = require('pi')
 
-    opencode.setup({
+    pi.setup({
       default_global_keymaps = false,
       keymap = {
         editor = {
@@ -99,7 +99,7 @@ describe('opencode.nvim plugin', function()
       },
     })
 
-    local config = require('opencode.config')
+    local config = require('pi.config')
     assert.same({ 'toggle' }, config.keymap.editor['<leader>test'])
   end)
 end)

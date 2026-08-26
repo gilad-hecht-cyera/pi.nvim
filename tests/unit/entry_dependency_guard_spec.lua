@@ -2,8 +2,8 @@ local assert = require('luassert')
 
 describe('entry contracts', function()
   it('keeps default keymap string actions command-routable', function()
-    local config = require('opencode.config')
-    local commands = require('opencode.commands')
+    local config = require('pi.config')
+    local commands = require('pi.commands')
     local defs = commands.get_commands()
 
     local checked = 0
@@ -23,16 +23,13 @@ describe('entry contracts', function()
     assert.is_true(checked > 0, 'Expected to validate at least one keymap action')
   end)
 
-  it('keeps builtin slash commands command-addressable', function()
-    local commands = require('opencode.commands')
-    local slash = require('opencode.commands.slash')
-    local command_defs = commands.get_commands()
+  it('keeps builtin slash commands loadable', function()
+    local slash = require('pi.commands.slash')
+    local slash_commands = slash.get_commands():wait()
 
-    for slash_cmd, def in pairs(slash.get_builtin_command_definitions()) do
-      assert.is_string(def.cmd_str, slash_cmd .. ' should define cmd_str routing')
-      assert.is_true(#def.cmd_str > 0, slash_cmd .. ' cmd_str should not be empty')
-      local top_cmd = vim.split(def.cmd_str, ' ', { trimempty = true })[1]
-      assert.truthy(command_defs[top_cmd], slash_cmd .. ' points to unknown command: ' .. tostring(top_cmd))
-    end
+    assert.is_true(#slash_commands > 0, 'Expected built-in slash commands')
+    assert.truthy(vim.tbl_filter(function(command)
+      return command.slash_cmd == '/help' and type(command.fn) == 'function'
+    end, slash_commands)[1])
   end)
 end)

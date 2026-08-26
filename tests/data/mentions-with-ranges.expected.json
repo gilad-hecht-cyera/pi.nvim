@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_9daca16bf0017x95VD45mw3k8Q]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2025-10-12 23:38:21",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -147,7 +147,7 @@
         "end_right_gravity": false,
         "end_row": 3,
         "hl_eol": false,
-        "hl_group": "OpencodeMention",
+        "hl_group": "PiMention",
         "ns_id": 3,
         "priority": 1000,
         "right_gravity": true
@@ -164,7 +164,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -184,7 +184,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -196,13 +196,13 @@
     [
       8,
       5,
-      23,
+      29,
       {
         "end_col": 48,
         "end_right_gravity": false,
         "end_row": 5,
         "hl_eol": false,
-        "hl_group": "OpencodeMention",
+        "hl_group": "PiMention",
         "ns_id": 3,
         "priority": 1000,
         "right_gravity": true
@@ -219,7 +219,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -239,7 +239,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -259,7 +259,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -279,7 +279,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -299,7 +299,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -319,7 +319,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -339,7 +339,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -359,7 +359,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -379,7 +379,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -399,7 +399,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -419,7 +419,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -439,7 +439,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -459,7 +459,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -479,7 +479,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -499,7 +499,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -519,7 +519,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -533,7 +533,7 @@
     "----",
     "",
     "",
-    "when @lua/opencode/ui/streaming_renderer.lua renders a diff, only the first character, the + has the extmark. the rest of the line doesn't seem to have the highlight?",
+    "when @lua/pi/ui/streaming_renderer.lua renders a diff, only the first character, the + has the extmark. the rest of the line doesn't seem to have the highlight?",
     "",
     "here's an example from @tests/data/planning.json",
     "",
@@ -547,11 +547,11 @@
     "",
     "the - and the + are highlighted in the right color but none of the text is. any ideas?",
     "",
-    "[`lua/opencode/ui/streaming_renderer.lua`](lua/opencode/ui/streaming_renderer.lua)",
+    "[`lua/pi/ui/streaming_renderer.lua`](lua/pi/ui/streaming_renderer.lua)",
     "",
     "[`tests/data/planning.json`](tests/data/planning.json)",
     "",
-    "[`lua/opencode/ui/session_formatter.lua`](lua/opencode/ui/session_formatter.lua)",
+    "[`lua/pi/ui/session_formatter.lua`](lua/pi/ui/session_formatter.lua)",
     "",
     ""
   ],

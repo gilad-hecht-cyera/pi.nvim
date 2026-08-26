@@ -342,6 +342,24 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<Session>
 function PiApiClient:update_session(id, session_update, directory)
+  if config.backend == 'pi' then
+    local title = session_update and session_update.title or nil
+    if not title or title == '' then
+      return require('pi.promise').new():reject('Session title cannot be empty')
+    end
+    return require('pi.rpc_client').get():set_session_name(title):and_then(function()
+      return require('pi.rpc_client').get():get_state()
+    end):and_then(function(pi_state)
+      return {
+        id = pi_state.sessionFile or pi_state.sessionId or id or 'pi-session',
+        title = pi_state.sessionName or title,
+        time = { updated = vim.uv.now() },
+        path = pi_state.sessionFile,
+        sessionFile = pi_state.sessionFile,
+        sessionID = pi_state.sessionId,
+      }
+    end)
+  end
   return self:_call('/session/' .. id, 'PATCH', session_update, { directory = directory })
 end
 

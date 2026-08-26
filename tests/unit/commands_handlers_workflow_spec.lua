@@ -1,16 +1,16 @@
 local assert = require('luassert')
 local stub = require('luassert.stub')
 
-describe('opencode.commands.handlers.workflow', function()
+describe('pi.commands.handlers.workflow', function()
   local workflow
 
   before_each(function()
-    package.loaded['opencode.commands.handlers.workflow'] = nil
-    workflow = require('opencode.commands.handlers.workflow')
+    package.loaded['pi.commands.handlers.workflow'] = nil
+    workflow = require('pi.commands.handlers.workflow')
   end)
 
   after_each(function()
-    package.loaded['opencode.commands.handlers.workflow'] = nil
+    package.loaded['pi.commands.handlers.workflow'] = nil
   end)
 
   describe('prev_prompt_history (<up>)', function()
@@ -28,12 +28,12 @@ describe('opencode.commands.handlers.workflow', function()
       feedkeys = stub(vim.api, 'nvim_feedkeys')
       buf_line_count = stub(vim.api, 'nvim_buf_line_count')
 
-      local config = require('opencode.config')
+      local config = require('pi.config')
       get_key = stub(config, 'get_key_for_function').returns('<up>')
 
       prev_hist = stub(workflow.actions, 'prev_history')
 
-      history = require('opencode.history')
+      history = require('pi.history')
       history.index = nil
     end)
 
@@ -78,7 +78,7 @@ describe('opencode.commands.handlers.workflow', function()
 
     it('delegates to prev_history when key is not <up>', function()
       get_key:revert()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       get_key = stub(config, 'get_key_for_function').returns('<C-p>')
 
       workflow.actions.prev_prompt_history()
@@ -102,12 +102,12 @@ describe('opencode.commands.handlers.workflow', function()
       feedkeys = stub(vim.api, 'nvim_feedkeys')
       buf_line_count = stub(vim.api, 'nvim_buf_line_count')
 
-      local config = require('opencode.config')
+      local config = require('pi.config')
       get_key = stub(config, 'get_key_for_function').returns('<down>')
 
       next_hist = stub(workflow.actions, 'next_history')
 
-      history = require('opencode.history')
+      history = require('pi.history')
       history.index = nil
     end)
 
@@ -155,7 +155,7 @@ describe('opencode.commands.handlers.workflow', function()
 
     it('delegates to next_history when key is not <down>', function()
       get_key:revert()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       get_key = stub(config, 'get_key_for_function').returns('<C-n>')
 
       workflow.actions.next_prompt_history()
@@ -180,7 +180,7 @@ describe('opencode.commands.handlers.workflow', function()
       feedkeys = stub(vim.api, 'nvim_feedkeys')
       buf_line_count = stub(vim.api, 'nvim_buf_line_count')
 
-      history = require('opencode.history')
+      history = require('pi.history')
       history.index = 1
 
       prev_hist = stub(workflow.actions, 'prev_history')
@@ -199,7 +199,7 @@ describe('opencode.commands.handlers.workflow', function()
     end)
 
     it('<up> continues cycling when content matches history entry', function()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local get_key = stub(config, 'get_key_for_function').returns('<up>')
       get_cursor.returns({ 1, 0 })
       get_lines.returns({ 'match entry' })
@@ -212,7 +212,7 @@ describe('opencode.commands.handlers.workflow', function()
     end)
 
     it('<up> stops cycling when content differs from history entry', function()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local get_key = stub(config, 'get_key_for_function').returns('<up>')
       get_cursor.returns({ 1, 0 })
       get_lines.returns({ 'modified entry' })
@@ -225,7 +225,7 @@ describe('opencode.commands.handlers.workflow', function()
     end)
 
     it('<down> continues cycling when content matches history entry', function()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local get_key = stub(config, 'get_key_for_function').returns('<down>')
       get_cursor.returns({ 1, 0 })
       buf_line_count.returns(1)
@@ -239,7 +239,7 @@ describe('opencode.commands.handlers.workflow', function()
     end)
 
     it('<down> stops cycling when content differs from history entry', function()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local get_key = stub(config, 'get_key_for_function').returns('<down>')
       get_cursor.returns({ 1, 0 })
       buf_line_count.returns(1)
@@ -253,7 +253,7 @@ describe('opencode.commands.handlers.workflow', function()
     end)
 
     it('<up> matches multi-line content correctly against history entry', function()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local get_key = stub(config, 'get_key_for_function').returns('<up>')
       get_cursor.returns({ 1, 0 })
       get_lines.returns({ 'hello', 'world' })
@@ -266,7 +266,7 @@ describe('opencode.commands.handlers.workflow', function()
     end)
 
     it('<up> stops cycling when multi-line content differs', function()
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local get_key = stub(config, 'get_key_for_function').returns('<up>')
       get_cursor.returns({ 1, 0 })
       get_lines.returns({ 'hello', 'world!' })

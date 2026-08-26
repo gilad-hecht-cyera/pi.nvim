@@ -399,11 +399,17 @@ function EventManager:_on_drained_events(events)
   local collapsed_events = {}
   local part_update_indices = {}
 
+  local function part_update_key(part)
+    return part and part.id
+  end
+
   for i, event in ipairs(normalized_events) do
     if event.type == 'message.part.updated' and event.properties.part then
-      local part_id = event.properties.part.id
-      if part_update_indices[part_id] then
-        local previous_index = part_update_indices[part_id]
+      local part_key = part_update_key(event.properties.part)
+      if not part_key then
+        collapsed_events[i] = event
+      elseif part_update_indices[part_key] then
+        local previous_index = part_update_indices[part_key]
 
         -- Preserve ordering dependencies for permission events.
         -- Moving a later part update earlier can break correlation when
@@ -422,7 +428,7 @@ function EventManager:_on_drained_events(events)
         if has_intervening_permission_event then
           collapsed_events[previous_index] = nil
           collapsed_events[i] = event
-          part_update_indices[part_id] = i
+          part_update_indices[part_key] = i
         else
           -- Preserve state.input when the later event omits it. MCP tool
           -- completion events sometimes arrive with an empty input table,
@@ -448,7 +454,7 @@ function EventManager:_on_drained_events(events)
           collapsed_events[i] = nil
         end
       else
-        part_update_indices[part_id] = i
+        part_update_indices[part_key] = i
         collapsed_events[i] = event
       end
     else

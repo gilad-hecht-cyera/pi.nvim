@@ -1,26 +1,26 @@
-local loaded = rawget(_G, '__opencode_service_spec_loaded') or {}
-_G.__opencode_service_spec_loaded = loaded
+local loaded = rawget(_G, '__pi_service_spec_loaded') or {}
+_G.__pi_service_spec_loaded = loaded
 if loaded.services_session_runtime_spec then
   return
 end
 loaded.services_session_runtime_spec = true
 
-local session_runtime = require('opencode.services.session_runtime')
-local messaging = require('opencode.services.messaging')
-local agent_model = require('opencode.services.agent_model')
-local config_file = require('opencode.config_file')
-local config = require('opencode.config')
-local state = require('opencode.state')
-local store = require('opencode.state.store')
-local ui = require('opencode.ui.ui')
-local session = require('opencode.session')
-local Promise = require('opencode.promise')
+local session_runtime = require('pi.services.session_runtime')
+local messaging = require('pi.services.messaging')
+local agent_model = require('pi.services.agent_model')
+local config_file = require('pi.config_file')
+local config = require('pi.config')
+local state = require('pi.state')
+local store = require('pi.state.store')
+local ui = require('pi.ui.ui')
+local session = require('pi.session')
+local Promise = require('pi.promise')
 local stub = require('luassert.stub')
 local assert = require('luassert')
-local flush = require('opencode.ui.renderer.flush')
+local flush = require('pi.ui.renderer.flush')
 local support = require('tests.unit.services_spec_support')
 
-describe('opencode.services.session_runtime', function()
+describe('pi.services.session_runtime', function()
   local original
 
   before_each(function()
@@ -32,7 +32,7 @@ describe('opencode.services.session_runtime', function()
     vim.system = function(_cmd, _opts)
       return {
         wait = function()
-          return { stdout = 'opencode 0.6.3' }
+          return { stdout = 'pi 0.6.3' }
         end,
       }
     end
@@ -79,7 +79,7 @@ describe('opencode.services.session_runtime', function()
     end
     support.mock_api_client()
 
-    store.set('opencode_server', {
+    store.set('pi_server', {
       is_running = function()
         return true
       end,
@@ -234,19 +234,19 @@ describe('opencode.services.session_runtime', function()
 
   describe('setup', function()
     it('registers key subscriptions only once across repeated setup calls', function()
-      local original_opencode = package.loaded['opencode']
-      package.loaded['opencode'] = nil
+      local original_pi = package.loaded['pi']
+      package.loaded['pi'] = nil
 
-      local opencode = require('opencode')
-      local config = require('opencode.config')
-      local highlight = require('opencode.ui.highlight')
-      local commands = require('opencode.commands')
-      local completion = require('opencode.ui.completion')
-      local keymap = require('opencode.keymap')
-      local event_manager = require('opencode.event_manager')
-      local context = require('opencode.context')
-      local context_bar = require('opencode.ui.context_bar')
-      local reference_picker = require('opencode.ui.reference_picker')
+      local pi = require('pi')
+      local config = require('pi.config')
+      local highlight = require('pi.ui.highlight')
+      local commands = require('pi.commands')
+      local completion = require('pi.ui.completion')
+      local keymap = require('pi.keymap')
+      local event_manager = require('pi.event_manager')
+      local context = require('pi.context')
+      local context_bar = require('pi.ui.context_bar')
+      local reference_picker = require('pi.ui.reference_picker')
       local subscriptions = {}
 
       local original_subscribe = state.store.subscribe
@@ -265,12 +265,12 @@ describe('opencode.services.session_runtime', function()
         stub(context, 'setup'),
         stub(context_bar, 'setup'),
         stub(reference_picker, 'setup'),
-        stub(session_runtime, 'opencode_ok').returns(true),
+        stub(session_runtime, 'pi_ok').returns(true),
       }
 
-      opencode.setup()
+      pi.setup()
       local first_count = #subscriptions
-      opencode.setup()
+      pi.setup()
 
       for _, item in ipairs(stubs) do
         if item.revert then
@@ -278,7 +278,7 @@ describe('opencode.services.session_runtime', function()
         end
       end
       state.store.subscribe = original_subscribe
-      package.loaded['opencode'] = original_opencode
+      package.loaded['pi'] = original_pi
 
       assert.is_true(first_count > 0)
       assert.are.equal(first_count, #subscriptions)
@@ -338,7 +338,7 @@ describe('opencode.services.session_runtime', function()
   end)
 
   describe('switch_session', function()
-    local input_window = require('opencode.ui.input_window')
+    local input_window = require('pi.ui.input_window')
 
     it('hides input window when switching to a child session', function()
       state.ui.set_windows({ mock = 'windows', input_buf = 1, output_buf = 2, input_win = 3, output_win = 4 })
@@ -412,14 +412,14 @@ describe('opencode.services.session_runtime', function()
   describe('cancel', function()
     after_each(function()
       state.renderer.set_pending_permissions({})
-      vim.g.opencode_abort_count = nil
+      vim.g.pi_abort_count = nil
     end)
 
     it('rejects pending permissions with the reply payload expected by the API', function()
       local replies = {}
       state.session.set_active({ id = 'session_with_permission' })
       state.renderer.set_pending_permissions({ { id = 'per_cancel' } })
-      vim.g.opencode_abort_count = 0
+      vim.g.pi_abort_count = 0
       state.api_client.reply_to_permission = function(_, permission_id, payload)
         table.insert(replies, { permission_id = permission_id, payload = payload })
       end
@@ -433,7 +433,7 @@ describe('opencode.services.session_runtime', function()
   end)
 
   describe('child session UI guards', function()
-    local input_window = require('opencode.ui.input_window')
+    local input_window = require('pi.ui.input_window')
 
     after_each(function()
       state.session.clear_active()
@@ -471,7 +471,7 @@ describe('opencode.services.session_runtime', function()
 
     it('toggle_pane shows input when child_readonly is false', function()
       state.session.set_active({ id = 'child1', parentID = 'parent1' })
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local orig_readonly = config.values.child_readonly
       config.values.child_readonly = false
       stub(input_window, 'focus_input')
@@ -493,7 +493,7 @@ describe('opencode.services.session_runtime', function()
     it('focus_input works when child_readonly is false', function()
       state.ui.set_windows({ mock = 'windows', input_buf = 1, output_buf = 2 })
       state.session.set_active({ id = 'child1', parentID = 'parent1' })
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local orig_readonly = config.values.child_readonly
       config.values.child_readonly = false
 
@@ -525,7 +525,7 @@ describe('opencode.services.session_runtime', function()
       state.ui.is_visible = function()
         return true
       end
-      local config = require('opencode.config')
+      local config = require('pi.config')
       local orig_readonly = config.values.child_readonly
       config.values.child_readonly = false
 
@@ -568,13 +568,13 @@ describe('opencode.services.session_runtime', function()
     end)
 
     it('restores a pending question after a full session render', function()
-      local renderer = require('opencode.ui.renderer')
-      local question_window = require('opencode.ui.question_window')
+      local renderer = require('pi.ui.renderer')
+      local question_window = require('pi.ui.question_window')
 
       state.session.set_active({ id = 'sess1' })
       state.ui.set_windows({ output_buf = 1, output_win = 2 })
 
-      local mounted_stub = stub(require('opencode.ui.output_window'), 'mounted').returns(true)
+      local mounted_stub = stub(require('pi.ui.output_window'), 'mounted').returns(true)
       local fetch_stub = stub(session, 'get_messages').invokes(function()
         return Promise.new():resolve({})
       end)
@@ -609,14 +609,14 @@ describe('opencode.services.session_runtime', function()
     end)
 
     it('restores pending permissions after a full session render', function()
-      local renderer = require('opencode.ui.renderer')
-      local permission_window = require('opencode.ui.permission_window')
-      local events = require('opencode.ui.renderer.events')
+      local renderer = require('pi.ui.renderer')
+      local permission_window = require('pi.ui.permission_window')
+      local events = require('pi.ui.renderer.events')
 
       state.session.set_active({ id = 'sess1' })
       state.ui.set_windows({ output_buf = 1, output_win = 2 })
 
-      local mounted_stub = stub(require('opencode.ui.output_window'), 'mounted').returns(true)
+      local mounted_stub = stub(require('pi.ui.output_window'), 'mounted').returns(true)
       local fetch_stub = stub(session, 'get_messages').invokes(function()
         return Promise.new():resolve({})
       end)
@@ -657,7 +657,7 @@ describe('opencode.services.session_runtime', function()
 
   describe('markdown rendering metadata', function()
     it('defers markdown rendering until the output tab becomes current', function()
-      local output_window = require('opencode.ui.output_window')
+      local output_window = require('pi.ui.output_window')
       local buf = vim.api.nvim_create_buf(false, true)
       local win = vim.api.nvim_open_win(buf, false, {
         relative = 'editor',
@@ -669,7 +669,7 @@ describe('opencode.services.session_runtime', function()
       })
 
       state.ui.set_windows({ output_buf = buf, output_win = win })
-      vim.api.nvim_buf_set_var(buf, 'opencode_markdown_namespace', 0)
+      vim.api.nvim_buf_set_var(buf, 'pi_markdown_namespace', 0)
 
       local output_tab = vim.api.nvim_get_current_tabpage()
       vim.cmd('tabnew')
@@ -696,7 +696,7 @@ describe('opencode.services.session_runtime', function()
 
       flush.trigger_on_data_rendered()
 
-      assert.equals(output_window.markdown_namespace, vim.b[buf].opencode_markdown_namespace)
+      assert.equals(output_window.markdown_namespace, vim.b[buf].pi_markdown_namespace)
       assert.stub(cmd_stub).was_not_called()
       assert.equals(current_tab, vim.api.nvim_get_current_tabpage())
       assert.equals(current_win, vim.api.nvim_get_current_win())
@@ -717,7 +717,7 @@ describe('opencode.services.session_runtime', function()
     end)
 
     it('defers output buffer writes while the output window is in another tab', function()
-      local ctx = require('opencode.ui.renderer.ctx')
+      local ctx = require('pi.ui.renderer.ctx')
       local buf = vim.api.nvim_create_buf(false, true)
       local win = vim.api.nvim_open_win(buf, false, {
         relative = 'editor',
@@ -792,24 +792,25 @@ describe('opencode.services.session_runtime', function()
     it('does not count cancel toward the server-restart threshold when no client request is in flight', function()
       state.session.set_active({ id = 'sess1' })
       store.set('job_count', 0)
-      vim.g.opencode_abort_count = 0
+      vim.g.pi_abort_count = 0
 
       for _ = 1, 5 do
         session_runtime.cancel():wait()
       end
 
-      assert.is_equal(0, vim.g.opencode_abort_count)
+      assert.is_equal(0, vim.g.pi_abort_count)
 
       store.set('job_count', 1)
-      vim.g.opencode_abort_count = 0
+      vim.g.pi_abort_count = 0
       session_runtime.cancel():wait()
-      assert.is_equal(1, vim.g.opencode_abort_count)
+      assert.is_equal(1, vim.g.pi_abort_count)
     end)
   end)
 
-  describe('opencode_ok (version checks)', function()
+  describe('pi_ok (version checks)', function()
     local original_system
     local original_executable
+    local original_notify
     local saved_cli
 
     local function mock_vim_system(result)
@@ -830,50 +831,55 @@ describe('opencode.services.session_runtime', function()
     before_each(function()
       original_system = vim.system
       original_executable = vim.fn.executable
-      saved_cli = state.opencode_cli_version
+      original_notify = vim.notify
+      saved_cli = state.pi_cli_version
+      config.backend = 'config_file'
+      vim.notify = function() end
     end)
 
     after_each(function()
       vim.system = original_system
       vim.fn.executable = original_executable
-      state.jobs.set_opencode_cli_version(saved_cli)
+      vim.notify = original_notify
+      state.jobs.set_pi_cli_version(saved_cli)
+      config.backend = 'pi'
     end)
 
-    it('returns false when opencode executable is missing', function()
+    it('returns false when pi executable is missing', function()
       vim.fn.executable = function(_)
         return 0
       end
-      assert.is_false(session_runtime.opencode_ok():await())
+      assert.is_false(session_runtime.pi_ok():await())
     end)
 
     it('returns false when version is below required', function()
       vim.fn.executable = function(_)
         return 1
       end
-      vim.system = mock_vim_system({ stdout = 'opencode 0.4.1' })
-      state.jobs.set_opencode_cli_version(nil)
+      vim.system = mock_vim_system({ stdout = 'pi 0.4.1' })
+      state.jobs.set_pi_cli_version(nil)
       store.set('required_version', '0.4.2')
-      assert.is_false(session_runtime.opencode_ok():await())
+      assert.is_false(session_runtime.pi_ok():await())
     end)
 
     it('returns true when version equals required', function()
       vim.fn.executable = function(_)
         return 1
       end
-      vim.system = mock_vim_system({ stdout = 'opencode 0.4.2' })
-      state.jobs.set_opencode_cli_version(nil)
+      vim.system = mock_vim_system({ stdout = 'pi 0.4.2' })
+      state.jobs.set_pi_cli_version(nil)
       store.set('required_version', '0.4.2')
-      assert.is_true(session_runtime.opencode_ok():await())
+      assert.is_true(session_runtime.pi_ok():await())
     end)
 
     it('returns true when version is above required', function()
       vim.fn.executable = function(_)
         return 1
       end
-      vim.system = mock_vim_system({ stdout = 'opencode 0.5.0' })
-      state.jobs.set_opencode_cli_version(nil)
+      vim.system = mock_vim_system({ stdout = 'pi 0.5.0' })
+      state.jobs.set_pi_cli_version(nil)
       store.set('required_version', '0.4.2')
-      assert.is_true(session_runtime.opencode_ok():await())
+      assert.is_true(session_runtime.pi_ok():await())
     end)
   end)
 
@@ -881,7 +887,7 @@ describe('opencode.services.session_runtime', function()
     local context
 
     before_each(function()
-      context = require('opencode.context')
+      context = require('pi.context')
       stub(context, 'unload_attachments')
     end)
 
@@ -987,7 +993,7 @@ describe('opencode.services.session_runtime', function()
       state.model.set_model('openai/gpt-4.1')
       state.model.set_mode('plan')
 
-      stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
+      stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
 
       state.renderer.set_messages({
         {
@@ -1006,7 +1012,7 @@ describe('opencode.services.session_runtime', function()
       assert.equal('anthropic/claude-3-opus', state.current_model)
       assert.equal('build', state.current_mode)
 
-      config_file.get_opencode_agents:revert()
+      config_file.get_pi_agents:revert()
     end)
   end)
 end)

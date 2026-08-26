@@ -52,11 +52,19 @@ Default keymap prefix is `<leader>p`, mirroring the original opencode.nvim layou
 - `<leader>po` open output
 - `<leader>pt` toggle focus
 - `<leader>ps` select session
+- `<leader>pR` rename session
 - `<leader>pp` select provider/model
 - `<leader>pV` select thinking level
 - `<leader>p/` quick chat
 
 The output filetype is `pi_output`.
+
+Useful slash commands in the input window:
+
+- `/sessions` select between sessions (`/resume` remains an alias)
+- `/rename <name>` rename the current session
+- `/rename` or `/autoname` ask Pi to suggest and apply a concise session name
+- `/session` show current session info
 
 ## Pi backend
 

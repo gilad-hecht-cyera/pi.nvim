@@ -378,7 +378,7 @@ function M._render_full_session_data(session_data, opts)
   end
 
   for _, msg in ipairs(visible_messages) do
-    events.on_message_updated({ info = msg.info })
+    events.on_message_updated(msg)
     for _, part in ipairs(msg.parts or {}) do
       events.on_part_updated({ part = part })
     end

@@ -6,7 +6,7 @@
       0,
       0,
       {
-        "line_hl_group": "OpencodeBorder",
+        "line_hl_group": "PiBorder",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true

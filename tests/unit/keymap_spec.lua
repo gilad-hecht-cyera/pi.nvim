@@ -1,6 +1,6 @@
 local assert = require('luassert')
 
-describe('opencode.keymap', function()
+describe('pi.keymap', function()
   local set_keymaps = {}
   local cmd_calls = {}
   local original_keymap_set
@@ -60,7 +60,7 @@ describe('opencode.keymap', function()
       get_commands = function()
         return {
           open_input = { desc = 'Open input window', execute = function() end },
-          toggle = { desc = 'Toggle opencode windows', execute = function() end },
+          toggle = { desc = 'Toggle pi windows', execute = function() end },
           submit_input_prompt = { desc = 'Submit input prompt', execute = function() end },
         }
       end,
@@ -96,17 +96,17 @@ describe('opencode.keymap', function()
       end,
     }
 
-    package.loaded['opencode.api'] = mock_api
-    package.loaded['opencode.commands'] = mock_commands
-    package.loaded['opencode.ui.completion'] = mock_completion
-    package.loaded['opencode.state'] = {}
-    package.loaded['opencode.config'] = {}
+    package.loaded['pi.api'] = mock_api
+    package.loaded['pi.commands'] = mock_commands
+    package.loaded['pi.ui.completion'] = mock_completion
+    package.loaded['pi.state'] = {}
+    package.loaded['pi.config'] = {}
 
     vim.notify = function(message, level)
       table.insert(notify_calls, { message = message, level = level })
     end
 
-    keymap = require('opencode.keymap')
+    keymap = require('pi.keymap')
   end)
 
   after_each(function()
@@ -115,12 +115,12 @@ describe('opencode.keymap', function()
     vim.notify = original_notify
     vim.api.nvim_feedkeys = original_nvim_feedkeys
 
-    package.loaded['opencode.keymap'] = nil
-    package.loaded['opencode.api'] = nil
-    package.loaded['opencode.commands'] = nil
-    package.loaded['opencode.ui.completion'] = nil
-    package.loaded['opencode.state'] = nil
-    package.loaded['opencode.config'] = nil
+    package.loaded['pi.keymap'] = nil
+    package.loaded['pi.api'] = nil
+    package.loaded['pi.commands'] = nil
+    package.loaded['pi.ui.completion'] = nil
+    package.loaded['pi.state'] = nil
+    package.loaded['pi.config'] = nil
   end)
 
   describe('normalize_keymap', function()
@@ -146,7 +146,7 @@ describe('opencode.keymap', function()
       keymap.setup({ editor = { ['<leader>test'] = { 'toggle' } } })
 
       assert.equal(1, #set_keymaps)
-      assert.equal('Toggle opencode windows', set_keymaps[1].opts.desc)
+      assert.equal('Toggle pi windows', set_keymaps[1].opts.desc)
     end)
 
     it('falls back to empty description for function actions without desc', function()

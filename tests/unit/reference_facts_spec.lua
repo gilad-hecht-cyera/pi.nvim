@@ -1,7 +1,7 @@
 local assert = require('luassert')
 local stub = require('luassert.stub')
 
-describe('opencode.ui.reference_facts', function()
+describe('pi.ui.reference_facts', function()
   local reference_facts
   local original_fn
   local original_api
@@ -32,21 +32,21 @@ describe('opencode.ui.reference_facts', function()
       end,
     })
 
-    package.loaded['opencode.ui.reference_facts'] = nil
-    package.loaded['opencode.ui.reference_parser'] = nil
-    reference_facts = require('opencode.ui.reference_facts')
+    package.loaded['pi.ui.reference_facts'] = nil
+    package.loaded['pi.ui.reference_parser'] = nil
+    reference_facts = require('pi.ui.reference_facts')
   end)
 
   after_each(function()
     reference_facts.clear()
     vim.fn = original_fn
     vim.api = original_api
-    package.loaded['opencode.ui.reference_facts'] = nil
-    package.loaded['opencode.ui.reference_parser'] = nil
+    package.loaded['pi.ui.reference_facts'] = nil
+    package.loaded['pi.ui.reference_parser'] = nil
   end)
 
   it('owns session facts without loading the picker UI', function()
-    package.loaded['opencode.ui.reference_picker'] = false
+    package.loaded['pi.ui.reference_picker'] = false
 
     assert.has_no.errors(function()
       reference_facts.rebuild('ses_1', {
@@ -56,7 +56,7 @@ describe('opencode.ui.reference_facts', function()
       })
     end)
 
-    package.loaded['opencode.ui.reference_picker'] = nil
+    package.loaded['pi.ui.reference_picker'] = nil
     assert.equal('src/ok.lua', reference_facts.current_refs()[1].path)
   end)
 
@@ -192,9 +192,9 @@ describe('opencode.ui.reference_facts', function()
 end)
 
 describe('reference facts renderer dirty propagation', function()
-  local state = require('opencode.state')
-  local ctx = require('opencode.ui.renderer.ctx')
-  local flush = require('opencode.ui.renderer.flush')
+  local state = require('pi.state')
+  local ctx = require('pi.ui.renderer.ctx')
+  local flush = require('pi.ui.renderer.flush')
   local events
   local reference_facts
   local schedule_stub
@@ -217,10 +217,10 @@ describe('reference facts renderer dirty propagation', function()
   end
 
   before_each(function()
-    package.loaded['opencode.ui.reference_facts'] = nil
-    package.loaded['opencode.ui.renderer.events'] = nil
-    reference_facts = require('opencode.ui.reference_facts')
-    events = require('opencode.ui.renderer.events')
+    package.loaded['pi.ui.reference_facts'] = nil
+    package.loaded['pi.ui.renderer.events'] = nil
+    reference_facts = require('pi.ui.reference_facts')
+    events = require('pi.ui.renderer.events')
     ctx:reset()
     reference_facts.clear()
     state.session.set_active({ id = 'ses_1' })
@@ -231,8 +231,8 @@ describe('reference facts renderer dirty propagation', function()
     schedule_stub:revert()
     ctx:reset()
     reference_facts.clear()
-    package.loaded['opencode.ui.renderer.events'] = nil
-    package.loaded['opencode.ui.reference_facts'] = nil
+    package.loaded['pi.ui.renderer.events'] = nil
+    package.loaded['pi.ui.reference_facts'] = nil
     state.session.clear_active()
     state.renderer.set_messages({})
   end)

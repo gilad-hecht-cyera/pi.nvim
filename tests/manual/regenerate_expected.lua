@@ -1,8 +1,8 @@
 local helpers = require('tests.helpers')
-local config = require('opencode.config')
-local state = require('opencode.state')
-local ui = require('opencode.ui.ui')
-local output_window = require('opencode.ui.output_window')
+local config = require('pi.config')
+local state = require('pi.state')
+local ui = require('pi.ui.ui')
+local output_window = require('pi.ui.output_window')
 
 local M = {}
 

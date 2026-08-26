@@ -1,4 +1,4 @@
-describe('opencode.ui.base_picker', function()
+describe('pi.ui.base_picker', function()
   local base_picker
   local captured_opts
   local original_schedule
@@ -11,15 +11,15 @@ describe('opencode.ui.base_picker', function()
     end
 
     saved_modules = {
-      ['opencode.config'] = package.loaded['opencode.config'],
-      ['opencode.util'] = package.loaded['opencode.util'],
-      ['opencode.promise'] = package.loaded['opencode.promise'],
-      ['opencode.ui.picker'] = package.loaded['opencode.ui.picker'],
-      ['opencode.ui.base_picker'] = package.loaded['opencode.ui.base_picker'],
+      ['pi.config'] = package.loaded['pi.config'],
+      ['pi.util'] = package.loaded['pi.util'],
+      ['pi.promise'] = package.loaded['pi.promise'],
+      ['pi.ui.picker'] = package.loaded['pi.ui.picker'],
+      ['pi.ui.base_picker'] = package.loaded['pi.ui.base_picker'],
       ['snacks'] = package.loaded['snacks'],
     }
 
-    package.loaded['opencode.config'] = {
+    package.loaded['pi.config'] = {
       ui = {
         picker_width = 80,
       },
@@ -28,9 +28,9 @@ describe('opencode.ui.base_picker', function()
       },
     }
 
-    package.loaded['opencode.util'] = {}
+    package.loaded['pi.util'] = {}
 
-    package.loaded['opencode.promise'] = {
+    package.loaded['pi.promise'] = {
       wrap = function(value)
         return {
           and_then = function(_, cb)
@@ -40,7 +40,7 @@ describe('opencode.ui.base_picker', function()
       end,
     }
 
-    package.loaded['opencode.ui.picker'] = {
+    package.loaded['pi.ui.picker'] = {
       get_best_picker = function()
         return 'snacks'
       end,
@@ -55,8 +55,8 @@ describe('opencode.ui.base_picker', function()
       },
     }
 
-    package.loaded['opencode.ui.base_picker'] = nil
-    base_picker = require('opencode.ui.base_picker')
+    package.loaded['pi.ui.base_picker'] = nil
+    base_picker = require('pi.ui.base_picker')
   end)
 
   after_each(function()
@@ -231,7 +231,7 @@ describe('opencode.ui.base_picker', function()
   end)
 end)
 
-describe('opencode.ui.base_picker fzf-lua preview', function()
+describe('pi.ui.base_picker fzf-lua preview', function()
   local base_picker
   local captured_fzf_finder
   local captured_fzf_opts
@@ -246,18 +246,18 @@ describe('opencode.ui.base_picker fzf-lua preview', function()
     end
 
     saved_modules = {
-      ['opencode.config'] = package.loaded['opencode.config'],
-      ['opencode.util'] = package.loaded['opencode.util'],
-      ['opencode.promise'] = package.loaded['opencode.promise'],
-      ['opencode.ui.picker'] = package.loaded['opencode.ui.picker'],
-      ['opencode.ui.base_picker'] = package.loaded['opencode.ui.base_picker'],
+      ['pi.config'] = package.loaded['pi.config'],
+      ['pi.util'] = package.loaded['pi.util'],
+      ['pi.promise'] = package.loaded['pi.promise'],
+      ['pi.ui.picker'] = package.loaded['pi.ui.picker'],
+      ['pi.ui.base_picker'] = package.loaded['pi.ui.base_picker'],
       ['fzf-lua'] = package.loaded['fzf-lua'],
       ['fzf-lua.libuv'] = package.loaded['fzf-lua.libuv'],
       ['fzf-lua.shell'] = package.loaded['fzf-lua.shell'],
       ['fzf-lua.previewer.builtin'] = package.loaded['fzf-lua.previewer.builtin'],
     }
 
-    package.loaded['opencode.config'] = {
+    package.loaded['pi.config'] = {
       ui = {
         picker_width = 80,
       },
@@ -266,7 +266,7 @@ describe('opencode.ui.base_picker fzf-lua preview', function()
       },
     }
 
-    package.loaded['opencode.util'] = {
+    package.loaded['pi.util'] = {
       some = function(tbl, fn)
         for _, v in pairs(tbl) do
           if fn(v) then
@@ -277,7 +277,7 @@ describe('opencode.ui.base_picker fzf-lua preview', function()
       end,
     }
 
-    package.loaded['opencode.promise'] = {
+    package.loaded['pi.promise'] = {
       wrap = function(value)
         return {
           and_then = function(_, cb)
@@ -287,7 +287,7 @@ describe('opencode.ui.base_picker fzf-lua preview', function()
       end,
     }
 
-    package.loaded['opencode.ui.picker'] = {
+    package.loaded['pi.ui.picker'] = {
       get_best_picker = function()
         return 'fzf'
       end,
@@ -338,8 +338,8 @@ describe('opencode.ui.base_picker fzf-lua preview', function()
       },
     }
 
-    package.loaded['opencode.ui.base_picker'] = nil
-    base_picker = require('opencode.ui.base_picker')
+    package.loaded['pi.ui.base_picker'] = nil
+    base_picker = require('pi.ui.base_picker')
   end)
 
   after_each(function()

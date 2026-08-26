@@ -1,4 +1,4 @@
-local api_client = require('opencode.api_client')
+local api_client = require('pi.api_client')
 local assert = require('luassert')
 
 describe('api_client', function()
@@ -6,12 +6,12 @@ describe('api_client', function()
   local state
 
   before_each(function()
-    state = require('opencode.state')
-    original_cli_version = state.opencode_cli_version
+    state = require('pi.state')
+    original_cli_version = state.pi_cli_version
   end)
 
   after_each(function()
-    state.jobs.set_opencode_cli_version(original_cli_version)
+    state.jobs.set_pi_cli_version(original_cli_version)
   end)
 
   it('should create a new client instance', function()
@@ -71,11 +71,11 @@ describe('api_client', function()
   end)
 
   it('should construct URLs correctly with query parameters', function()
-    local server_job = require('opencode.server_job')
+    local server_job = require('pi.server_job')
     local original_call_api = server_job.call_api
     local captured_calls = {}
     local original_cwd = vim.fn.getcwd
-    local state = require('opencode.state')
+    local state = require('pi.state')
     state.context.set_current_cwd('/current/directory')
 
     vim.fn.getcwd = function()
@@ -84,7 +84,7 @@ describe('api_client', function()
 
     server_job.call_api = function(url, method, body)
       table.insert(captured_calls, { url = url, method = method, body = body })
-      local promise = require('opencode.promise').new()
+      local promise = require('pi.promise').new()
       promise:resolve({})
       return promise
     end
@@ -118,10 +118,10 @@ describe('api_client', function()
   end)
 
   it('normalizes /global/event payloads into legacy event shape', function()
-    local server_job = require('opencode.server_job')
+    local server_job = require('pi.server_job')
     local original_stream_api = server_job.stream_api
-    local Promise = require('opencode.promise')
-    state.jobs.set_opencode_cli_version(Promise.new():resolve('1.14.42'))
+    local Promise = require('pi.promise')
+    state.jobs.set_pi_cli_version(Promise.new():resolve('1.14.42'))
 
     local received = {}
 
@@ -162,10 +162,10 @@ describe('api_client', function()
   end)
 
   it('normalizes /global/event sync payloads into legacy event shape', function()
-    local server_job = require('opencode.server_job')
+    local server_job = require('pi.server_job')
     local original_stream_api = server_job.stream_api
-    local Promise = require('opencode.promise')
-    state.jobs.set_opencode_cli_version(Promise.new():resolve('1.14.42'))
+    local Promise = require('pi.promise')
+    state.jobs.set_pi_cli_version(Promise.new():resolve('1.14.42'))
 
     local received = {}
 

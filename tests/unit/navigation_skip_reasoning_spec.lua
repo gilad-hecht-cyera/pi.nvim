@@ -1,9 +1,9 @@
 local assert = require('luassert')
 
-local navigation = require('opencode.ui.navigation')
-local renderer = require('opencode.ui.renderer')
-local state = require('opencode.state')
-local ctx = require('opencode.ui.renderer.ctx')
+local navigation = require('pi.ui.navigation')
+local renderer = require('pi.ui.renderer')
+local state = require('pi.state')
+local ctx = require('pi.ui.renderer.ctx')
 
 ---@param messages table[]
 ---@param rendered_messages table[] list of { id, role, line_start, line_end? }

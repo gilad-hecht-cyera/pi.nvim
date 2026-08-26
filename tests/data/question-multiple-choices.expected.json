@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_f5bf094d40010EarsFjD5WvW47]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2026-07-13 14:45:21",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -149,25 +149,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
-            "opencode/deepseek-v4-flash-free",
-            "OpencodeHint"
+            "pi/deepseek-v4-flash-free",
+            "PiHint"
           ],
           [
             " [msg_f5bf094e4001s2intunIXa7y7E]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -187,7 +187,7 @@
         "virt_text": [
           [
             " 2026-07-13 14:45:21",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -200,14 +200,14 @@
       8,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -221,14 +221,14 @@
       9,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -242,14 +242,14 @@
       10,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -263,14 +263,14 @@
       11,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -290,25 +290,25 @@
         "virt_text": [
           [
             "π ",
-            "OpencodeMessageRoleSystem"
+            "PiMessageRoleSystem"
           ],
           [
             " "
           ],
           [
             "SYSTEM",
-            "OpencodeMessageRoleSystem"
+            "PiMessageRoleSystem"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [question-display-message]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -322,7 +322,7 @@
       17,
       0,
       {
-        "line_hl_group": "OpencodeQuestionTitle",
+        "line_hl_group": "PiQuestionTitle",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true
@@ -339,7 +339,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -359,7 +359,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -379,7 +379,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -399,7 +399,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -413,7 +413,7 @@
       21,
       0,
       {
-        "line_hl_group": "OpencodeDialogOptionHover",
+        "line_hl_group": "PiDialogOptionHover",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true
@@ -430,7 +430,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -450,7 +450,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -470,7 +470,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -490,7 +490,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -510,7 +510,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -530,7 +530,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -550,7 +550,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -570,7 +570,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -590,7 +590,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -610,7 +610,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -630,7 +630,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -650,7 +650,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeQuestionBorder"
+            "PiQuestionBorder"
           ]
         ],
         "virt_text_hide": false,

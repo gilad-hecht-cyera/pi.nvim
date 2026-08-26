@@ -1,8 +1,8 @@
-local OpencodeServer = require('opencode.opencode_server')
-local curl = require('opencode.curl')
+local PiServer = require('pi.pi_server')
+local curl = require('pi.curl')
 local assert = require('luassert')
 
-describe('opencode.opencode_server', function()
+describe('pi.pi_server', function()
   local original_system
   local original_curl_request
   before_each(function()
@@ -16,7 +16,7 @@ describe('opencode.opencode_server', function()
   -- Tests for server lifecycle behavior
 
   it('creates a new server object', function()
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
     assert.is_table(server)
     assert.is_nil(server.job)
     assert.is_nil(server.url)
@@ -24,12 +24,12 @@ describe('opencode.opencode_server', function()
   end)
 
   it('spawn promise resolves when stdout emits server URL', function()
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
     local resolved
     vim.system = function(cmd, opts)
       -- Simulate server output asynchronously
       vim.schedule(function()
-        opts.stdout(nil, 'opencode server listening on http://127.0.0.1:7777')
+        opts.stdout(nil, 'pi server listening on http://127.0.0.1:7777')
       end)
       return { pid = 1, kill = function() end }
     end
@@ -49,8 +49,8 @@ describe('opencode.opencode_server', function()
   end)
 
   it('spawn passes auth env vars to vim.system when password is configured', function()
-    local config = require('opencode.config')
-    local auth = require('opencode.auth')
+    local config = require('pi.config')
+    local auth = require('pi.auth')
     auth.clear_cache()
     local original_password = config.values.server.password
     local original_username = config.values.server.username
@@ -61,12 +61,12 @@ describe('opencode.opencode_server', function()
     vim.system = function(cmd, opts)
       captured_opts = opts
       vim.schedule(function()
-        opts.stdout(nil, 'opencode server listening on http://127.0.0.1:7777')
+        opts.stdout(nil, 'pi server listening on http://127.0.0.1:7777')
       end)
       return { pid = 1, kill = function() end }
     end
 
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
     server:spawn({
       cwd = '.',
       on_ready = function() end,
@@ -80,34 +80,34 @@ describe('opencode.opencode_server', function()
 
     assert.is_not_nil(captured_opts)
     assert.is_not_nil(captured_opts.env)
-    assert.equals('secret', captured_opts.env.OPENCODE_SERVER_PASSWORD)
-    assert.equals('admin', captured_opts.env.OPENCODE_SERVER_USERNAME)
+    assert.equals('secret', captured_opts.env.PI_SERVER_PASSWORD)
+    assert.equals('admin', captured_opts.env.PI_SERVER_USERNAME)
 
     config.values.server.password = original_password
     config.values.server.username = original_username
   end)
 
   it('spawn passes empty env when no password is configured', function()
-    local config = require('opencode.config')
-    local auth = require('opencode.auth')
+    local config = require('pi.config')
+    local auth = require('pi.auth')
     auth.clear_cache()
     local original_password = config.values.server.password
-    local original_env_password = vim.env.OPENCODE_SERVER_PASSWORD
-    local original_env_username = vim.env.OPENCODE_SERVER_USERNAME
+    local original_env_password = vim.env.PI_SERVER_PASSWORD
+    local original_env_username = vim.env.PI_SERVER_USERNAME
     config.values.server.password = nil
-    vim.env.OPENCODE_SERVER_PASSWORD = nil
-    vim.env.OPENCODE_SERVER_USERNAME = nil
+    vim.env.PI_SERVER_PASSWORD = nil
+    vim.env.PI_SERVER_USERNAME = nil
 
     local captured_opts
     vim.system = function(cmd, opts)
       captured_opts = opts
       vim.schedule(function()
-        opts.stdout(nil, 'opencode server listening on http://127.0.0.1:7777')
+        opts.stdout(nil, 'pi server listening on http://127.0.0.1:7777')
       end)
       return { pid = 1, kill = function() end }
     end
 
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
     server:spawn({
       cwd = '.',
       on_ready = function() end,
@@ -124,19 +124,19 @@ describe('opencode.opencode_server', function()
 
     config.values.server.password = original_password
     if original_env_password then
-      vim.env.OPENCODE_SERVER_PASSWORD = original_env_password
+      vim.env.PI_SERVER_PASSWORD = original_env_password
     else
-      vim.env.OPENCODE_SERVER_PASSWORD = nil
+      vim.env.PI_SERVER_PASSWORD = nil
     end
     if original_env_username then
-      vim.env.OPENCODE_SERVER_USERNAME = original_env_username
+      vim.env.PI_SERVER_USERNAME = original_env_username
     else
-      vim.env.OPENCODE_SERVER_USERNAME = nil
+      vim.env.PI_SERVER_USERNAME = nil
     end
   end)
 
   it('shutdown resolves shutdown_promise and clears fields', function()
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
     local exit_callback
 
     -- Mock vim.system to capture the exit callback
@@ -203,7 +203,7 @@ describe('opencode.opencode_server', function()
         end,
       }
     end
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
     server:spawn({
       cwd = '.',
       on_ready = function()
@@ -227,13 +227,13 @@ describe('opencode.opencode_server', function()
 
   it('ignores stderr output before ready when stdout later reports the server URL', function()
     local called = { on_error = false }
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
 
     vim.system = function(cmd, opts)
       vim.schedule(function()
         opts.stderr(nil, 'Performing one time database migration, may take a few minutes...\n')
         opts.stderr(nil, 'sqlite-migration:100\n')
-        opts.stdout(nil, 'opencode server listening on http://127.0.0.1:7777')
+        opts.stdout(nil, 'pi server listening on http://127.0.0.1:7777')
       end)
 
       return { pid = 45, kill = function() end }
@@ -261,7 +261,7 @@ describe('opencode.opencode_server', function()
 
   it('rejects startup if the process exits before reporting the server URL', function()
     local called = { on_error = nil, on_exit = false }
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
 
     vim.system = function(cmd, opts, on_exit)
       vim.schedule(function()
@@ -322,7 +322,7 @@ describe('opencode.opencode_server', function()
         end,
       }
     end
-    local server = OpencodeServer.new()
+    local server = PiServer.new()
     server.job = { pid = 44 }
     server.url = 'http://localhost:5678'
     server.handle = 44
@@ -348,7 +348,7 @@ describe('opencode.opencode_server', function()
 
   describe('custom server support', function()
     it('creates a custom server instance with from_custom', function()
-      local server = OpencodeServer.from_custom('http://192.168.1.100:8080')
+      local server = PiServer.from_custom('http://192.168.1.100:8080')
       assert.is_table(server)
       assert.is_nil(server.job) -- No local job
       assert.equals('http://192.168.1.100:8080', server.url)
@@ -366,18 +366,18 @@ describe('opencode.opencode_server', function()
     end)
 
     it('is_running returns true for custom server with URL', function()
-      local server = OpencodeServer.from_custom('http://localhost:8080')
+      local server = PiServer.from_custom('http://localhost:8080')
       assert.is_true(server:is_running())
     end)
 
     it('is_running returns false for custom server without URL', function()
-      local server = OpencodeServer.from_custom('http://localhost:8080')
+      local server = PiServer.from_custom('http://localhost:8080')
       server.url = nil
       assert.is_false(server:is_running())
     end)
 
     it('shutdown clears custom server without killing process', function()
-      local server = OpencodeServer.from_custom('http://localhost:8080')
+      local server = PiServer.from_custom('http://localhost:8080')
       local resolved = false
 
       server:get_shutdown_promise():and_then(function()
@@ -410,7 +410,7 @@ describe('opencode.opencode_server', function()
         return {}
       end
 
-      OpencodeServer.kill_pid(42)
+      PiServer.kill_pid(42)
 
       vim.uv.kill = original_kill
       vim.api.nvim_get_proc_children = original_children
@@ -432,7 +432,7 @@ describe('opencode.opencode_server', function()
         return { 10, 11 }
       end
 
-      OpencodeServer.kill_pid(99)
+      PiServer.kill_pid(99)
 
       vim.uv.kill = original_kill
       vim.api.nvim_get_proc_children = original_children
@@ -455,7 +455,7 @@ describe('opencode.opencode_server', function()
         captured = opts
       end
 
-      OpencodeServer.request_graceful_shutdown('http://127.0.0.1:3000')
+      PiServer.request_graceful_shutdown('http://127.0.0.1:3000')
 
       assert.is_not_nil(captured)
       assert.equals('http://127.0.0.1:3000/global/shutdown', captured.url)
@@ -468,7 +468,7 @@ describe('opencode.opencode_server', function()
         captured = opts
       end
 
-      OpencodeServer.request_graceful_shutdown('http://127.0.0.1:3000')
+      PiServer.request_graceful_shutdown('http://127.0.0.1:3000')
 
       assert.equals(1000, captured.timeout)
       assert.equals('', captured.proxy)
@@ -477,7 +477,7 @@ describe('opencode.opencode_server', function()
 
   describe('authentication headers', function()
     local config
-    local auth = require('opencode.auth')
+    local auth = require('pi.auth')
     local original_password
     local original_username
     local original_env_password
@@ -485,29 +485,29 @@ describe('opencode.opencode_server', function()
 
     before_each(function()
       auth.clear_cache()
-      config = require('opencode.config')
+      config = require('pi.config')
       original_password = config.values.server.password
       original_username = config.values.server.username
-      original_env_password = vim.env.OPENCODE_SERVER_PASSWORD
-      original_env_username = vim.env.OPENCODE_SERVER_USERNAME
+      original_env_password = vim.env.PI_SERVER_PASSWORD
+      original_env_username = vim.env.PI_SERVER_USERNAME
       config.values.server.password = nil
       config.values.server.username = nil
-      vim.env.OPENCODE_SERVER_PASSWORD = nil
-      vim.env.OPENCODE_SERVER_USERNAME = nil
+      vim.env.PI_SERVER_PASSWORD = nil
+      vim.env.PI_SERVER_USERNAME = nil
     end)
 
     after_each(function()
       config.values.server.password = original_password
       config.values.server.username = original_username
       if original_env_password then
-        vim.env.OPENCODE_SERVER_PASSWORD = original_env_password
+        vim.env.PI_SERVER_PASSWORD = original_env_password
       else
-        vim.env.OPENCODE_SERVER_PASSWORD = nil
+        vim.env.PI_SERVER_PASSWORD = nil
       end
       if original_env_username then
-        vim.env.OPENCODE_SERVER_USERNAME = original_env_username
+        vim.env.PI_SERVER_USERNAME = original_env_username
       else
-        vim.env.OPENCODE_SERVER_USERNAME = nil
+        vim.env.PI_SERVER_USERNAME = nil
       end
     end)
 
@@ -518,7 +518,7 @@ describe('opencode.opencode_server', function()
         captured = opts
       end
 
-      OpencodeServer.health_check('http://127.0.0.1:3000/global/health', 2000)
+      PiServer.health_check('http://127.0.0.1:3000/global/health', 2000)
 
       assert.is_not_nil(captured)
       assert.is_not_nil(captured.headers)
@@ -531,7 +531,7 @@ describe('opencode.opencode_server', function()
         captured = opts
       end
 
-      OpencodeServer.health_check('http://127.0.0.1:3000/global/health', 2000)
+      PiServer.health_check('http://127.0.0.1:3000/global/health', 2000)
 
       assert.is_not_nil(captured)
       assert.is_nil(captured.headers['Authorization'])
@@ -544,7 +544,7 @@ describe('opencode.opencode_server', function()
         captured = opts
       end
 
-      OpencodeServer.request_graceful_shutdown('http://127.0.0.1:3000')
+      PiServer.request_graceful_shutdown('http://127.0.0.1:3000')
 
       assert.is_not_nil(captured)
       assert.is_not_nil(captured.headers)
@@ -557,7 +557,7 @@ describe('opencode.opencode_server', function()
         captured = opts
       end
 
-      OpencodeServer.request_graceful_shutdown('http://127.0.0.1:3000')
+      PiServer.request_graceful_shutdown('http://127.0.0.1:3000')
 
       assert.is_not_nil(captured)
       assert.is_nil(captured.headers['Authorization'])

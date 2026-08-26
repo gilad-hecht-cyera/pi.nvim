@@ -1,18 +1,18 @@
-local loaded = rawget(_G, '__opencode_service_spec_loaded') or {}
-_G.__opencode_service_spec_loaded = loaded
+local loaded = rawget(_G, '__pi_service_spec_loaded') or {}
+_G.__pi_service_spec_loaded = loaded
 if loaded.services_agent_model_spec then
   return
 end
 loaded.services_agent_model_spec = true
 
-local agent_model = require('opencode.services.agent_model')
-local config_file = require('opencode.config_file')
-local state = require('opencode.state')
-local Promise = require('opencode.promise')
+local agent_model = require('pi.services.agent_model')
+local config_file = require('pi.config_file')
+local state = require('pi.state')
+local Promise = require('pi.promise')
 local stub = require('luassert.stub')
 local assert = require('luassert')
 
-describe('opencode.services.agent_model', function()
+describe('pi.services.agent_model', function()
   it('sets current model from config file when mode has a model configured', function()
     local agents_promise = Promise.new()
     agents_promise:resolve({ 'plan', 'build', 'custom' })
@@ -26,8 +26,8 @@ describe('opencode.services.agent_model', function()
       model = 'gpt-4',
     })
 
-    stub(config_file, 'get_opencode_agents').returns(agents_promise)
-    stub(config_file, 'get_opencode_config').returns(config_promise)
+    stub(config_file, 'get_pi_agents').returns(agents_promise)
+    stub(config_file, 'get_pi_config').returns(config_promise)
 
     state.store.set('current_mode', nil)
     state.store.set('current_model', nil)
@@ -40,22 +40,22 @@ describe('opencode.services.agent_model', function()
     assert.equal('custom', state.current_mode)
     assert.equal('anthropic/claude-3-opus', state.current_model)
 
-    config_file.get_opencode_agents:revert()
-    config_file.get_opencode_config:revert()
+    config_file.get_pi_agents:revert()
+    config_file.get_pi_config:revert()
   end)
 
   it('returns false when mode is invalid', function()
     local agents_promise = Promise.new()
     agents_promise:resolve({ 'plan', 'build' })
 
-    stub(config_file, 'get_opencode_agents').returns(agents_promise)
+    stub(config_file, 'get_pi_agents').returns(agents_promise)
 
     local promise = agent_model.switch_to_mode('nonexistent')
     local success = promise:wait()
 
     assert.is_false(success)
 
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
   end)
 
   it('returns false when mode is empty', function()
@@ -78,8 +78,8 @@ describe('opencode.services.agent_model', function()
       },
       model = 'gpt-3',
     })
-    stub(config_file, 'get_opencode_agents').returns(agents_promise)
-    stub(config_file, 'get_opencode_config').returns(config_promise)
+    stub(config_file, 'get_pi_agents').returns(agents_promise)
+    stub(config_file, 'get_pi_config').returns(config_promise)
 
     state.store.set('current_mode', nil)
     state.store.set('current_model', 'should-be-overridden')
@@ -91,8 +91,8 @@ describe('opencode.services.agent_model', function()
     assert.equal('plan', state.current_mode)
     assert.equal('anthropic/claude-3-haiku', state.current_model)
 
-    config_file.get_opencode_agents:revert()
-    config_file.get_opencode_config:revert()
+    config_file.get_pi_agents:revert()
+    config_file.get_pi_config:revert()
   end)
 
   it('falls back to config model if nothing else matches', function()
@@ -105,8 +105,8 @@ describe('opencode.services.agent_model', function()
       },
       model = 'default-model',
     })
-    stub(config_file, 'get_opencode_agents').returns(agents_promise)
-    stub(config_file, 'get_opencode_config').returns(config_promise)
+    stub(config_file, 'get_pi_agents').returns(agents_promise)
+    stub(config_file, 'get_pi_config').returns(config_promise)
     state.store.set('current_mode', nil)
     state.store.set('current_model', 'old-model')
     state.store.set('user_mode_model_map', {})
@@ -116,8 +116,8 @@ describe('opencode.services.agent_model', function()
     assert.is_true(success)
     assert.equal('plan', state.current_mode)
     assert.equal('default-model', state.current_model)
-    config_file.get_opencode_agents:revert()
-    config_file.get_opencode_config:revert()
+    config_file.get_pi_agents:revert()
+    config_file.get_pi_config:revert()
   end)
 
   it('keeps the current user-selected model and mode by default', function()
@@ -144,7 +144,7 @@ describe('opencode.services.agent_model', function()
   it('restores the latest session model and mode when explicitly requested', function()
     state.model.set_model('openai/gpt-4.1')
     state.model.set_mode('plan')
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
 
     state.renderer.set_messages({
       {
@@ -163,7 +163,7 @@ describe('opencode.services.agent_model', function()
     assert.equal('anthropic/claude-3-opus', state.current_model)
     assert.equal('build', state.current_mode)
 
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
   end)
 
   it('restores hidden mode from messages for child sessions', function()
@@ -195,7 +195,7 @@ describe('opencode.services.agent_model', function()
     state.model.set_model('openai/gpt-4.1')
     state.model.set_mode('build')
     state.session.set_active({ id = 'primary' })
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
 
     state.renderer.set_messages({
       {
@@ -214,7 +214,7 @@ describe('opencode.services.agent_model', function()
     assert.equal('anthropic/claude-3-opus', state.current_model)
     assert.equal('build', state.current_mode)
 
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
     state.session.clear_active()
   end)
 
@@ -236,16 +236,16 @@ describe('opencode.services.agent_model', function()
     state.store.set('current_model', nil)
     state.store.set('user_mode_model_map', {})
 
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
-    stub(config_file, 'get_opencode_config').returns(Promise.new():resolve({}))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
+    stub(config_file, 'get_pi_config').returns(Promise.new():resolve({}))
 
     local success = agent_model.switch_to_mode('plan'):wait()
 
     assert.is_true(success)
     assert.equal('plan', state.current_mode)
 
-    config_file.get_opencode_agents:revert()
-    config_file.get_opencode_config:revert()
+    config_file.get_pi_agents:revert()
+    config_file.get_pi_config:revert()
     state.session.clear_active()
   end)
 end)

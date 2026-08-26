@@ -1,9 +1,9 @@
 local assert = require('luassert')
-local config = require('opencode.config')
-local formatter = require('opencode.ui.formatter')
-local Output = require('opencode.ui.output')
-local state = require('opencode.state')
-local util = require('opencode.util')
+local config = require('pi.config')
+local formatter = require('pi.ui.formatter')
+local Output = require('pi.ui.output')
+local state = require('pi.state')
+local util = require('pi.util')
 
 describe('formatter', function()
   before_each(function()
@@ -278,7 +278,7 @@ describe('formatter', function()
   it('renders diff line numbers as extmarks and targets', function()
     local output = Output.new()
 
-    local formatter_utils = require('opencode.ui.formatter.utils')
+    local formatter_utils = require('pi.ui.formatter.utils')
     formatter_utils.format_diff(
       output,
       table.concat({
@@ -302,16 +302,16 @@ describe('formatter', function()
     local delete_mark = output.extmarks[2][1]
     assert.are.equal('10', delete_mark.virt_text[1][1])
     assert.are.equal('-', delete_mark.virt_text[2][1])
-    assert.are.equal('OpencodeDiffDeleteGutter', delete_mark.virt_text[1][2])
+    assert.are.equal('PiDiffDeleteGutter', delete_mark.virt_text[1][2])
 
     local context_mark = output.extmarks[3][1]
     assert.are.equal('10', context_mark.virt_text[1][1])
-    assert.are.equal('OpencodeDiffGutter', context_mark.virt_text[1][2])
+    assert.are.equal('PiDiffGutter', context_mark.virt_text[1][2])
 
     local add_mark = output.extmarks[4][1]
     assert.are.equal('11', add_mark.virt_text[1][1])
     assert.are.equal('+', add_mark.virt_text[2][1])
-    assert.are.equal('OpencodeDiffAddGutter', add_mark.virt_text[1][2])
+    assert.are.equal('PiDiffAddGutter', add_mark.virt_text[1][2])
 
     assert.are.same({
       {
@@ -330,7 +330,7 @@ describe('formatter', function()
   end)
 
   it('projects supplied reference facts instead of deriving them during assistant render', function()
-    local reference_parser = require('opencode.ui.reference_parser')
+    local reference_parser = require('pi.ui.reference_parser')
     local original_parse_references = reference_parser.parse_references
     reference_parser.parse_references = function()
       error('assistant render must consume reference facts, not parse assistant text')
@@ -377,8 +377,8 @@ describe('formatter', function()
   end)
 
   it('maps supplied reference facts to executable rendered file targets after trim', function()
-    local reference_facts = require('opencode.ui.reference_facts')
-    local icons = require('opencode.ui.icons')
+    local reference_facts = require('pi.ui.reference_facts')
+    local icons = require('pi.ui.icons')
     local raw_text = '  See `src/foo.lua:12:3` now  '
     local part = {
       id = 'part_trimmed_ref',
@@ -448,12 +448,12 @@ describe('formatter', function()
   end)
 
   it('creates symbol targets from same-part file references before the token', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
     local text = 'See `src/foo.lua` foo'
     local ref_start, ref_end = text:find('`src/foo.lua`', 1, true)
     local part = { id = 'part_file_ref', text = text }
     local message = { info = { id = 'msg_file_ref' }, parts = { part } }
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       targets_for_token = function(_, token, candidate_files)
         assert.are.same({ vim.fn.getcwd() .. '/src/foo.lua' }, candidate_files)
         if token == 'foo' then
@@ -479,14 +479,14 @@ describe('formatter', function()
       symbol_cycle = {},
     })
 
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
 
     local symbol_mark
     local reference_mark
     for _, mark in ipairs(output.extmarks[0]) do
-      if mark.hl_group == 'OpencodeSymbolReference' then
+      if mark.hl_group == 'PiSymbolReference' then
         symbol_mark = mark
-      elseif mark.hl_group == 'OpencodeReference' then
+      elseif mark.hl_group == 'PiReference' then
         reference_mark = mark
       end
     end
@@ -519,9 +519,9 @@ describe('formatter', function()
   end)
 
   it('does not create symbol targets without local candidate files', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
 
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       targets_for_token = function()
         error('symbol lookup requires local candidate files')
       end,
@@ -535,7 +535,7 @@ describe('formatter', function()
       symbol_cycle = {},
     })
 
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
 
     assert.are.equal('foo bar', output.lines[1])
     assert.are.same({}, output.targets)
@@ -543,9 +543,9 @@ describe('formatter', function()
   end)
 
   it('uses same-message previous file refs as symbol candidates', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
 
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       targets_for_token = function(_, token, candidate_files)
         assert.are.same({ vim.fn.getcwd() .. '/src/main.lua' }, candidate_files)
         return token == 'foo' and { { token = 'foo', path = vim.fn.getcwd() .. '/src/main.lua', line = 1, col = 1 } }
@@ -575,7 +575,7 @@ describe('formatter', function()
       symbol_cycle = {},
     })
 
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
 
     assert.are.same({
       {
@@ -585,7 +585,7 @@ describe('formatter', function()
         range = { line = 1, start_col = 0, end_col = 3 },
       },
     }, output.targets)
-    assert.are.equal('OpencodeSymbolReference', output.extmarks[0][1].hl_group)
+    assert.are.equal('PiSymbolReference', output.extmarks[0][1].hl_group)
   end)
 
   it('does not highlight symbol-looking segments inside paths', function()
@@ -644,12 +644,12 @@ describe('formatter', function()
   end)
 
   it('highlights a symbol before trailing prose colon', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
     local text = 'See `src/main.lua` foo: call this'
     local ref_start, ref_end = text:find('`src/main.lua`', 1, true)
     local part = { id = 'part_colon', text = text }
     local message = { info = { id = 'msg_colon' }, parts = { part } }
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       targets_for_token = function(_, token, candidate_files)
         assert.are.same({ vim.fn.getcwd() .. '/src/main.lua' }, candidate_files)
         return token == 'foo' and { { token = 'foo', path = vim.fn.getcwd() .. '/src/main.lua', line = 3, col = 1 } }
@@ -673,11 +673,11 @@ describe('formatter', function()
       symbol_cycle = {},
     })
 
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
 
     local symbol_mark = output.extmarks[0][2]
     local foo_start = output.lines[1]:find('foo:', 1, true)
-    assert.are.equal(text:gsub('See ', 'See ' .. require('opencode.ui.icons').get('reference'), 1), output.lines[1])
+    assert.are.equal(text:gsub('See ', 'See ' .. require('pi.ui.icons').get('reference'), 1), output.lines[1])
     assert.are.equal(foo_start - 1, symbol_mark.start_col)
     assert.are.equal(foo_start + 2, symbol_mark.end_col)
     assert.are.equal('foo', output.targets[2].token)
@@ -723,7 +723,7 @@ describe('formatter', function()
   end)
 
   it('anchors snapshot actions to the snapshot and restore lines', function()
-    local snapshot = require('opencode.snapshot')
+    local snapshot = require('pi.snapshot')
     local original_get_restore_points_by_parent = snapshot.get_restore_points_by_parent
 
     snapshot.get_restore_points_by_parent = function(hash)

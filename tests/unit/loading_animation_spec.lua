@@ -1,5 +1,5 @@
-local state = require('opencode.state')
-local loading_animation = require('opencode.ui.loading_animation')
+local state = require('pi.state')
+local loading_animation = require('pi.ui.loading_animation')
 local stub = require('luassert.stub')
 local assert = require('luassert')
 
@@ -253,7 +253,7 @@ describe('loading_animation', function()
     it('merges the response into the cache (only fills missing entries)', function()
       state.jobs.set_api_client({
         list_session_status = function()
-          local p = require('opencode.promise').new()
+          local p = require('pi.promise').new()
           p:resolve({ ses_x = { type = 'busy' } })
           return p
         end,
@@ -275,7 +275,7 @@ describe('loading_animation', function()
       state.session.set_active({ id = 'ses_a' })
       state.jobs.set_api_client({
         list_session_status = function()
-          local p = require('opencode.promise').new()
+          local p = require('pi.promise').new()
           p:resolve({ ses_a = { type = 'busy' }, ses_b = { type = 'busy' } })
           return p
         end,
@@ -303,7 +303,7 @@ describe('loading_animation', function()
 
       state.jobs.set_api_client({
         list_session_status = function()
-          local p = require('opencode.promise').new()
+          local p = require('pi.promise').new()
           p:resolve({ ses_a = { type = 'busy' } }) -- stale
           return p
         end,
@@ -324,7 +324,7 @@ describe('loading_animation', function()
       state.session.set_active({ id = 'ses_x' })
       state.jobs.set_api_client({
         list_session_status = function()
-          local p = require('opencode.promise').new()
+          local p = require('pi.promise').new()
           p:resolve({ ses_x = { type = 'busy' } })
           return p
         end,
@@ -365,7 +365,7 @@ describe('loading_animation', function()
 
       state.jobs.set_api_client({
         list_session_status = function()
-          local p = require('opencode.promise').new()
+          local p = require('pi.promise').new()
           p:resolve({ ses_a = { type = 'idle' } })
           return p
         end,

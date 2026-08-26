@@ -1,9 +1,9 @@
-local ctx = require('opencode.ui.renderer.ctx')
-local renderer = require('opencode.ui.renderer')
-local flush = require('opencode.ui.renderer.flush')
+local ctx = require('pi.ui.renderer.ctx')
+local renderer = require('pi.ui.renderer')
+local flush = require('pi.ui.renderer.flush')
 local stub = require('luassert.stub')
 local helpers = require('tests.helpers')
-local state = require('opencode.state')
+local state = require('pi.state')
 
 describe('renderer target API', function()
   local schedule_stub
@@ -57,9 +57,9 @@ describe('renderer flush formatter context', function()
   before_each(function()
     helpers.replay_setup()
     ctx:reset()
-    formatter = require('opencode.ui.formatter')
-    reference_facts = require('opencode.ui.reference_facts')
-    symbol_snapshot = require('opencode.ui.symbol_snapshot')
+    formatter = require('pi.ui.formatter')
+    reference_facts = require('pi.ui.reference_facts')
+    symbol_snapshot = require('pi.ui.symbol_snapshot')
   end)
 
   after_each(function()
@@ -77,12 +77,12 @@ describe('renderer flush formatter context', function()
     end
     ctx:reset()
     if state.windows then
-      require('opencode.ui.ui').close_windows(state.windows)
+      require('pi.ui.ui').close_windows(state.windows)
     end
   end)
 
   it('creates one symbol cycle and shares it across formatted parts', function()
-    local Output = require('opencode.ui.output')
+    local Output = require('pi.ui.output')
     local cycle = { id = 'cycle_1' }
     local contexts = {}
 

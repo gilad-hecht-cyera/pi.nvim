@@ -1,6 +1,6 @@
 local assert = require('luassert')
 
-describe('opencode.ui.reference_parser', function()
+describe('pi.ui.reference_parser', function()
   local reference_parser
   local original_startswith
 
@@ -11,15 +11,15 @@ describe('opencode.ui.reference_parser', function()
       return str:sub(1, #prefix) == prefix
     end
 
-    package.loaded['opencode.ui.reference_parser'] = nil
-    reference_parser = require('opencode.ui.reference_parser')
+    package.loaded['pi.ui.reference_parser'] = nil
+    reference_parser = require('pi.ui.reference_parser')
     reference_parser.clear_all()
   end)
 
   after_each(function()
     reference_parser.clear_all()
     vim.startswith = original_startswith
-    package.loaded['opencode.ui.reference_parser'] = nil
+    package.loaded['pi.ui.reference_parser'] = nil
   end)
 
   it('parses backtick file references with line and column', function()
@@ -98,13 +98,13 @@ describe('opencode.ui.reference_parser', function()
 
   it('keeps repeated mentions of the same path at distinct text positions', function()
     local refs = reference_parser.parse_references(
-      'Open lua/opencode/ui/formatter.lua first, then mention lua/opencode/ui/formatter.lua before format_part.',
+      'Open lua/pi/ui/formatter.lua first, then mention lua/pi/ui/formatter.lua before format_part.',
       'part1'
     )
 
     assert.equal(2, #refs)
-    assert.equal('lua/opencode/ui/formatter.lua', refs[1].file_path)
-    assert.equal('lua/opencode/ui/formatter.lua', refs[2].file_path)
+    assert.equal('lua/pi/ui/formatter.lua', refs[1].file_path)
+    assert.equal('lua/pi/ui/formatter.lua', refs[2].file_path)
     assert.is_true(refs[1].match_start < refs[2].match_start)
   end)
 
@@ -123,15 +123,15 @@ describe('opencode.ui.reference_parser', function()
   end)
 
   it('waits for closing backticks before caching a path inside a code span', function()
-    local partial_refs = reference_parser.parse_references('- `lua/opencode/event_manager.lua', 'part1')
+    local partial_refs = reference_parser.parse_references('- `lua/pi/event_manager.lua', 'part1')
     local count_before_closing_backtick = #partial_refs
-    local refs = reference_parser.parse_references('- `lua/opencode/event_manager.lua`', 'part1')
+    local refs = reference_parser.parse_references('- `lua/pi/event_manager.lua`', 'part1')
 
     assert.equal(0, count_before_closing_backtick)
     assert.equal(1, #refs)
-    assert.equal('lua/opencode/event_manager.lua', refs[1].file_path)
+    assert.equal('lua/pi/event_manager.lua', refs[1].file_path)
     assert.are.same(
-      { match_start = 3, match_end = 34 },
+      { match_start = 3, match_end = 28 },
       { match_start = refs[1].match_start, match_end = refs[1].match_end }
     )
   end)
