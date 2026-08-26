@@ -583,8 +583,9 @@ end
 M.reconcile_rendered_message_limit = reconcile_rendered_message_limit
 M.is_message_visible = is_message_visible
 
----Scroll to bottom after all queued events have been processed
+---Flush and scroll after all queued events have been processed
 function M.on_emit_events_finished()
+  flush.flush()
   M.scroll_to_bottom()
 end
 

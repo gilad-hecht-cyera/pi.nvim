@@ -546,7 +546,17 @@ function M.actions.undo(message_id)
         messageID = target.info.id,
       }),
       'Failed to undo last message: ',
-      function()
+      function(response)
+        if response and response.id then
+          if response.session then
+            state_obj.session.set_active(response.session)
+            if state_obj.ui.is_visible() then
+              require('pi.ui.ui').render_output()
+            end
+          else
+            session_runtime.switch_session(response.id)
+          end
+        end
         require('pi.ui.input_window').refill_prompt_from_message(target)
       end
     )
@@ -699,12 +709,27 @@ function M.actions.fork_session(message_id)
       })
       :and_then(function(response)
         vim.schedule(function()
+          if response and response.cancelled then
+            return
+          end
+
           if response and response.id then
             vim.notify('Session forked successfully. New session ID: ' .. response.id, vim.log.levels.INFO)
-            session_runtime.switch_session(response.id)
-          else
-            vim.notify('Session forked but no new session ID received', vim.log.levels.WARN)
+            if response.session then
+              state_obj.session.set_active(response.session)
+              if state_obj.ui.is_visible() then
+                require('pi.ui.ui').render_output()
+              end
+            else
+              session_runtime.switch_session(response.id)
+            end
+            return
           end
+
+          if response and response.text ~= nil then
+            require('pi.ui.input_window').set_content(response.text or '')
+          end
+          vim.notify('Forked to new session', vim.log.levels.INFO)
         end)
       end)
       :catch(function(err)

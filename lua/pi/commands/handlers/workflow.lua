@@ -222,6 +222,8 @@ M.actions.submit_input_prompt = Promise.async(function()
     ui.render_output(true)
   end
 
+  session_runtime.before_run():await()
+
   local message_sent = input_window.handle_submit()
   if message_sent and config.ui.input.auto_hide and not input_window.is_hidden() then
     input_window._hide()

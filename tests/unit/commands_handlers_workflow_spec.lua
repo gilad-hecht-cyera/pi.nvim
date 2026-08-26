@@ -278,4 +278,29 @@ describe('pi.commands.handlers.workflow', function()
       get_key:revert()
     end)
   end)
+
+  describe('submit_input_prompt', function()
+    local before_run
+    local handle_submit
+    local promise
+
+    before_each(function()
+      promise = require('pi.promise').new()
+      promise:resolve('ok')
+      before_run = stub(require('pi.services.session_runtime'), 'before_run').returns(promise)
+      handle_submit = stub(require('pi.ui.input_window'), 'handle_submit').returns(true)
+    end)
+
+    after_each(function()
+      before_run:revert()
+      handle_submit:revert()
+    end)
+
+    it('opens or creates a session before submitting input', function()
+      workflow.actions.submit_input_prompt():wait(1000)
+
+      assert.stub(before_run).was_called(1)
+      assert.stub(handle_submit).was_called(1)
+    end)
+  end)
 end)

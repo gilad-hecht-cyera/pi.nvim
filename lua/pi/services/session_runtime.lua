@@ -247,7 +247,7 @@ end)
 ---@param opts? SendMessageOpts
 function M.before_run(opts)
   local is_new_session = opts and opts.new_session or not state.active_session
-  M.open({
+  return M.open({
     new_session = is_new_session,
   })
 end

@@ -272,6 +272,10 @@ function RpcClient:get_entries(since)
   return self:request({ type = 'get_entries', since = since })
 end
 
+function RpcClient:get_fork_messages()
+  return self:request({ type = 'get_fork_messages' })
+end
+
 function RpcClient:get_tree()
   return self:request({ type = 'get_tree' })
 end

@@ -396,6 +396,125 @@ describe('renderer unit tests', function()
     assert.are.equal(1, #revert_messages)
   end)
 
+  it('renders live Pi messages after existing history without ID collisions', function()
+    local renderer = require('pi.ui.renderer')
+    local event_adapter = require('pi.event_adapter')
+
+    helpers.replay_setup()
+
+    state.session.set_active({
+      id = 'ses_stream',
+      title = 'Session',
+      time = { created = 1, updated = 1 },
+    })
+    renderer.setup_subscriptions(true)
+    renderer._render_full_session_data(event_adapter.messages_from_pi({
+      { role = 'user', content = { { type = 'text', text = 'old history' } }, timestamp = 1000 },
+      { role = 'assistant', content = { { type = 'text', text = 'old answer' } }, timestamp = 1001 },
+    }))
+
+    event_adapter.handle_event({
+      type = 'message_start',
+      message = { role = 'user', content = 'new live message', timestamp = 2000 },
+    })
+    state.event_manager.throttling_emitter:_drain()
+
+    local lines = table.concat(vim.api.nvim_buf_get_lines(state.windows.output_buf, 0, -1, false), '\n')
+    assert.is_truthy(lines:find('old history', 1, true))
+    assert.is_truthy(lines:find('new live message', 1, true))
+  end)
+
+  it('flushes streamed events when the event batch finishes', function()
+    local renderer = require('pi.ui.renderer')
+    local event_adapter = require('pi.event_adapter')
+
+    helpers.replay_setup()
+
+    state.session.set_active({
+      id = 'ses_stream',
+      title = 'Session',
+      time = { created = 1, updated = 1 },
+    })
+    renderer.setup_subscriptions(true)
+
+    event_adapter.handle_event({
+      type = 'message_start',
+      message = { role = 'user', content = 'streamed message visible', timestamp = 1 },
+    })
+    state.event_manager.throttling_emitter:_drain()
+
+    local lines = table.concat(vim.api.nvim_buf_get_lines(state.windows.output_buf, 0, -1, false), '\n')
+    assert.is_truthy(lines:find('streamed message visible', 1, true))
+  end)
+
+  it('does not duplicate a streamed tool across planning, execution, and final message events', function()
+    local renderer = require('pi.ui.renderer')
+    local event_adapter = require('pi.event_adapter')
+
+    helpers.replay_setup()
+
+    state.session.set_active({
+      id = 'ses_stream',
+      title = 'Session',
+      time = { created = 1, updated = 1 },
+    })
+    renderer.setup_subscriptions(true)
+
+    local tool_call = {
+      id = 'call_shell_1',
+      name = 'bash',
+      arguments = { command = 'echo streamed-tool-once' },
+    }
+
+    event_adapter.handle_event({
+      type = 'message_start',
+      message = {
+        role = 'assistant',
+        content = {},
+        responseId = 'assistant_1',
+        timestamp = 1,
+      },
+    })
+    event_adapter.handle_event({
+      type = 'message_update',
+      assistantMessageEvent = { type = 'toolcall_end', contentIndex = 0, toolCall = tool_call },
+    })
+    event_adapter.handle_event({
+      type = 'tool_execution_start',
+      toolCallId = 'call_shell_1',
+      toolName = 'bash',
+      args = tool_call.arguments,
+    })
+    event_adapter.handle_event({
+      type = 'tool_execution_end',
+      toolCallId = 'call_shell_1',
+      toolName = 'bash',
+      args = tool_call.arguments,
+      result = { content = 'streamed-tool-once\n' },
+    })
+    event_adapter.handle_event({
+      type = 'message_end',
+      message = {
+        role = 'assistant',
+        content = {
+          {
+            type = 'toolCall',
+            id = 'call_shell_1',
+            name = 'bash',
+            arguments = tool_call.arguments,
+          },
+        },
+        responseId = 'assistant_1',
+        timestamp = 1,
+      },
+    })
+    state.event_manager.throttling_emitter:_drain()
+
+    local lines = table.concat(vim.api.nvim_buf_get_lines(state.windows.output_buf, 0, -1, false), '\n')
+    local _, run_count = lines:gsub('%*%*.- run%*%*', '')
+    assert.are.equal(1, run_count)
+  end)
+
   it('supports output target navigation from a replayed assistant file reference', function()
     local renderer = require('pi.ui.renderer')
     local navigation = require('pi.ui.navigation')

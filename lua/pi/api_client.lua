@@ -419,6 +419,111 @@ function PiApiClient:summarize_session(id, summary_data, directory)
   return self:_call('/session/' .. id .. '/summarize', 'POST', summary_data, { directory = directory })
 end
 
+local function message_text_for_fork(message)
+  local parts = {}
+  for _, part in ipairs(message and message.parts or {}) do
+    if part.type == 'text' and part.synthetic ~= true and type(part.text) == 'string' then
+      parts[#parts + 1] = part.text
+    end
+  end
+  return table.concat(parts, '')
+end
+
+local function resolve_pi_fork_entry_id(message_id)
+  local ordinal = 0
+  local target_ordinal
+  local target_text
+
+  for _, message in ipairs(state.messages or {}) do
+    if message.info and message.info.role == 'user' then
+      local text = message_text_for_fork(message)
+      if text ~= '' then
+        ordinal = ordinal + 1
+        if message.info.id == message_id then
+          target_ordinal = ordinal
+          target_text = text
+          break
+        end
+      end
+    end
+  end
+
+  if not target_ordinal then
+    return require('pi.promise').new():reject('Message not found for fork: ' .. tostring(message_id))
+  end
+
+  return require('pi.rpc_client').get():get_fork_messages():and_then(function(data)
+    local messages = data and data.messages or {}
+    local by_position = messages[target_ordinal]
+    if by_position and by_position.entryId then
+      return by_position.entryId
+    end
+
+    for _, message in ipairs(messages) do
+      if message.text == target_text and message.entryId then
+        return message.entryId
+      end
+    end
+
+    error('Entry not found for message: ' .. tostring(message_id))
+  end)
+end
+
+local function fork_base_title(title)
+  title = tostring(title or ''):gsub('^%s+', ''):gsub('%s+$', '')
+  local n, base = title:match('^FORK%s+(%d+)%s+(.+)$')
+  if base then
+    return base, tonumber(n) or 0
+  end
+  base = title:match('^FORK%s+(.+)$')
+  if base then
+    return base, 0
+  end
+  return title ~= '' and title or 'Pi session', 0
+end
+
+local function lua_pattern_escape(text)
+  return (text:gsub('([^%w])', '%%%1'))
+end
+
+local function next_fork_title(previous_title)
+  local base, current_counter = fork_base_title(previous_title)
+  local max_counter = current_counter
+  local pattern = '^FORK%s+(%d+)%s+' .. lua_pattern_escape(base) .. '$'
+
+  for _, session_item in ipairs(require('pi.pi_sessions').list_workspace_sessions(vim.fn.getcwd()) or {}) do
+    local title = session_item.title or session_item.name or ''
+    local counter = tonumber(title:match(pattern))
+    if counter and counter > max_counter then
+      max_counter = counter
+    end
+  end
+
+  return 'FORK ' .. tostring(max_counter + 1) .. ' ' .. base
+end
+
+local function enrich_pi_fork_response(rpc, id, response)
+  if response and response.cancelled then
+    return response
+  end
+
+  return rpc:get_state():and_then(function(pi_state)
+    local session_id = pi_state.sessionFile or pi_state.sessionId or id or 'pi-session'
+    response = type(response) == 'table' and response or {}
+    response.id = session_id
+    response.session = {
+      id = session_id,
+      title = pi_state.sessionName or 'Pi session',
+      directory = vim.fn.getcwd(),
+      path = pi_state.sessionFile,
+      sessionFile = pi_state.sessionFile,
+      sessionID = pi_state.sessionId,
+      time = { created = vim.uv.now(), updated = vim.uv.now() },
+    }
+    return response
+  end)
+end
+
 --- Fork an existing session at a specific message
 --- @param id string Session ID (required)
 --- @param fork_data {messageID?: string}|nil Fork data
@@ -427,10 +532,25 @@ end
 function PiApiClient:fork_session(id, fork_data, directory)
   if config.backend == 'pi' then
     local rpc = require('pi.rpc_client').get()
+    local fork_title = next_fork_title(state.active_session and state.active_session.title)
+    local request
     if fork_data and fork_data.messageID then
-      return rpc:fork(fork_data.messageID)
+      request = resolve_pi_fork_entry_id(fork_data.messageID):and_then(function(entry_id)
+        return rpc:fork(entry_id)
+      end)
+    else
+      request = rpc:clone()
     end
-    return rpc:clone()
+    return request:and_then(function(response)
+      if response and response.cancelled then
+        return response
+      end
+      return rpc:set_session_name(fork_title):catch(function()
+        return nil
+      end):and_then(function()
+        return enrich_pi_fork_response(rpc, id, response)
+      end)
+    end)
   end
   return self:_call('/session/' .. id .. '/fork', 'POST', fork_data, { directory = directory })
 end
@@ -515,6 +635,12 @@ end
 --- @param directory string|nil Directory path
 --- @return Promise<Session>
 function PiApiClient:revert_message(id, revert_data, directory)
+  if config.backend == 'pi' then
+    if not (revert_data and revert_data.messageID) then
+      return require('pi.promise').new():reject('Missing messageID')
+    end
+    return self:fork_session(id, { messageID = revert_data.messageID }, directory)
+  end
   return self:_call('/session/' .. id .. '/revert', 'POST', revert_data, { directory = directory })
 end
 
