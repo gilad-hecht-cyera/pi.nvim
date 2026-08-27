@@ -866,6 +866,15 @@ end
 ---@return boolean success Whether the picker was successfully launched
 function M.pick(opts)
   local picker_type = picker.get_best_picker()
+  local has_preview = opts.preview and opts.preview ~= 'none' and opts.preview ~= false
+
+  -- mini.pick doesn't provide a side preview pane. If a preview-capable picker
+  -- is also available, prefer it for pickers that request previews.
+  local preferred_picker = config.preferred_picker
+  local explicitly_prefers_mini = preferred_picker == 'mini.pick' or preferred_picker == 'mini'
+  if picker_type == 'mini.pick' and has_preview and not explicitly_prefers_mini and pcall(require, 'snacks') then
+    picker_type = 'snacks'
+  end
 
   if not opts.width then
     opts.width = config.ui.picker_width
@@ -906,7 +915,6 @@ function M.pick(opts)
     end
   end
 
-  local has_preview = opts.preview and opts.preview ~= 'none' and opts.preview ~= false
   if picker_type == 'fzf' and has_preview and format_width then
     local window_cols = format_width + 8
     -- Match fzf-lua's default right:60% preview split so item formatting

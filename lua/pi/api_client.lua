@@ -564,8 +564,15 @@ end
 --- @return Promise<PiMessage[]>
 function PiApiClient:list_messages(id, directory, opts)
   if config.backend == 'pi' then
+    local pi_sessions = require('pi.pi_sessions')
+    local active_session_id = state.active_session and state.active_session.id or nil
+    local target = pi_sessions.get_by_path(id)
+    if target and target.path and id ~= active_session_id then
+      return require('pi.promise').new():resolve(pi_sessions.get_messages(target.path))
+    end
+
     return require('pi.rpc_client').get():get_messages():and_then(function(data)
-      return require('pi.event_adapter').messages_from_pi(data.messages or {})
+      return require('pi.event_adapter').messages_from_pi(data.messages or {}, active_session_id)
     end)
   end
   local query = { directory = directory }

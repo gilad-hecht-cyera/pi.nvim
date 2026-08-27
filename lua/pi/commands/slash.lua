@@ -97,7 +97,6 @@ local function builtin_commands()
       return require('pi.commands.handlers.session').actions.autoname_session()
     end),
     pi_command('/name', 'Set Pi session display name', 'name', true),
-    pi_command('/session', 'Show Pi session info', 'session', false),
     pi_command('/tree', 'Open Pi session tree in Pi', 'tree', false),
     pi_command('/fork', 'Fork current Pi session in Pi', 'fork', true),
     pi_command('/clone', 'Clone current Pi branch in Pi', 'clone', false),
@@ -109,8 +108,17 @@ local function builtin_commands()
   }
 end
 
+local excluded_slash_commands = {
+  ['/session'] = true,
+}
+
 local function add_unique(result, seen, command)
-  if not command or not command.slash_cmd or seen[command.slash_cmd] then
+  if
+    not command
+    or not command.slash_cmd
+    or seen[command.slash_cmd]
+    or excluded_slash_commands[command.slash_cmd]
+  then
     return
   end
   seen[command.slash_cmd] = true

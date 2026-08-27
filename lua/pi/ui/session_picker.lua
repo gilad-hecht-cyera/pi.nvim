@@ -78,59 +78,18 @@ local function append_extmarks(target, extmarks, line_offset)
   end
 end
 
---- Filter messages for preview: keep first user message + last assistant message
---- This is a display strategy — format_messages is the rendering mechanism.
----@param messages PiMessage[]
----@return PiMessage[], integer omitted_count
-local function filter_preview_messages(messages)
-  if #messages <= 2 then
-    return messages, 0
-  end
-  local first_user_idx = nil
-  local last_assistant_idx = nil
-  for i, msg in ipairs(messages) do
-    if msg.info and msg.info.role == 'user' and not first_user_idx then
-      first_user_idx = i
-    end
-    if msg.info and msg.info.role == 'assistant' then
-      last_assistant_idx = i
-    end
-  end
-  local result = {}
-  if first_user_idx then
-    table.insert(result, messages[first_user_idx])
-  end
-  if last_assistant_idx then
-    table.insert(result, messages[last_assistant_idx])
-  end
-  if #result == 0 then
-    return messages, 0
-  end
-  local omitted = #messages - #result
-  return result, omitted
-end
-
 --- Format messages using the existing formatter, aggregating all Outputs
 ---@param messages PiMessage[]
----@param omitted_count? integer Number of messages omitted between first and second (for preview)
 ---@return { lines: string[], extmarks: table<number, OutputExtmark[]>, fold_ranges: table<{from: integer, to: integer}> }
-local function format_messages(messages, omitted_count)
+local function format_messages(messages)
   local formatter = require('pi.ui.formatter')
   local all_lines = {}
   local all_extmarks = {}
   local all_fold_ranges = {}
   local line_offset = 0
-  local rendered_count = 0
 
   for _, msg in ipairs(messages) do
     if msg.info and msg.info.role then
-      -- Insert omitted notice between first and second rendered message
-      if rendered_count == 1 and omitted_count and omitted_count > 0 then
-        local notice = string.format('  ⋯ %d message(s) omitted ⋯', omitted_count)
-        vim.list_extend(all_lines, { '', notice, '' })
-        line_offset = line_offset + 3
-      end
-
       -- Format message header (no previous_message: show full header in preview)
       local header = formatter.format_message_header(msg)
       vim.list_extend(all_lines, header.lines)
@@ -169,7 +128,6 @@ local function format_messages(messages, omitted_count)
         -- Note: Output.actions intentionally not collected (preview doesn't support interactive actions)
       end
 
-      rendered_count = rendered_count + 1
     end
   end
 
@@ -225,10 +183,24 @@ local function render_preview_buffer(target, formatted)
   end)
 end
 
+local function dedupe_sessions(sessions)
+  local result = {}
+  local seen = {}
+  for _, session in ipairs(sessions or {}) do
+    local key = session.sessionID or session.id or session.path
+    if key and not seen[key] then
+      seen[key] = true
+      table.insert(result, session)
+    end
+  end
+  return result
+end
+
 ---@param sessions Session[]
 ---@param callback fun(session: Session|nil)
 ---@param opts? { scope?: 'project' | 'global' }
 function M.pick(sessions, callback, opts)
+  sessions = dedupe_sessions(sessions)
   local actions = {
     rename = {
       key = config.keymap.session_picker.rename_session,
@@ -361,7 +333,7 @@ function M.pick(sessions, callback, opts)
         local session_runtime = require('pi.services.session_runtime')
         local new_scope = (opts.scope == 'global') and 'project' or 'global'
         local new_sessions = session_runtime.list_sessions_by_scope(new_scope)
-        local filtered_sessions = session_runtime.filter_pickable_sessions(new_sessions, nil)
+        local filtered_sessions = dedupe_sessions(session_runtime.filter_pickable_sessions(new_sessions, nil))
         opts.scope = new_scope
         return filtered_sessions
       end),
@@ -413,8 +385,7 @@ function M.pick(sessions, callback, opts)
           end
 
           messages = normalize_message_order(messages)
-          local preview_msgs, omitted = filter_preview_messages(messages)
-          local formatted = format_messages(preview_msgs, omitted)
+          local formatted = format_messages(messages)
           render_preview_buffer(target, formatted)
         end)
         :catch(function()

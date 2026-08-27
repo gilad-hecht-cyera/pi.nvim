@@ -37,11 +37,11 @@ local function message_id_from_message(role, message, fallback)
   return fallback or next_id('pi_msg', 'message')
 end
 
-local function message_info(role, id, message)
+local function message_info(role, id, message, session_id_override)
   return {
     id = id,
     role = role,
-    sessionID = session_id(),
+    sessionID = session_id_override or session_id(),
     providerID = message and message.provider,
     modelID = message and message.model,
     time = { created = message and message.timestamp or vim.uv.now() },
@@ -198,7 +198,7 @@ local function emit_full_message(message, index)
   end
 end
 
-function M.messages_from_pi(messages)
+function M.messages_from_pi(messages, session_id_override)
   local converted = {}
   for i, message in ipairs(messages or {}) do
     local role = message.role == 'toolResult' and 'assistant' or message.role
@@ -213,7 +213,7 @@ function M.messages_from_pi(messages)
       table.insert(parts, {
         id = message_id .. '_part_1',
         messageID = message_id,
-        sessionID = session_id(),
+        sessionID = session_id_override or session_id(),
         type = 'text',
         text = content_to_text(message.content),
         synthetic = true,
@@ -223,7 +223,7 @@ function M.messages_from_pi(messages)
         table.insert(parts, {
           id = message_id .. '_part_1',
           messageID = message_id,
-          sessionID = session_id(),
+          sessionID = session_id_override or session_id(),
           type = 'text',
           text = 'Pi stopped: ' .. tostring(message.errorMessage or message.stopReason),
           synthetic = true,
@@ -233,7 +233,7 @@ function M.messages_from_pi(messages)
         local part = {
           id = message_id .. '_part_' .. tostring(part_index),
           messageID = message_id,
-          sessionID = session_id(),
+          sessionID = session_id_override or session_id(),
           type = 'text',
         }
         if item.type == 'thinking' then
@@ -258,14 +258,14 @@ function M.messages_from_pi(messages)
       table.insert(parts, {
         id = message_id .. '_part_1',
         messageID = message_id,
-        sessionID = session_id(),
+        sessionID = session_id_override or session_id(),
         type = 'text',
         text = content_to_text(message.content),
       })
     end
 
     table.insert(converted, {
-      info = message_info(role, message_id, message),
+      info = message_info(role, message_id, message, session_id_override),
       parts = parts,
     })
   end

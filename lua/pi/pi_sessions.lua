@@ -37,6 +37,25 @@ local function truncate(text, max_len)
   return text:sub(1, max_len - 1) .. '…'
 end
 
+local function read_session_messages(path)
+  local stat = vim.uv.fs_stat(path)
+  if not stat or stat.type ~= 'file' then
+    return nil
+  end
+
+  local messages = {}
+  for line in io.lines(path) do
+    local ok, entry = pcall(vim.json.decode, line)
+    if ok and type(entry) == 'table' and entry.type == 'message' and type(entry.message) == 'table' then
+      local message = vim.deepcopy(entry.message)
+      message.timestamp = message.timestamp or entry.timestamp
+      table.insert(messages, message)
+    end
+  end
+
+  return require('pi.event_adapter').messages_from_pi(messages, path)
+end
+
 local function read_session_file(path, cwd)
   local stat = vim.uv.fs_stat(path)
   if not stat or stat.type ~= 'file' then
@@ -106,11 +125,22 @@ function M.list_workspace_sessions(cwd)
   end
 
   local sessions = {}
+  local seen = {}
   local files = vim.fn.glob(vim.fs.joinpath(root, '**', '*.jsonl'), false, true)
   for _, path in ipairs(files or {}) do
     local session = read_session_file(vim.fs.normalize(path), cwd)
     if session then
-      table.insert(sessions, session)
+      local key = session.sessionID or session.id
+      local existing_idx = seen[key]
+      if existing_idx then
+        local existing = sessions[existing_idx]
+        if (session.time and session.time.updated or 0) > (existing.time and existing.time.updated or 0) then
+          sessions[existing_idx] = session
+        end
+      else
+        seen[key] = #sessions + 1
+        table.insert(sessions, session)
+      end
     end
   end
 
@@ -126,6 +156,13 @@ function M.get_by_path(path)
     return nil
   end
   return read_session_file(vim.fs.normalize(path), nil)
+end
+
+function M.get_messages(path)
+  if not path or path == '' then
+    return {}
+  end
+  return read_session_messages(vim.fs.normalize(path)) or {}
 end
 
 return M

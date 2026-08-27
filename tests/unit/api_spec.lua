@@ -218,6 +218,7 @@ describe('pi.api', function()
 
         assert.truthy(find_slash_command(slash_commands, '/help'))
         assert.truthy(find_slash_command(slash_commands, '/build'))
+        assert.is_nil(find_slash_command(slash_commands, '/session'))
       end)
     end)
   end)

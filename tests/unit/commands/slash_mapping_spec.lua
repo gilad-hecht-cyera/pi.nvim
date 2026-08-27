@@ -134,4 +134,21 @@ describe('slash command mapping', function()
 
     assert.same({ '/build --fast' }, prompts)
   end)
+
+  it('does not expose /session even when Pi RPC reports it', function()
+    rpc_commands = {
+      { name = 'session', description = 'Show session info' },
+    }
+
+    local slash_commands = slash.get_commands():wait()
+    local cmd
+    for _, entry in ipairs(slash_commands) do
+      if entry.slash_cmd == '/session' then
+        cmd = entry
+        break
+      end
+    end
+
+    assert.is_nil(cmd)
+  end)
 end)
