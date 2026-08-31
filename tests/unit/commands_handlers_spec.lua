@@ -584,6 +584,31 @@ describe('pi.commands.handlers', function()
     assert.equal('noop', called_with.empty_policy)
   end)
 
+  it('routes automatic naming through the backend extension command', function()
+    local state = require('pi.state')
+    local rpc_client = require('pi.rpc_client')
+    local original_active_session = state.active_session
+    state.session.set_active({ id = 'session-id', title = 'Initial prompt' })
+    local prompted
+    local get_stub = stub(rpc_client, 'get').returns({
+      prompt = function(_, message)
+        prompted = message
+        return require('pi.promise').new():resolve(true)
+      end,
+      get_state = function()
+        return require('pi.promise').new():resolve({ sessionName = 'Automatic session naming' })
+      end,
+    })
+
+    local title = require('pi.commands.handlers.session').actions.autoname_session():await()
+
+    assert.equal('/pi-nvim-autoname', prompted)
+    assert.equal('Automatic session naming', title)
+    assert.equal('Automatic session naming', state.active_session.title)
+    get_stub:revert()
+    state.session.set_active(original_active_session)
+  end)
+
   describe('copy_message', function()
     local state
     local active_session

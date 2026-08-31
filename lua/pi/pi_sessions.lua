@@ -63,6 +63,7 @@ local function read_session_file(path, cwd)
   end
 
   local header
+  local session_name
   local first_user_text
   local last_timestamp
   local last_model
@@ -80,7 +81,9 @@ local function read_session_file(path, cwd)
 
       last_timestamp = entry.timestamp or last_timestamp
 
-      if entry.type == 'model_change' and entry.provider and entry.modelId then
+      if entry.type == 'session_info' then
+        session_name = truncate(entry.name, 70)
+      elseif entry.type == 'model_change' and entry.provider and entry.modelId then
         last_model = entry.provider .. '/' .. entry.modelId
       elseif entry.type == 'message' and entry.message then
         message_count = message_count + 1
@@ -98,7 +101,7 @@ local function read_session_file(path, cwd)
     return nil
   end
 
-  local title = first_user_text or header.name or header.id or vim.fn.fnamemodify(path, ':t:r')
+  local title = session_name or header.name or first_user_text or header.id or vim.fn.fnamemodify(path, ':t:r')
   local updated = math.floor((stat.mtime and stat.mtime.sec or os.time()) * 1000)
   local created = math.floor((stat.birthtime and stat.birthtime.sec or stat.ctime and stat.ctime.sec or stat.mtime.sec) * 1000)
 

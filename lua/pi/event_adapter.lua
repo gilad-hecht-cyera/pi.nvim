@@ -292,6 +292,17 @@ function M.handle_event(event)
     return
   end
 
+  if event.type == 'session_info_changed' then
+    if state.active_session and event.name and event.name ~= '' then
+      local active_session = vim.deepcopy(state.active_session)
+      active_session.title = event.name
+      active_session.description = event.name
+      state.session.update_silently(active_session)
+      emit('session.updated', { info = active_session })
+    end
+    return
+  end
+
   if event.type == 'agent_start' then
     emit('session.status', { sessionID = session_id(), status = { type = 'busy', message = 'Pi is working' } })
     return

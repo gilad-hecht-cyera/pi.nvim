@@ -66,12 +66,15 @@ Useful slash commands in the input window:
 - `/rename` or `/autoname` ask Pi to suggest and apply a concise session name
 - `/session` show current session info
 
+New unnamed sessions are automatically given a concise display name after their first `agent_settled` event. Existing
+and manually assigned names are never overwritten automatically.
+
 ## Pi backend
 
-The plugin spawns:
+The plugin spawns Pi RPC with its bundled session-naming extension:
 
 ```bash
-pi --mode rpc
+pi --mode rpc --extension <pi.nvim>/extensions/auto-session-name.ts
 ```
 
 RPC is JSONL over stdin/stdout. No opencode HTTP server, REST API, or SSE stream is used by the Pi namespace.

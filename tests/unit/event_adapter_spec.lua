@@ -26,6 +26,17 @@ describe('event_adapter', function()
     event_adapter.handle_event({ type = 'agent_settled' })
   end)
 
+  it('updates the active session when the backend names it', function()
+    event_adapter.handle_event({ type = 'session_info_changed', name = 'Automatic session naming' })
+
+    assert.equal('Automatic session naming', state.active_session.title)
+    assert.equal('Automatic session naming', state.active_session.description)
+    assert.same({
+      type = 'session.updated',
+      properties = { info = state.active_session },
+    }, events[1])
+  end)
+
   it('uses one stable part id for tool planning, execution, and final message events', function()
     local tool_call = {
       id = 'call_shell_1',
