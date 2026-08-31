@@ -909,12 +909,49 @@ local function add_file_reference_highlights(output, rendered, rendered_referenc
   end
 end
 
+---@param output Output
+---@param rendered string
+---@param first_line_idx integer
+local function add_interim_text_highlights(output, rendered, first_line_idx)
+  for line_idx, line in ipairs(vim.split(rendered, '\n')) do
+    if line ~= '' then
+      output:add_extmark(first_line_idx + line_idx - 1, {
+        start_col = 0,
+        end_col = #line,
+        hl_group = 'PiAssistantInterimText',
+        priority = 800,
+      })
+    end
+  end
+end
+
+---@param message PiMessage|nil
+---@param part PiMessagePart|nil
+---@return boolean
+local function is_interim_assistant_text_part(message, part)
+  if not message or not message.parts or not part then
+    return false
+  end
+
+  local found = false
+  for _, candidate in ipairs(message.parts) do
+    if candidate.id == part.id then
+      found = true
+    elseif found and candidate.type ~= 'step-start' and candidate.type ~= 'step-finish' then
+      return true
+    end
+  end
+
+  return false
+end
+
 ---@param output Output Output object to write to
 ---@param text string
 ---@param part? PiMessagePart
 ---@param message? PiMessage
 ---@param context? FormatterContext
-function M._format_assistant_message(output, text, part, message, context)
+---@param opts? {interim?: boolean}
+function M._format_assistant_message(output, text, part, message, context, opts)
   local references = current_part_text_references(part, message, text, context)
   local rendered, rendered_reference_ranges, rendered_mention_ranges =
     rendered_text_with_reference_ranges(text, references, available_file_set(context))
@@ -929,6 +966,9 @@ function M._format_assistant_message(output, text, part, message, context)
   local first_line_idx = output:get_line_count()
 
   output:add_lines(vim.split(rendered, '\n'))
+  if opts and opts.interim then
+    add_interim_text_highlights(output, rendered, first_line_idx)
+  end
   if context and context.interactive then
     add_file_reference_targets(output, rendered, rendered_reference_ranges, first_line_idx)
   end
@@ -1052,7 +1092,9 @@ function M.format_part(part, message, is_last_part, context)
     end
   elseif role == 'assistant' then
     if part.type == 'text' and part.text then
-      M._format_assistant_message(output, vim.trim(part.text), part, message, context)
+      M._format_assistant_message(output, vim.trim(part.text), part, message, context, {
+        interim = is_interim_assistant_text_part(message, part),
+      })
       content_added = true
     elseif part.type == 'reasoning' then
       M._format_reasoning(output, part)

@@ -421,6 +421,54 @@ describe('formatter', function()
     }, output.targets[1])
   end)
 
+  it('marks interim assistant text with elevated priority', function()
+    local text = '**Planning heuristic search**'
+    local part = { id = 'part_interim', type = 'text', text = text }
+    local message = {
+      info = { id = 'msg_interim', role = 'assistant' },
+      parts = {
+        part,
+        { id = 'part_tool', type = 'tool', tool = 'bash' },
+      },
+    }
+
+    local output = formatter.format_part(part, message, false, {})
+
+    assert.are.equal(text, output.lines[1])
+    assert.are.same({
+      {
+        start_col = 0,
+        end_col = #text,
+        hl_group = 'PiAssistantInterimText',
+        priority = 800,
+      },
+    }, output.extmarks[0])
+  end)
+
+  it('marks synthetic interim assistant text', function()
+    local text = '**Planning highlight patch with nocombine**'
+    local part = { id = 'part_thinking', type = 'text', text = text, synthetic = true }
+    local message = {
+      info = { id = 'msg_thinking', role = 'assistant' },
+      parts = {
+        part,
+        { id = 'part_text', type = 'text', text = 'I’ll make the interim highlight non-combining.' },
+      },
+    }
+
+    local output = formatter.format_part(part, message, false, {})
+
+    assert.are.equal(text, output.lines[1])
+    assert.are.same({
+      {
+        start_col = 0,
+        end_col = #text,
+        hl_group = 'PiAssistantInterimText',
+        priority = 800,
+      },
+    }, output.extmarks[0])
+  end)
+
   it('leaves unavailable file mentions inert', function()
     local text = 'See `src/missing.lua` now'
     local ref_start, ref_end = text:find('`src/missing.lua`', 1, true)
@@ -1124,6 +1172,41 @@ describe('formatter', function()
       local message = { info = { id = 'msg_1', role = 'assistant', sessionID = 'ses_1' }, parts = {} }
       local output = formatter.format_part(make_bash_part(), message, true)
       assert.is_true(#output.fold_ranges > 0)
+    end)
+
+    describe('assistant interim text', function()
+      it('highlights assistant text parts followed by later visible parts', function()
+        local part = { id = 'text_1', type = 'text', text = 'I will inspect this.' }
+        local message = {
+          info = { id = 'msg-assistant', role = 'assistant' },
+          parts = {
+            part,
+            { id = 'tool_1', type = 'tool', tool = 'bash' },
+          },
+        }
+
+        local output = formatter.format_part(part, message, false, {})
+
+        assert.are.equal('I will inspect this.', output.lines[1])
+        assert.are.equal('PiAssistantInterimText', output.extmarks[0][1].hl_group)
+      end)
+
+      it('does not highlight final assistant text parts', function()
+        local part = { id = 'text_1', type = 'text', text = 'Done.' }
+        local message = {
+          info = { id = 'msg-assistant', role = 'assistant' },
+          parts = {
+            { id = 'tool_1', type = 'tool', tool = 'bash' },
+            part,
+            { id = 'finish_1', type = 'step-finish' },
+          },
+        }
+
+        local output = formatter.format_part(part, message, false, {})
+
+        assert.are.equal('Done.', output.lines[1])
+        assert.is_nil(output.extmarks[0])
+      end)
     end)
 
     describe('message actions', function()

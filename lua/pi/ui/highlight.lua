@@ -44,6 +44,11 @@ function M.setup()
     vim.api.nvim_set_hl(0, 'PiReference', { fg = '#5F7896', default = true })
     vim.api.nvim_set_hl(0, 'PiSymbolReference', { link = 'Identifier', default = true })
     vim.api.nvim_set_hl(0, 'PiReasoningText', { link = 'Comment', default = true })
+    vim.api.nvim_set_hl(
+      0,
+      'PiAssistantInterimText',
+      { fg = '#757575', italic = true, bold = false, nocombine = true, default = true }
+    )
     vim.api.nvim_set_hl(0, 'PiPermissionTitle', { fg = '#FF9E3B', default = true })
     vim.api.nvim_set_hl(0, 'PiDialogOptionHover', { bg = '#E3F2FD', fg = '#1976D2', default = true })
     vim.api.nvim_set_hl(0, 'PiQuestionOption', { link = 'Normal', default = true })
@@ -93,6 +98,11 @@ function M.setup()
     vim.api.nvim_set_hl(0, 'PiReference', { fg = '#8AA6C8', default = true })
     vim.api.nvim_set_hl(0, 'PiSymbolReference', { link = 'Identifier', default = true })
     vim.api.nvim_set_hl(0, 'PiReasoningText', { link = 'Comment', default = true })
+    vim.api.nvim_set_hl(
+      0,
+      'PiAssistantInterimText',
+      { fg = '#7F8490', italic = true, bold = false, nocombine = true, default = true }
+    )
     vim.api.nvim_set_hl(0, 'PiPermissionTitle', { fg = '#FF9E3B', default = true })
     vim.api.nvim_set_hl(0, 'PiDialogOptionHover', { bg = '#2B3A5A', fg = '#61AFEF', default = true })
     vim.api.nvim_set_hl(0, 'PiQuestionOption', { link = 'Normal', default = true })

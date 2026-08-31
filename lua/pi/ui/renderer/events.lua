@@ -80,6 +80,23 @@ local function mark_following_assistant_text_parts_dirty(message, changed_part_i
   end
 end
 
+local function mark_previous_assistant_text_part_dirty(message, changed_part_index)
+  if not is_assistant_message(message) or not changed_part_index then
+    return
+  end
+
+  local message_id = message.info and message.info.id
+  for index = changed_part_index - 1, 1, -1 do
+    local part = message.parts[index]
+    if part.type ~= 'step-start' and part.type ~= 'step-finish' then
+      if part.type == 'text' and part.text and part.id and not part.synthetic then
+        flush.mark_part_dirty(part.id, message_id)
+      end
+      return
+    end
+  end
+end
+
 local function mark_rendered_assistant_text_parts_dirty()
   local active_session_id = state.active_session and state.active_session.id
   if not active_session_id then
@@ -455,6 +472,9 @@ function M.on_part_updated(properties, revert_index)
 
   if is_new_part then
     flush.mark_part_dirty(part.id, part.messageID)
+    if part.type ~= 'step-start' and part.type ~= 'step-finish' then
+      mark_previous_assistant_text_part_dirty(message, find_part_index(message, part.id))
+    end
 
     -- If there's already an error on this message, adjust adjacent parts so
     -- the error only appears after the last part.
