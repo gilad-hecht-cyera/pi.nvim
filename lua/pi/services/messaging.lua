@@ -41,21 +41,28 @@ M.send_message = Promise.async(function(prompt, opts)
     local session_id = state.active_session.id
     local sent_context = vim.deepcopy(context.get_context())
     context.unload_attachments()
+    local queued_message_id = state.session.queue_user_message(session_id, prompt)
     local sent_message_count = vim.deepcopy(state.user_message_count)
     sent_message_count[session_id] = (sent_message_count[session_id] or 0) + 1
     state.session.set_user_message_count(sent_message_count)
-    require('pi.rpc_client').get():prompt(message):and_then(function()
-      sent_message_count = vim.deepcopy(state.user_message_count)
-      sent_message_count[session_id] = math.max(0, (sent_message_count[session_id] or 1) - 1)
-      state.session.set_user_message_count(sent_message_count)
-      M.after_run(prompt, sent_context)
-    end):catch(function(err)
-      log.notify('Error sending message to pi: ' .. vim.inspect(err), vim.log.levels.ERROR)
-      sent_message_count = vim.deepcopy(state.user_message_count)
-      sent_message_count[session_id] = math.max(0, (sent_message_count[session_id] or 1) - 1)
-      state.session.set_user_message_count(sent_message_count)
-      session_runtime.cancel():await()
-    end):await()
+    require('pi.rpc_client')
+      .get()
+      :prompt(message)
+      :and_then(function()
+        sent_message_count = vim.deepcopy(state.user_message_count)
+        sent_message_count[session_id] = math.max(0, (sent_message_count[session_id] or 1) - 1)
+        state.session.set_user_message_count(sent_message_count)
+        M.after_run(prompt, sent_context)
+      end)
+      :catch(function(err)
+        log.notify('Error sending message to pi: ' .. vim.inspect(err), vim.log.levels.ERROR)
+        sent_message_count = vim.deepcopy(state.user_message_count)
+        sent_message_count[session_id] = math.max(0, (sent_message_count[session_id] or 1) - 1)
+        state.session.set_user_message_count(sent_message_count)
+        state.session.remove_queued_user_message(session_id, queued_message_id)
+        session_runtime.cancel():await()
+      end)
+      :await()
     return
   end
 
@@ -102,6 +109,7 @@ M.send_message = Promise.async(function(prompt, opts)
     state.session.set_user_message_count(sent_message_count)
   end
 
+  local queued_message_id = state.session.queue_user_message(session_id, prompt)
   update_sent_message_count(1)
 
   state.api_client
@@ -111,6 +119,7 @@ M.send_message = Promise.async(function(prompt, opts)
 
       if not response or not response.info or not response.parts then
         log.notify('Invalid response from pi: ' .. vim.inspect(response), vim.log.levels.ERROR)
+        state.session.remove_queued_user_message(session_id, queued_message_id)
         session_runtime.cancel():await()
         return
       end
@@ -120,6 +129,7 @@ M.send_message = Promise.async(function(prompt, opts)
     :catch(function(err)
       log.notify('Error sending message to session: ' .. vim.inspect(err), vim.log.levels.ERROR)
       update_sent_message_count(-1)
+      state.session.remove_queued_user_message(session_id, queued_message_id)
       session_runtime.cancel():await()
     end)
     :await()

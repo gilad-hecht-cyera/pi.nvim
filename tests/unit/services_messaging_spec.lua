@@ -23,6 +23,7 @@ describe('pi.services.messaging', function()
     original_backend = config.backend
     config.backend = 'config_file'
     support.mock_api_client()
+    state.session.clear_queued_user_messages()
   end)
 
   after_each(function()
@@ -254,6 +255,32 @@ describe('pi.services.messaging', function()
     assert.equal('build', captured_params.agent)
     state.api_client.create_message = orig
     config_file.get_pi_agents:revert()
+  end)
+
+  it('keeps a prompt queued until its user message is acknowledged', function()
+    state.ui.set_windows({ mock = 'windows' })
+    state.session.set_active({ id = 'sess1' })
+
+    local request = Promise.new()
+    local original_create_message = state.api_client.create_message
+    state.api_client.create_message = function()
+      return request
+    end
+
+    local send = messaging.send_message('follow up')
+    assert.is_true(vim.wait(1000, function()
+      return state.queued_user_messages.sess1 ~= nil
+    end))
+    assert.equal('follow up', state.queued_user_messages.sess1[1].prompt)
+
+    request:resolve({ info = { id = 'm1' }, parts = {} })
+    send:wait(1000)
+    assert.equal('follow up', state.queued_user_messages.sess1[1].prompt)
+
+    state.session.acknowledge_queued_user_message('sess1')
+    assert.is_nil(state.queued_user_messages.sess1)
+
+    state.api_client.create_message = original_create_message
   end)
 
   it('increments and decrements user_message_count correctly', function()

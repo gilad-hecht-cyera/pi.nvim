@@ -3,6 +3,8 @@ local store = require('pi.state.store')
 ---@class PiSessionStateMutations
 local M = {}
 
+local next_queued_message_id = 0
+
 ---@param session Session|nil
 function M.set_active(session)
   return store.batch(function()
@@ -60,6 +62,51 @@ end
 ---@param count table<string, number>
 function M.set_user_message_count(count)
   return store.set('user_message_count', count)
+end
+
+function M.queue_user_message(session_id, prompt)
+  next_queued_message_id = next_queued_message_id + 1
+  local id = tostring(next_queued_message_id)
+  store.update('queued_user_messages', function(current)
+    local queued = vim.deepcopy(current or {})
+    queued[session_id] = queued[session_id] or {}
+    table.insert(queued[session_id], { id = id, prompt = prompt })
+    return queued
+  end)
+  return id
+end
+
+function M.remove_queued_user_message(session_id, id)
+  store.update('queued_user_messages', function(current)
+    local queued = vim.deepcopy(current or {})
+    local session_queue = queued[session_id] or {}
+    for index, item in ipairs(session_queue) do
+      if item.id == id then
+        table.remove(session_queue, index)
+        break
+      end
+    end
+    if #session_queue == 0 then
+      queued[session_id] = nil
+    end
+    return queued
+  end)
+end
+
+function M.acknowledge_queued_user_message(session_id)
+  store.update('queued_user_messages', function(current)
+    local queued = vim.deepcopy(current or {})
+    local session_queue = queued[session_id] or {}
+    table.remove(session_queue, 1)
+    if #session_queue == 0 then
+      queued[session_id] = nil
+    end
+    return queued
+  end)
+end
+
+function M.clear_queued_user_messages()
+  store.set('queued_user_messages', {})
 end
 
 ---Increment/decrement the message count for a session, clamped to >= 0

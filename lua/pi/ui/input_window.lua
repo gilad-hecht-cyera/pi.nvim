@@ -631,6 +631,7 @@ function M._hide()
     state.ui.set_cursor_position('input', pos)
   end
 
+  require('pi.ui.queued_messages').close()
   pcall(vim.api.nvim_win_close, windows.input_win, false)
   windows.input_win = nil
 
@@ -682,6 +683,7 @@ function M._show()
     windows.input_win = float_layout.open_win(windows.input_buf, true, input_config)
     M.setup(windows)
     M._hidden = false
+    require('pi.ui.queued_messages').render(windows)
     M.focus_input()
 
     if was_at_bottom then
@@ -705,6 +707,7 @@ function M._show()
   M.setup(windows)
 
   M._hidden = false
+  require('pi.ui.queued_messages').render(windows)
 
   -- Focus the input window
   M.focus_input()

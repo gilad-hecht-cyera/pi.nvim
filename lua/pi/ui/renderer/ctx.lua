@@ -12,6 +12,7 @@ local ctx = {
   formatted_parts = {},
   ---@type table<string, Output>
   formatted_messages = {},
+  acknowledged_user_message_ids = {},
   pending = {
     dirty_message_order = {}, ---@type string[]
     dirty_messages = {}, ---@type table<string, boolean>
@@ -22,6 +23,8 @@ local ctx = {
     removed_parts = {}, ---@type table<string, boolean>
     removed_message_order = {}, ---@type string[]
     removed_messages = {}, ---@type table<string, boolean>
+    rendered_user_message_order = {},
+    rendered_user_messages = {},
   },
   flush_scheduled = false, ---@type boolean
   markdown_render_scheduled = false, ---@type boolean
@@ -44,6 +47,7 @@ function ctx:reset()
   self.last_part_formatted = { part_id = nil, formatted_data = nil }
   self.formatted_parts = {}
   self.formatted_messages = {}
+  self.acknowledged_user_message_ids = {}
   self.pending = {
     dirty_message_order = {},
     dirty_messages = {},
@@ -54,6 +58,8 @@ function ctx:reset()
     removed_parts = {},
     removed_message_order = {},
     removed_messages = {},
+    rendered_user_message_order = {},
+    rendered_user_messages = {},
   }
   self.flush_scheduled = false
   self.markdown_render_scheduled = false
@@ -81,6 +87,7 @@ function ctx:has_pending_work(pending)
     or #pending.dirty_part_order > 0
     or #pending.removed_part_order > 0
     or #pending.removed_message_order > 0
+    or #pending.rendered_user_message_order > 0
 end
 
 return ctx

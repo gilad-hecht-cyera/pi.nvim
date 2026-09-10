@@ -6,6 +6,7 @@ local input_window = require('pi.ui.input_window')
 local float_layout = require('pi.ui.float_layout')
 local footer = require('pi.ui.footer')
 local topbar = require('pi.ui.topbar')
+local queued_messages = require('pi.ui.queued_messages')
 
 local M = {}
 
@@ -153,6 +154,7 @@ function M.hide_visible_windows(windows)
 
   prepare_window_close()
   footer.close(true)
+  queued_messages.close()
   pcall(vim.api.nvim_win_close, windows.input_win, true)
   close_or_restore_output_window(windows)
 
@@ -182,6 +184,7 @@ function M.teardown_visible_windows(windows)
   prepare_window_close()
   renderer.teardown()
   footer.close(false)
+  queued_messages.teardown()
   pcall(vim.api.nvim_win_close, windows.input_win, true)
   close_or_restore_output_window(windows)
 
@@ -197,6 +200,7 @@ end
 ---Drop preserved hidden buffers and clear hidden window state.
 function M.drop_hidden_snapshot()
   renderer.teardown()
+  queued_messages.teardown()
 
   local hidden = state.ui.inspect_hidden_buffers()
   if hidden then
@@ -249,6 +253,7 @@ function M.restore_hidden_windows()
   output_window.setup(windows)
   output_window.setup_keymaps(windows, true)
   footer.setup(windows)
+  queued_messages.setup(windows)
   if state.api_client and type(state.api_client.list_providers) == 'function' then
     topbar.setup()
   end
@@ -398,6 +403,7 @@ function M.create_windows()
   output_window.setup(windows)
   output_window.setup_keymaps(windows)
   footer.setup(windows)
+  queued_messages.setup(windows)
   topbar.setup()
 
   renderer.setup_subscriptions()

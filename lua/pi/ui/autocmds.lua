@@ -164,6 +164,7 @@ function M.setup_resize_handler(windows)
       require('pi.ui.footer').update_window(windows)
       input_window.update_dimensions(windows)
       output_window.update_dimensions(windows)
+      require('pi.ui.queued_messages').render(windows)
       if output_width_changed(windows) then
         reflow_tables_on_width_change()
       end
@@ -184,6 +185,7 @@ function M.setup_resize_handler(windows)
 
       require('pi.ui.topbar').render()
       require('pi.ui.footer').update_window(windows)
+      require('pi.ui.queued_messages').render(windows)
       if output_width_changed(windows) then
         reflow_tables_on_width_change()
       end

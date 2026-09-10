@@ -489,6 +489,10 @@ function M.on_part_updated(properties, revert_index)
     flush.mark_part_dirty(part.id, part.messageID)
   end
 
+  if not ctx.bulk_mode and message.info.role == 'user' and part.type == 'text' and not part.synthetic then
+    flush.queue_rendered_user_message(part.messageID, part.sessionID, part.id)
+  end
+
   if part.type == 'compaction' then
     flush.mark_message_dirty(part.messageID)
   end

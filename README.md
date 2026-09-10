@@ -93,6 +93,12 @@ require("pi").setup({
 })
 ```
 
+## Queued messages
+
+Prompts submitted while the agent is still responding appear in a compact
+`Queued` panel above the input. Each prompt is removed from the panel as soon
+as its user message enters the conversation stream.
+
 ## Markdown table rendering
 
 Wide markdown tables are reflowed so each cell wraps inside its own column

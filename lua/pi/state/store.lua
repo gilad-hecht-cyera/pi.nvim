@@ -80,6 +80,7 @@ local _state = {
   session_stats = nil,
   job_count = 0,
   user_message_count = {},
+  queued_user_messages = {},
   pi_server = nil,
   api_client = nil,
   event_manager = nil,

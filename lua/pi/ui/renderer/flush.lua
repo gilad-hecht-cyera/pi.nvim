@@ -217,6 +217,15 @@ function M.queue_message_removal(message_id)
   M.schedule()
 end
 
+function M.queue_rendered_user_message(message_id, session_id, part_id)
+  if not message_id or not session_id or not part_id or ctx.acknowledged_user_message_ids[message_id] then
+    return
+  end
+  enqueue_once(ctx.pending.rendered_user_message_order, ctx.pending.rendered_user_messages, message_id)
+  ctx.pending.rendered_user_messages[message_id] = { session_id = session_id, part_id = part_id }
+  M.schedule()
+end
+
 ---Schedule a renderer flush on the next event loop tick.
 function M.schedule()
   if ctx.flush_scheduled then
@@ -243,6 +252,8 @@ local function snapshot_pending()
     removed_parts = {},
     removed_message_order = {},
     removed_messages = {},
+    rendered_user_message_order = {},
+    rendered_user_messages = {},
   }
   return pending
 end
@@ -526,6 +537,17 @@ function M.end_bulk_mode()
   end)
 end
 
+local function acknowledge_rendered_user_messages(pending)
+  for _, message_id in ipairs(pending.rendered_user_message_order) do
+    local candidate = pending.rendered_user_messages[message_id]
+    local rendered_part = candidate and ctx.render_state:get_part(candidate.part_id)
+    if rendered_part and rendered_part.line_start ~= nil then
+      ctx.acknowledged_user_message_ids[message_id] = true
+      state.session.acknowledge_queued_user_message(candidate.session_id)
+    end
+  end
+end
+
 ---Flush all pending renderer changes to the output buffer.
 function M.flush()
   if output_window_is_in_background_tab() then
@@ -533,8 +555,11 @@ function M.flush()
   end
   local pending = snapshot_pending()
   local applied = apply_pending(pending, new_formatter_context())
-  if applied and not ctx.bulk_mode then
-    M.request_on_data_rendered()
+  if applied then
+    acknowledge_rendered_user_messages(pending)
+    if not ctx.bulk_mode then
+      M.request_on_data_rendered()
+    end
   end
 end
 
