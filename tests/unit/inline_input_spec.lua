@@ -1,4 +1,4 @@
-local inline_input = require('opencode.ui.inline_input')
+local inline_input = require('pi.ui.inline_input')
 local stub = require('luassert.stub')
 
 describe('inline_input', function()

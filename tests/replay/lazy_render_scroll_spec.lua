@@ -1,9 +1,9 @@
 local helpers = require('tests.helpers')
-local state = require('opencode.state')
-local ui = require('opencode.ui.ui')
-local ctx = require('opencode.ui.renderer.ctx')
-local output_window = require('opencode.ui.output_window')
-local Promise = require('opencode.promise')
+local state = require('pi.state')
+local ui = require('pi.ui.ui')
+local ctx = require('pi.ui.renderer.ctx')
+local output_window = require('pi.ui.output_window')
+local Promise = require('pi.promise')
 
 local function make_message_events(pair_count)
   local events = {}
@@ -88,7 +88,7 @@ describe('replay lazy-render upward loading', function()
   end)
 
   it('loads older replayed messages when the viewport reaches the rendered top', function()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
     local events = make_message_events(50)
     state.session.set_active(helpers.get_session_from_events(events))
     vim.wait(50, function()
@@ -114,7 +114,7 @@ describe('replay lazy-render upward loading', function()
     assert.are.equal(5, vim.api.nvim_win_get_cursor(win)[1])
 
     local modechanged_count = 0
-    local group = vim.api.nvim_create_augroup('OpencodeLazyRenderViewRegression', { clear = true })
+    local group = vim.api.nvim_create_augroup('PiLazyRenderViewRegression', { clear = true })
     vim.api.nvim_create_autocmd('ModeChanged', {
       group = group,
       pattern = 'i:n',

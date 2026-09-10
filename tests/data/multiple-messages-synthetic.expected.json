@@ -130,25 +130,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_001]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -168,7 +168,7 @@
         "virt_text": [
           [
             " 2001-09-09 01:46:41",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -187,7 +187,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -207,7 +207,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -226,26 +226,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_002]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -265,7 +265,7 @@
         "virt_text": [
           [
             " 2001-09-09 01:46:42",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -284,25 +284,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_003]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -322,7 +322,7 @@
         "virt_text": [
           [
             " 2001-09-09 01:46:43",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -341,7 +341,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -361,7 +361,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -380,26 +380,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_004]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -419,7 +419,7 @@
         "virt_text": [
           [
             " 2001-09-09 01:46:44",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -438,25 +438,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_005]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -476,7 +476,7 @@
         "virt_text": [
           [
             " 2001-09-09 01:46:45",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -495,7 +495,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -515,7 +515,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -534,26 +534,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_006]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -573,7 +573,7 @@
         "virt_text": [
           [
             " 2001-09-09 01:46:46",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,

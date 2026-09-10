@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_reason_user1]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2025-12-17 19:33:20",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -148,26 +148,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/claude-sonnet-4",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_reason_asst1]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -187,7 +187,7 @@
         "virt_text": [
           [
             " 2025-12-17 19:33:20",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -200,14 +200,14 @@
       8,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -221,14 +221,14 @@
       9,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -242,14 +242,14 @@
       10,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -263,14 +263,14 @@
       11,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -284,14 +284,14 @@
       12,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -305,14 +305,14 @@
       13,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -326,14 +326,14 @@
       14,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -347,14 +347,14 @@
       15,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -368,14 +368,14 @@
       16,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -389,14 +389,14 @@
       17,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -410,14 +410,14 @@
       18,
       0,
       {
-        "line_hl_group": "OpencodeReasoningText",
+        "line_hl_group": "PiReasoningText",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -445,7 +445,7 @@
     "3. I'll demonstrate my reasoning process transparently",
     "4. Then I'll give them a concrete example title",
     "",
-    "Given that this appears to be related to the OpenCode project (based on the file structure I can see), I should provide a title that reflects the nature of this AI coding assistant tool.",
+    "Given that this appears to be related to the Pi project (based on the file structure I can see), I should provide a title that reflects the nature of this AI coding assistant tool.",
     "",
     "Based on my reasoning above, here's my plan:",
     "",
@@ -453,11 +453,11 @@
     "2. Show transparency in my thought process",
     "3. Provide context-appropriate suggestions",
     "",
-    "For the title, considering this is the OpenCode Neovim plugin - an AI-powered coding assistant - a good title would be:",
+    "For the title, considering this is the Pi Neovim plugin - an AI-powered coding assistant - a good title would be:",
     "",
-    "**\"OpenCode.nvim: AI-Powered Coding Assistant for Neovim\"**",
+    "**\"Pi.nvim: AI-Powered Coding Assistant for Neovim\"**",
     "",
-    "This title clearly identifies what the tool is (OpenCode), the platform it works with (Neovim), and its primary function (AI-powered coding assistance).",
+    "This title clearly identifies what the tool is (Pi), the platform it works with (Neovim), and its primary function (AI-powered coding assistance).",
     "",
     ""
   ],

@@ -1,6 +1,6 @@
-local buffer = require('opencode.ui.renderer.buffer')
-local ctx = require('opencode.ui.renderer.ctx')
-local output_window = require('opencode.ui.output_window')
+local buffer = require('pi.ui.renderer.buffer')
+local ctx = require('pi.ui.renderer.ctx')
+local output_window = require('pi.ui.output_window')
 local stub = require('luassert.stub')
 
 local function assert_called_before(call_order, first_name, second_name)
@@ -56,7 +56,7 @@ describe('renderer.buffer extmarks', function()
       lines = { 'alpha', 'gamma' },
       extmarks = {
         [1] = {
-          { line_hl_group = 'OpencodeReasoningText' },
+          { line_hl_group = 'PiReasoningText' },
         },
       },
       actions = {},
@@ -69,7 +69,7 @@ describe('renderer.buffer extmarks', function()
     assert.stub(clear_extmarks_stub).was_called_with(11, 12)
     assert.stub(set_extmarks_stub).was_called_with({
       [0] = {
-        { line_hl_group = 'OpencodeReasoningText' },
+        { line_hl_group = 'PiReasoningText' },
       },
     }, 11)
     assert_called_before(call_order, 'clear_extmarks', 'set_lines')
@@ -82,7 +82,7 @@ describe('renderer.buffer extmarks', function()
       lines = { 'title', '', 'question', '    1. One', '    2. Two ' },
       extmarks = {
         [4] = {
-          { line_hl_group = 'OpencodeDialogOptionHover' },
+          { line_hl_group = 'PiDialogOptionHover' },
         },
       },
       actions = {},
@@ -90,7 +90,7 @@ describe('renderer.buffer extmarks', function()
       lines = { 'title', '', 'question', '    1. One', '    2. Two' },
       extmarks = {
         [4] = {
-          { line_hl_group = 'OpencodeDialogOptionHover' },
+          { line_hl_group = 'PiDialogOptionHover' },
         },
       },
       actions = {},
@@ -99,7 +99,7 @@ describe('renderer.buffer extmarks', function()
     assert.stub(clear_extmarks_stub).was_called_with(24, 25)
     assert.stub(set_extmarks_stub).was_called_with({
       [0] = {
-        { line_hl_group = 'OpencodeDialogOptionHover' },
+        { line_hl_group = 'PiDialogOptionHover' },
       },
     }, 24)
     assert_called_before(call_order, 'clear_extmarks', 'set_lines')

@@ -1,6 +1,6 @@
 local assert = require('luassert')
 
-describe('opencode.ui.symbol_snapshot', function()
+describe('pi.ui.symbol_snapshot', function()
   local symbol_snapshot
   local original_fn
   local original_api
@@ -175,8 +175,8 @@ describe('opencode.ui.symbol_snapshot', function()
       table.insert(notify_calls, { msg = msg, level = level })
     end
 
-    package.loaded['opencode.ui.symbol_snapshot'] = nil
-    symbol_snapshot = require('opencode.ui.symbol_snapshot')
+    package.loaded['pi.ui.symbol_snapshot'] = nil
+    symbol_snapshot = require('pi.ui.symbol_snapshot')
   end)
 
   after_each(function()
@@ -185,7 +185,7 @@ describe('opencode.ui.symbol_snapshot', function()
     vim.filetype = original_filetype
     vim.treesitter = original_treesitter
     vim.notify = original_notify
-    package.loaded['opencode.ui.symbol_snapshot'] = nil
+    package.loaded['pi.ui.symbol_snapshot'] = nil
   end)
 
   it('exports only the frozen public API', function()
@@ -331,14 +331,14 @@ describe('opencode.ui.symbol_snapshot', function()
   end)
 
   it('skips Lua associated owner captures', function()
-    set_file('/test/project/src/client.lua', { 'function OpencodeApiClient:_call() end' }, {
-      { id = 4, node = fake_node('OpencodeApiClient', 0, 9) },
+    set_file('/test/project/src/client.lua', { 'function PiApiClient:_call() end' }, {
+      { id = 4, node = fake_node('PiApiClient', 0, 9) },
       { id = 1, node = fake_node('_call', 0, 27) },
     })
 
     local cycle = symbol_snapshot.new_cycle()
 
-    assert.equal(0, #symbol_snapshot.targets_for_token(cycle, 'OpencodeApiClient', { '/test/project/src/client.lua' }))
+    assert.equal(0, #symbol_snapshot.targets_for_token(cycle, 'PiApiClient', { '/test/project/src/client.lua' }))
     assert.equal(1, #symbol_snapshot.targets_for_token(cycle, '_call', { '/test/project/src/client.lua' }))
   end)
 
@@ -380,7 +380,7 @@ describe('opencode.ui.symbol_snapshot', function()
       { 'package::Type::method', 'Type::method', 'method' },
       symbol_snapshot.token_variants('package::Type::method')
     )
-    assert.same({ 'OpencodeApiClient:_call', '_call' }, symbol_snapshot.token_variants('OpencodeApiClient:_call'))
+    assert.same({ 'PiApiClient:_call', '_call' }, symbol_snapshot.token_variants('PiApiClient:_call'))
   end)
 
   it('keeps token lookup exact', function()

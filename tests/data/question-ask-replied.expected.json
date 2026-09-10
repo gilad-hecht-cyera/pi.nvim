@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_bfaafef41001700DjtCwvhFxse]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2026-01-26 14:23:12",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -149,7 +149,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -169,7 +169,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -189,7 +189,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -208,26 +208,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-4.1",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_bfaafefb3001iBSmqfzFffDjCS]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -247,7 +247,7 @@
         "virt_text": [
           [
             " 2026-01-26 14:23:12",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -266,7 +266,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -286,7 +286,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -306,7 +306,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -326,7 +326,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -345,26 +345,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-4.1",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_bfab0156d001NyMxaTnj6Cml0c]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -384,7 +384,7 @@
         "virt_text": [
           [
             " 2026-01-26 14:23:22",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,

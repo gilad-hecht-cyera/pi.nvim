@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_001]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2025-10-09 08:53:21",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -149,7 +149,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -169,7 +169,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -189,7 +189,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -209,7 +209,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -229,7 +229,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -249,7 +249,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -268,26 +268,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_002]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -307,7 +307,7 @@
         "virt_text": [
           [
             " 2025-10-09 08:53:22",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -325,26 +325,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_004]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -364,7 +364,7 @@
         "virt_text": [
           [
             " 2025-10-09 08:53:24",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,

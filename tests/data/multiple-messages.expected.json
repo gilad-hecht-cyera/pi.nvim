@@ -91,25 +91,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a3d79a71f001dkQYw23QnYYElB]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             " 2025-11-01 03:32:54",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -148,7 +148,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -168,7 +168,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -188,7 +188,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -208,7 +208,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -227,26 +227,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "PLAN",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-4.1",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a3d79a771002NY7n6a0vJlriLH]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -266,7 +266,7 @@
         "virt_text": [
           [
             " 2025-11-01 03:32:54",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -285,25 +285,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a3d79aa5b0014RYY4My2AeTokd]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -323,7 +323,7 @@
         "virt_text": [
           [
             " 2025-11-01 03:32:55",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -342,7 +342,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -362,7 +362,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -382,7 +382,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -402,7 +402,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -421,26 +421,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "PLAN",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-4.1",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a3d79ae610029QFKwb1uvSa4Lf]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -460,7 +460,7 @@
         "virt_text": [
           [
             " 2025-11-01 03:32:56",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,

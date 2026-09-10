@@ -1,10 +1,10 @@
-local state = require('opencode.state')
-local ui = require('opencode.ui.ui')
+local state = require('pi.state')
+local ui = require('pi.ui.ui')
 local helpers = require('tests.helpers')
-local output_window = require('opencode.ui.output_window')
+local output_window = require('pi.ui.output_window')
 local assert = require('luassert')
 local stub = require('luassert.stub')
-local config = require('opencode.config')
+local config = require('pi.config')
 
 local function assert_output_matches(expected, actual, name)
   local normalized_extmarks = helpers.normalize_namespace_ids(actual.extmarks)
@@ -175,18 +175,18 @@ end
 describe('renderer unit tests', function()
   local function event_subscriptions()
     local names = {}
-    for _, sub in ipairs(require('opencode.ui.renderer').event_subscriptions()) do
+    for _, sub in ipairs(require('pi.ui.renderer').event_subscriptions()) do
       table.insert(names, sub[1])
     end
     return names
   end
 
   before_each(function()
-    require('opencode.event_manager').setup()
+    require('pi.event_manager').setup()
   end)
 
   it('subsribes to events correctly', function()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
     local event_manager = state.event_manager
 
     event_manager.events = {}
@@ -203,14 +203,14 @@ describe('renderer unit tests', function()
 
   it('subscribes to file watcher updates for reference target invalidation', function()
     assert(vim.tbl_contains(event_subscriptions(), 'file.watcher.updated'))
-    assert.is_true(require('opencode.ui.event_scope').should_handle('file.watcher.updated', {
+    assert.is_true(require('pi.ui.event_scope').should_handle('file.watcher.updated', {
       file = 'src/ok.lua',
       event = 'unlink',
     }))
   end)
 
   it('unsubsribes from events correctly', function()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
     local event_manager = state.event_manager
 
     renderer.setup_subscriptions()
@@ -267,8 +267,8 @@ describe('renderer unit tests', function()
   end)
 
   it('updates active session title from session.updated event', function()
-    local renderer = require('opencode.ui.renderer')
-    local topbar = require('opencode.ui.topbar')
+    local renderer = require('pi.ui.renderer')
+    local topbar = require('pi.ui.topbar')
 
     state.session.set_active({
       id = 'ses_123',
@@ -290,7 +290,7 @@ describe('renderer unit tests', function()
   end)
 
   it('rerenders full session when revert changes', function()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
 
     state.renderer.set_messages({})
     state.session.set_active({
@@ -316,8 +316,8 @@ describe('renderer unit tests', function()
   end)
 
   it('refreshes the full session when compacted', function()
-    local renderer = require('opencode.ui.renderer')
-    local events = require('opencode.ui.renderer.events')
+    local renderer = require('pi.ui.renderer')
+    local events = require('pi.ui.renderer.events')
 
     state.session.set_active({
       id = 'ses_123',
@@ -334,9 +334,9 @@ describe('renderer unit tests', function()
   end)
 
   it('render_output and render_lines do not write targets into RenderState', function()
-    local renderer = require('opencode.ui.renderer')
-    local ctx = require('opencode.ui.renderer.ctx')
-    local Output = require('opencode.ui.output')
+    local renderer = require('pi.ui.renderer')
+    local ctx = require('pi.ui.renderer.ctx')
+    local Output = require('pi.ui.output')
 
     helpers.replay_setup()
     local add_targets_stub = stub(ctx.render_state, 'add_targets')
@@ -344,7 +344,7 @@ describe('renderer unit tests', function()
 
     local output = Output.new()
     output:add_line('open README.md')
-    output:add_extmark(0, { hl_group = 'OpencodeReference', start_col = 5, end_col = 14 })
+    output:add_extmark(0, { hl_group = 'PiReference', start_col = 5, end_col = 14 })
     output:add_fold(1, 1)
     output:add_target({
       kind = 'file',
@@ -367,7 +367,7 @@ describe('renderer unit tests', function()
   end)
 
   it('inserts a single synthetic revert message during full session render', function()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
 
     helpers.replay_setup()
 
@@ -390,15 +390,134 @@ describe('renderer unit tests', function()
     })
 
     local revert_messages = vim.tbl_filter(function(message)
-      return message.info and message.info.id == '__opencode_revert_message__'
+      return message.info and message.info.id == '__pi_revert_message__'
     end, state.messages or {})
 
     assert.are.equal(1, #revert_messages)
   end)
 
+  it('renders live Pi messages after existing history without ID collisions', function()
+    local renderer = require('pi.ui.renderer')
+    local event_adapter = require('pi.event_adapter')
+
+    helpers.replay_setup()
+
+    state.session.set_active({
+      id = 'ses_stream',
+      title = 'Session',
+      time = { created = 1, updated = 1 },
+    })
+    renderer.setup_subscriptions(true)
+    renderer._render_full_session_data(event_adapter.messages_from_pi({
+      { role = 'user', content = { { type = 'text', text = 'old history' } }, timestamp = 1000 },
+      { role = 'assistant', content = { { type = 'text', text = 'old answer' } }, timestamp = 1001 },
+    }))
+
+    event_adapter.handle_event({
+      type = 'message_start',
+      message = { role = 'user', content = 'new live message', timestamp = 2000 },
+    })
+    state.event_manager.throttling_emitter:_drain()
+
+    local lines = table.concat(vim.api.nvim_buf_get_lines(state.windows.output_buf, 0, -1, false), '\n')
+    assert.is_truthy(lines:find('old history', 1, true))
+    assert.is_truthy(lines:find('new live message', 1, true))
+  end)
+
+  it('flushes streamed events when the event batch finishes', function()
+    local renderer = require('pi.ui.renderer')
+    local event_adapter = require('pi.event_adapter')
+
+    helpers.replay_setup()
+
+    state.session.set_active({
+      id = 'ses_stream',
+      title = 'Session',
+      time = { created = 1, updated = 1 },
+    })
+    renderer.setup_subscriptions(true)
+
+    event_adapter.handle_event({
+      type = 'message_start',
+      message = { role = 'user', content = 'streamed message visible', timestamp = 1 },
+    })
+    state.event_manager.throttling_emitter:_drain()
+
+    local lines = table.concat(vim.api.nvim_buf_get_lines(state.windows.output_buf, 0, -1, false), '\n')
+    assert.is_truthy(lines:find('streamed message visible', 1, true))
+  end)
+
+  it('does not duplicate a streamed tool across planning, execution, and final message events', function()
+    local renderer = require('pi.ui.renderer')
+    local event_adapter = require('pi.event_adapter')
+
+    helpers.replay_setup()
+
+    state.session.set_active({
+      id = 'ses_stream',
+      title = 'Session',
+      time = { created = 1, updated = 1 },
+    })
+    renderer.setup_subscriptions(true)
+
+    local tool_call = {
+      id = 'call_shell_1',
+      name = 'bash',
+      arguments = { command = 'echo streamed-tool-once' },
+    }
+
+    event_adapter.handle_event({
+      type = 'message_start',
+      message = {
+        role = 'assistant',
+        content = {},
+        responseId = 'assistant_1',
+        timestamp = 1,
+      },
+    })
+    event_adapter.handle_event({
+      type = 'message_update',
+      assistantMessageEvent = { type = 'toolcall_end', contentIndex = 0, toolCall = tool_call },
+    })
+    event_adapter.handle_event({
+      type = 'tool_execution_start',
+      toolCallId = 'call_shell_1',
+      toolName = 'bash',
+      args = tool_call.arguments,
+    })
+    event_adapter.handle_event({
+      type = 'tool_execution_end',
+      toolCallId = 'call_shell_1',
+      toolName = 'bash',
+      args = tool_call.arguments,
+      result = { content = 'streamed-tool-once\n' },
+    })
+    event_adapter.handle_event({
+      type = 'message_end',
+      message = {
+        role = 'assistant',
+        content = {
+          {
+            type = 'toolCall',
+            id = 'call_shell_1',
+            name = 'bash',
+            arguments = tool_call.arguments,
+          },
+        },
+        responseId = 'assistant_1',
+        timestamp = 1,
+      },
+    })
+    state.event_manager.throttling_emitter:_drain()
+
+    local lines = table.concat(vim.api.nvim_buf_get_lines(state.windows.output_buf, 0, -1, false), '\n')
+    local _, run_count = lines:gsub('%*%*.- run%*%*', '')
+    assert.are.equal(1, run_count)
+  end)
+
   it('supports output target navigation from a replayed assistant file reference', function()
-    local renderer = require('opencode.ui.renderer')
-    local navigation = require('opencode.ui.navigation')
+    local renderer = require('pi.ui.renderer')
+    local navigation = require('pi.ui.navigation')
 
     helpers.replay_setup()
 
@@ -412,7 +531,7 @@ describe('renderer unit tests', function()
     })
 
     state.ui.set_last_code_window(code_win)
-    local path = 'lua/opencode/ui/navigation.lua'
+    local path = 'lua/pi/ui/navigation.lua'
     local test_root = vim.fn.tempname()
     local absolute_path = test_root .. '/' .. path
     vim.fn.mkdir(vim.fn.fnamemodify(absolute_path, ':h'), 'p')
@@ -464,10 +583,10 @@ describe('renderer unit tests', function()
   end)
 
   it('renders reference-scoped symbol highlights through full session replay', function()
-    local renderer = require('opencode.ui.renderer')
-    local symbol_snapshot = require('opencode.ui.symbol_snapshot')
+    local renderer = require('pi.ui.renderer')
+    local symbol_snapshot = require('pi.ui.symbol_snapshot')
     local events = helpers.load_test_data('tests/data/symbol-reference-navigation.json')
-    local referenced_file = 'lua/opencode/ui/symbol_snapshot.lua'
+    local referenced_file = 'lua/pi/ui/symbol_snapshot.lua'
     local cycle = { id = 'cycle' }
     local new_cycle_stub = stub(symbol_snapshot, 'new_cycle').returns(cycle)
     local targets_for_token_stub = stub(symbol_snapshot, 'targets_for_token').invokes(
@@ -503,7 +622,7 @@ describe('renderer unit tests', function()
     local actual = helpers.capture_output(state.windows.output_buf, output_window.namespace)
     local symbol_mark
     for _, mark in ipairs(actual.extmarks) do
-      if mark[4] and mark[4].hl_group == 'OpencodeSymbolReference' then
+      if mark[4] and mark[4].hl_group == 'PiSymbolReference' then
         symbol_mark = mark
         break
       end
@@ -517,7 +636,7 @@ describe('renderer unit tests', function()
   end)
 
   it('limits rendered messages and inserts a hidden-messages notice', function()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
 
     helpers.replay_setup()
     config.ui.output.max_messages = 2
@@ -549,7 +668,7 @@ describe('renderer unit tests', function()
       },
     })
 
-    assert.is_not_nil(renderer.get_rendered_message('__opencode_hidden_messages_notice__'))
+    assert.is_not_nil(renderer.get_rendered_message('__pi_hidden_messages_notice__'))
     assert.is_nil(renderer.get_rendered_message('msg_1'))
     assert.is_not_nil(renderer.get_rendered_message('msg_2'))
     assert.is_not_nil(renderer.get_rendered_message('msg_3'))
@@ -561,9 +680,9 @@ describe('renderer unit tests', function()
   end)
 
   it('evicts the oldest rendered message during streaming updates', function()
-    local renderer = require('opencode.ui.renderer')
-    local events = require('opencode.ui.renderer.events')
-    local flush = require('opencode.ui.renderer.flush')
+    local renderer = require('pi.ui.renderer')
+    local events = require('pi.ui.renderer.events')
+    local flush = require('pi.ui.renderer.flush')
 
     helpers.replay_setup()
     config.ui.output.max_messages = 2
@@ -610,9 +729,9 @@ describe('renderer unit tests', function()
   end)
 
   it('updates the hidden-messages notice when an older hidden message is removed', function()
-    local renderer = require('opencode.ui.renderer')
-    local events = require('opencode.ui.renderer.events')
-    local flush = require('opencode.ui.renderer.flush')
+    local renderer = require('pi.ui.renderer')
+    local events = require('pi.ui.renderer.events')
+    local flush = require('pi.ui.renderer.flush')
 
     helpers.replay_setup()
     config.ui.output.max_messages = 2
@@ -660,9 +779,9 @@ describe('renderer unit tests', function()
   end)
 
   it('updates the hidden-messages notice count after multiple hidden removals', function()
-    local renderer = require('opencode.ui.renderer')
-    local events = require('opencode.ui.renderer.events')
-    local flush = require('opencode.ui.renderer.flush')
+    local renderer = require('pi.ui.renderer')
+    local events = require('pi.ui.renderer.events')
+    local flush = require('pi.ui.renderer.flush')
 
     helpers.replay_setup()
     config.ui.output.max_messages = 2
@@ -716,7 +835,7 @@ describe('renderer unit tests', function()
   end)
 
   it('ignores session.updated for non-active session IDs', function()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
 
     state.session.set_active({
       id = 'ses_123',
@@ -802,9 +921,9 @@ describe('renderer functional tests', function()
 
         if not vim.tbl_contains(skip_full_session, name) then
           it('replays ' .. name .. ' correctly (session)', function()
-            local renderer = require('opencode.ui.renderer')
-            local flush = require('opencode.ui.renderer.flush')
-            local ctx = require('opencode.ui.renderer.ctx')
+            local renderer = require('pi.ui.renderer')
+            local flush = require('pi.ui.renderer.flush')
+            local ctx = require('pi.ui.renderer.ctx')
             local events = helpers.load_test_data(filepath)
             state.session.set_active(helpers.get_session_from_events(events, true))
             local expected = helpers.load_test_data(expected_path)

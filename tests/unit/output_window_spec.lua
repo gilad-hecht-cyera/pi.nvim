@@ -1,7 +1,7 @@
-local config = require('opencode.config')
-local state = require('opencode.state')
-local output_window = require('opencode.ui.output_window')
-local flush = require('opencode.ui.renderer.flush')
+local config = require('pi.config')
+local state = require('pi.state')
+local output_window = require('pi.ui.output_window')
+local flush = require('pi.ui.renderer.flush')
 local stub = require('luassert.stub')
 
 ---@param value string
@@ -18,7 +18,7 @@ local function parse_fillchars(value)
 end
 
 describe('ui.create_windows output filetype', function()
-  local ui = require('opencode.ui.ui')
+  local ui = require('pi.ui.ui')
   local original_config
   local windows
 
@@ -42,7 +42,7 @@ describe('ui.create_windows output filetype', function()
     windows = ui.create_windows()
 
     local filetype = vim.api.nvim_get_option_value('filetype', { buf = windows.output_buf })
-    assert.equals('opencode_output', filetype)
+    assert.equals('pi_output', filetype)
   end)
 
   it('uses configured output filetype', function()
@@ -101,7 +101,7 @@ describe('output_window.highlight_changed_lines', function()
 
     local marks = vim.api.nvim_buf_get_extmarks(buf, output_window.debug_namespace, 0, -1, { details = true })
     assert.equals(1, #marks)
-    assert.equals('OpencodeChangedLines', marks[1][4].line_hl_group)
+    assert.equals('PiChangedLines', marks[1][4].line_hl_group)
     assert.is_function(scheduled_cb)
 
     scheduled_cb()
@@ -376,7 +376,7 @@ describe('renderer flush cleanup', function()
 
   it('restores output window eventignorewin and ends updates when bulk writes fail', function()
     flush.begin_bulk_mode()
-    local ctx = require('opencode.ui.renderer.ctx')
+    local ctx = require('pi.ui.renderer.ctx')
     ctx.bulk_buffer_lines = { 'line 1' }
 
     local ok, err = pcall(flush.end_bulk_mode)
@@ -408,14 +408,14 @@ describe('renderer bulk flush extmarks', function()
   end)
 
   after_each(function()
-    local ctx = require('opencode.ui.renderer.ctx')
+    local ctx = require('pi.ui.renderer.ctx')
     ctx:reset()
     state.ui.set_windows(nil)
     pcall(vim.api.nvim_buf_delete, buf, { force = true })
   end)
 
   it('clears stale extmarks before replaying bulk extmarks', function()
-    local ctx = require('opencode.ui.renderer.ctx')
+    local ctx = require('pi.ui.renderer.ctx')
 
     flush.begin_bulk_mode()
     ctx.bulk_buffer_lines = { 'new header' }

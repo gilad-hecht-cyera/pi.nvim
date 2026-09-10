@@ -251,7 +251,7 @@
         "id": "msg_f5ca5903d0014XOHFNqdkjZjV0",
         "agent": "build",
         "sessionID": "ses_0a369ab35ffetdRD7zdlc3W4AI",
-        "model": { "providerID": "opencode", "modelID": "big-pickle" }
+        "model": { "providerID": "pi", "modelID": "big-pickle" }
       }
     },
     "type": "message.updated"
@@ -265,7 +265,7 @@
         "id": "msg_f5ca5903d0014XOHFNqdkjZjV0",
         "agent": "build",
         "sessionID": "ses_0a369ab35ffetdRD7zdlc3W4AI",
-        "model": { "providerID": "opencode", "modelID": "big-pickle" }
+        "model": { "providerID": "pi", "modelID": "big-pickle" }
       }
     },
     "type": "message.updated"
@@ -295,11 +295,11 @@
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "version": "1.17.13",
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "big-pickle",
           "variant": "default"
         },
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "title": "Multiple choice question with multi-select options",
         "summary": { "deletions": 0, "additions": 0, "files": 0 },
         "id": "ses_0a369ab35ffetdRD7zdlc3W4AI",
@@ -325,11 +325,11 @@
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "version": "1.17.13",
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "big-pickle",
           "variant": "default"
         },
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "title": "Multiple choice question with multi-select options",
         "summary": { "deletions": 0, "additions": 0, "files": 0 },
         "id": "ses_0a369ab35ffetdRD7zdlc3W4AI",
@@ -355,7 +355,7 @@
     "properties": {
       "sessionID": "ses_0a369ab35ffetdRD7zdlc3W4AI",
       "info": {
-        "providerID": "opencode",
+        "providerID": "pi",
         "role": "assistant",
         "id": "msg_f5ca59056001tpLIhqlyrPQ7F5",
         "agent": "build",
@@ -363,8 +363,8 @@
         "parentID": "msg_f5ca5903d0014XOHFNqdkjZjV0",
         "time": { "created": 1783965782102 },
         "path": {
-          "root": "/home/francis/Projects/_nvim/opencode.nvim",
-          "cwd": "/home/francis/Projects/_nvim/opencode.nvim"
+          "root": "/home/francis/Projects/_nvim/pi.nvim",
+          "cwd": "/home/francis/Projects/_nvim/pi.nvim"
         },
         "mode": "build",
         "sessionID": "ses_0a369ab35ffetdRD7zdlc3W4AI",
@@ -383,7 +383,7 @@
     "properties": {
       "sessionID": "ses_0a369ab35ffetdRD7zdlc3W4AI",
       "info": {
-        "providerID": "opencode",
+        "providerID": "pi",
         "role": "assistant",
         "id": "msg_f5ca59056001tpLIhqlyrPQ7F5",
         "agent": "build",
@@ -391,8 +391,8 @@
         "parentID": "msg_f5ca5903d0014XOHFNqdkjZjV0",
         "time": { "created": 1783965782102 },
         "path": {
-          "root": "/home/francis/Projects/_nvim/opencode.nvim",
-          "cwd": "/home/francis/Projects/_nvim/opencode.nvim"
+          "root": "/home/francis/Projects/_nvim/pi.nvim",
+          "cwd": "/home/francis/Projects/_nvim/pi.nvim"
         },
         "mode": "build",
         "sessionID": "ses_0a369ab35ffetdRD7zdlc3W4AI",
@@ -420,11 +420,11 @@
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "version": "1.17.13",
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "big-pickle",
           "variant": "default"
         },
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "title": "Multiple choice question with multi-select options",
         "summary": { "deletions": 0, "additions": 0, "files": 0 },
         "id": "ses_0a369ab35ffetdRD7zdlc3W4AI",
@@ -450,11 +450,11 @@
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "version": "1.17.13",
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "big-pickle",
           "variant": "default"
         },
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "title": "Multiple choice question with multi-select options",
         "summary": { "deletions": 0, "additions": 0, "files": 0 },
         "id": "ses_0a369ab35ffetdRD7zdlc3W4AI",
@@ -482,7 +482,7 @@
         "id": "msg_f5ca5903d0014XOHFNqdkjZjV0",
         "agent": "build",
         "sessionID": "ses_0a369ab35ffetdRD7zdlc3W4AI",
-        "model": { "providerID": "opencode", "modelID": "big-pickle" },
+        "model": { "providerID": "pi", "modelID": "big-pickle" },
         "summary": { "diffs": [] }
       }
     },
@@ -497,7 +497,7 @@
         "id": "msg_f5ca5903d0014XOHFNqdkjZjV0",
         "agent": "build",
         "sessionID": "ses_0a369ab35ffetdRD7zdlc3W4AI",
-        "model": { "providerID": "opencode", "modelID": "big-pickle" },
+        "model": { "providerID": "pi", "modelID": "big-pickle" },
         "summary": { "diffs": [] }
       }
     },

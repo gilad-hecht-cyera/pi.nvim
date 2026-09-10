@@ -1,23 +1,32 @@
-local loaded = rawget(_G, '__opencode_service_spec_loaded') or {}
-_G.__opencode_service_spec_loaded = loaded
+local loaded = rawget(_G, '__pi_service_spec_loaded') or {}
+_G.__pi_service_spec_loaded = loaded
 if loaded.services_messaging_spec then
   return
 end
 loaded.services_messaging_spec = true
 
-local messaging = require('opencode.services.messaging')
-local session_runtime = require('opencode.services.session_runtime')
-local config_file = require('opencode.config_file')
-local context = require('opencode.context')
-local state = require('opencode.state')
-local Promise = require('opencode.promise')
+local messaging = require('pi.services.messaging')
+local session_runtime = require('pi.services.session_runtime')
+local config = require('pi.config')
+local config_file = require('pi.config_file')
+local context = require('pi.context')
+local state = require('pi.state')
+local Promise = require('pi.promise')
 local stub = require('luassert.stub')
 local assert = require('luassert')
 local support = require('tests.unit.services_spec_support')
 
-describe('opencode.services.messaging', function()
+describe('pi.services.messaging', function()
+  local original_backend
+
   before_each(function()
+    original_backend = config.backend
+    config.backend = 'config_file'
     support.mock_api_client()
+  end)
+
+  after_each(function()
+    config.backend = original_backend
   end)
 
   it('sends a message via api_client', function()
@@ -54,7 +63,7 @@ describe('opencode.services.messaging', function()
     state.ui.set_windows({ mock = 'windows' })
     state.session.set_active({ id = 'sess1' })
 
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
 
     local create_called = false
     state.api_client.create_message = function(_, sid, params)
@@ -73,7 +82,7 @@ describe('opencode.services.messaging', function()
     assert.equal(state.current_model, 'test/model')
     assert.is_true(create_called)
     state.api_client.create_message = orig
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
   end)
 
   it('does not switch mode when agent is hidden', function()
@@ -81,7 +90,7 @@ describe('opencode.services.messaging', function()
     state.session.set_active({ id = 'sess1' })
     state.model.set_mode('build')
 
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
 
     local captured_params = nil
     local orig = state.api_client.create_message
@@ -99,7 +108,7 @@ describe('opencode.services.messaging', function()
     assert.equal('hidden-xyz', captured_params.agent)
 
     state.api_client.create_message = orig
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
   end)
 
   it('switches mode when agent is visible', function()
@@ -107,7 +116,7 @@ describe('opencode.services.messaging', function()
     state.session.set_active({ id = 'sess1' })
     state.model.set_mode('build')
 
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'plan', 'build' }))
 
     local captured_params = nil
     local orig = state.api_client.create_message
@@ -125,7 +134,7 @@ describe('opencode.services.messaging', function()
     assert.equal('plan', captured_params.agent)
 
     state.api_client.create_message = orig
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
   end)
 
   it('returns false when active session is a child session', function()
@@ -148,11 +157,11 @@ describe('opencode.services.messaging', function()
   it('sends message to child session when child_readonly is false', function()
     state.ui.set_windows({ mock = 'windows' })
     state.session.set_active({ id = 'child1', parentID = 'parent1' })
-    local config = require('opencode.config')
+    local config = require('pi.config')
     local orig_readonly = config.values.child_readonly
     config.values.child_readonly = false
 
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'build' }))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'build' }))
 
     local create_called = false
     local orig = state.api_client.create_message
@@ -168,14 +177,14 @@ describe('opencode.services.messaging', function()
     assert.is_true(create_called)
     state.api_client.create_message = orig
     config.values.child_readonly = orig_readonly
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
   end)
 
   it('sends inferred agent for child session', function()
     state.ui.set_windows({ mock = 'windows' })
     state.model.set_mode('study') -- set by switch_session inference
     state.session.set_active({ id = 'child1', parentID = 'parent1' })
-    local config = require('opencode.config')
+    local config = require('pi.config')
     local orig_readonly = config.values.child_readonly
     config.values.child_readonly = false
 
@@ -199,11 +208,11 @@ describe('opencode.services.messaging', function()
   it('respects explicit agent for child session', function()
     state.ui.set_windows({ mock = 'windows' })
     state.session.set_active({ id = 'child1', parentID = 'parent1' })
-    local config = require('opencode.config')
+    local config = require('pi.config')
     local orig_readonly = config.values.child_readonly
     config.values.child_readonly = false
 
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'study', 'build' }))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'study', 'build' }))
 
     local captured_params = nil
     local orig = state.api_client.create_message
@@ -220,7 +229,7 @@ describe('opencode.services.messaging', function()
     assert.equal('study', captured_params.agent)
     state.api_client.create_message = orig
     config.values.child_readonly = orig_readonly
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
   end)
 
   it('sends agent param for parent session', function()
@@ -228,7 +237,7 @@ describe('opencode.services.messaging', function()
     state.model.set_mode('build')
     state.session.set_active({ id = 'sess1' })
 
-    stub(config_file, 'get_opencode_agents').returns(Promise.new():resolve({ 'build' }))
+    stub(config_file, 'get_pi_agents').returns(Promise.new():resolve({ 'build' }))
 
     local captured_params = nil
     local orig = state.api_client.create_message
@@ -244,7 +253,7 @@ describe('opencode.services.messaging', function()
 
     assert.equal('build', captured_params.agent)
     state.api_client.create_message = orig
-    config_file.get_opencode_agents:revert()
+    config_file.get_pi_agents:revert()
   end)
 
   it('increments and decrements user_message_count correctly', function()

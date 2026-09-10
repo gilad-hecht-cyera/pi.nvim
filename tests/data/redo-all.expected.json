@@ -4,11 +4,11 @@
       "args": [
         "msg_a0236fd1c001TlwqL8fwvq529i"
       ],
-      "display_line": 67,
+      "display_line": 74,
       "key": "R",
       "range": {
-        "from": 63,
-        "to": 67
+        "from": 70,
+        "to": 74
       },
       "text": "[R]evert",
       "type": "undo"
@@ -17,11 +17,11 @@
       "args": [
         "msg_a0236fd1c001TlwqL8fwvq529i"
       ],
-      "display_line": 67,
+      "display_line": 74,
       "key": "C",
       "range": {
-        "from": 63,
-        "to": 67
+        "from": 70,
+        "to": 74
       },
       "text": "[C]opy",
       "type": "copy_message"
@@ -30,11 +30,11 @@
       "args": [
         "msg_a0236fd1c001TlwqL8fwvq529i"
       ],
-      "display_line": 67,
+      "display_line": 74,
       "key": "F",
       "range": {
-        "from": 63,
-        "to": 67
+        "from": 70,
+        "to": 74
       },
       "text": "[F]ork",
       "type": "fork_session"
@@ -160,11 +160,11 @@
       "args": [
         "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
       ],
-      "display_line": 56,
+      "display_line": 63,
       "key": "R",
       "range": {
-        "from": 56,
-        "to": 56
+        "from": 63,
+        "to": 63
       },
       "text": "[R]evert file",
       "type": "diff_revert_selected_file"
@@ -173,11 +173,11 @@
       "args": [
         "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
       ],
-      "display_line": 56,
+      "display_line": 63,
       "key": "A",
       "range": {
-        "from": 56,
-        "to": 56
+        "from": 63,
+        "to": 63
       },
       "text": "Revert [A]ll",
       "type": "diff_revert_all"
@@ -186,11 +186,11 @@
       "args": [
         "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
       ],
-      "display_line": 56,
+      "display_line": 63,
       "key": "D",
       "range": {
-        "from": 56,
-        "to": 56
+        "from": 63,
+        "to": 63
       },
       "text": "[D]iff",
       "type": "diff_open"
@@ -199,11 +199,11 @@
       "args": [
         "d988cc85565b99017d40ad8baea20225165be9d5"
       ],
-      "display_line": 90,
+      "display_line": 104,
       "key": "R",
       "range": {
-        "from": 90,
-        "to": 90
+        "from": 104,
+        "to": 104
       },
       "text": "[R]evert file",
       "type": "diff_revert_selected_file"
@@ -212,11 +212,11 @@
       "args": [
         "d988cc85565b99017d40ad8baea20225165be9d5"
       ],
-      "display_line": 90,
+      "display_line": 104,
       "key": "A",
       "range": {
-        "from": 90,
-        "to": 90
+        "from": 104,
+        "to": 104
       },
       "text": "Revert [A]ll",
       "type": "diff_revert_all"
@@ -225,11 +225,11 @@
       "args": [
         "d988cc85565b99017d40ad8baea20225165be9d5"
       ],
-      "display_line": 90,
+      "display_line": 104,
       "key": "D",
       "range": {
-        "from": 90,
-        "to": 90
+        "from": 104,
+        "to": 104
       },
       "text": "[D]iff",
       "type": "diff_open"
@@ -247,25 +247,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234c0b7001y2o9S1jMaNVZar]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -285,7 +285,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:02",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -304,7 +304,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -324,7 +324,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -344,7 +344,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -364,7 +364,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -383,26 +383,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234c7960011LTxTvD94hfWCi]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -422,7 +422,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:04",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -441,7 +441,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -461,7 +461,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -481,7 +481,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -499,22 +499,22 @@
         "end_right_gravity": false,
         "end_row": 16,
         "hl_eol": true,
-        "hl_group": "OpencodeDiffDelete",
+        "hl_group": "PiDiffDelete",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
             "1",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ],
           [
             "-",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ],
           [
             " ",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -533,7 +533,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -551,22 +551,22 @@
         "end_right_gravity": false,
         "end_row": 17,
         "hl_eol": true,
-        "hl_group": "OpencodeDiffAdd",
+        "hl_group": "PiDiffAdd",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
             "1",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ],
           [
             "+",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ],
           [
             " ",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -585,7 +585,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -608,15 +608,15 @@
         "virt_text": [
           [
             "2",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ],
           [
             " ",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ],
           [
             " ",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -635,7 +635,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -658,15 +658,15 @@
         "virt_text": [
           [
             "3",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ],
           [
             " ",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ],
           [
             " ",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -685,7 +685,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -705,7 +705,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -725,7 +725,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -744,26 +744,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234d8fb001SXyngLjuKSuxOY]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -783,7 +783,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:09",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -802,25 +802,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234e308001SKl5bQUibp5gtI]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -840,7 +840,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:11",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -859,7 +859,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -879,7 +879,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -898,26 +898,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234e31f001m4EsQdPmY3PTtS]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -937,7 +937,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:11",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -947,64 +947,7 @@
     ],
     [
       30,
-      42,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 10,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            " ",
-            "OpencodeMessageRoleAssistant"
-          ],
-          [
-            " "
-          ],
-          [
-            "BUILD",
-            "OpencodeMessageRoleAssistant"
-          ],
-          [
-            " "
-          ],
-          [
-            "github-copilot/gpt-5-mini",
-            "OpencodeHint"
-          ],
-          [
-            " [msg_a0234f482001PQbMjWc6W8s0eF]",
-            "OpencodeHint"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": false,
-        "virt_text_win_col": -3
-      }
-    ],
-    [
-      31,
-      42,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 9,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            " 2025-10-20 15:20:16",
-            "OpencodeHint"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "right_align",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      32,
-      46,
+      39,
       0,
       {
         "ns_id": 3,
@@ -1013,7 +956,47 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      31,
+      40,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      32,
+      41,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1024,7 +1007,7 @@
     ],
     [
       33,
-      47,
+      42,
       0,
       {
         "ns_id": 3,
@@ -1033,7 +1016,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1044,7 +1027,7 @@
     ],
     [
       34,
-      48,
+      43,
       0,
       {
         "ns_id": 3,
@@ -1053,7 +1036,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1064,39 +1047,7 @@
     ],
     [
       35,
-      49,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 50,
-        "hl_eol": true,
-        "hl_group": "OpencodeDiffDelete",
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "1",
-            "OpencodeDiffDeleteGutter"
-          ],
-          [
-            "-",
-            "OpencodeDiffDeleteGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffDeleteGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      36,
-      49,
+      44,
       0,
       {
         "ns_id": 3,
@@ -1105,7 +1056,27 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      36,
+      45,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1116,39 +1087,7 @@
     ],
     [
       37,
-      50,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 51,
-        "hl_eol": true,
-        "hl_group": "OpencodeDiffAdd",
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "1",
-            "OpencodeDiffAddGutter"
-          ],
-          [
-            "+",
-            "OpencodeDiffAddGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffAddGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      38,
-      50,
+      46,
       0,
       {
         "ns_id": 3,
@@ -1157,7 +1096,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1167,38 +1106,65 @@
       }
     ],
     [
-      39,
-      51,
+      38,
+      49,
       0,
       {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 52,
         "ns_id": 3,
-        "priority": 5000,
+        "priority": 10,
         "right_gravity": true,
         "virt_text": [
           [
-            "2",
-            "OpencodeDiffGutter"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
-            " ",
-            "OpencodeDiffGutter"
+            " "
           ],
           [
-            " ",
-            "OpencodeDiffGutter"
+            "BUILD",
+            "PiMessageRoleAssistant"
+          ],
+          [
+            " "
+          ],
+          [
+            "github-copilot/gpt-5-mini",
+            "PiHint"
+          ],
+          [
+            " [msg_a0234f482001PQbMjWc6W8s0eF]",
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "overlay",
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": false,
+        "virt_text_win_col": -3
+      }
+    ],
+    [
+      39,
+      49,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 9,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            " 2025-10-20 15:20:16",
+            "PiHint"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "right_align",
         "virt_text_repeat_linebreak": false
       }
     ],
     [
       40,
-      51,
+      53,
       0,
       {
         "ns_id": 3,
@@ -1207,7 +1173,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1218,37 +1184,7 @@
     ],
     [
       41,
-      52,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 53,
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "3",
-            "OpencodeDiffGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      42,
-      52,
+      54,
       0,
       {
         "ns_id": 3,
@@ -1257,7 +1193,27 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      42,
+      55,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1268,27 +1224,39 @@
     ],
     [
       43,
-      53,
+      56,
       0,
       {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 57,
+        "hl_eol": true,
+        "hl_group": "PiDiffDelete",
         "ns_id": 3,
-        "priority": 4096,
+        "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
-            "▌",
-            "OpencodeToolBorder"
+            "1",
+            "PiDiffDeleteGutter"
+          ],
+          [
+            "-",
+            "PiDiffDeleteGutter"
+          ],
+          [
+            " ",
+            "PiDiffDeleteGutter"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": true,
-        "virt_text_win_col": -1
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
       }
     ],
     [
       44,
-      54,
+      56,
       0,
       {
         "ns_id": 3,
@@ -1297,7 +1265,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1308,218 +1276,199 @@
     ],
     [
       45,
-      59,
+      57,
       0,
       {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 58,
+        "hl_eol": true,
+        "hl_group": "PiDiffAdd",
         "ns_id": 3,
-        "priority": 10,
+        "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "1",
+            "PiDiffAddGutter"
           ],
           [
-            " "
+            "+",
+            "PiDiffAddGutter"
           ],
           [
-            "BUILD",
-            "OpencodeMessageRoleAssistant"
-          ],
-          [
-            " "
-          ],
-          [
-            "github-copilot/gpt-5-mini",
-            "OpencodeHint"
-          ],
-          [
-            " [msg_a0234f9c6001JCKYaca1HHwwx6]",
-            "OpencodeHint"
+            " ",
+            "PiDiffAddGutter"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": false,
-        "virt_text_win_col": -3
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
       }
     ],
     [
       46,
-      59,
+      57,
       0,
       {
         "ns_id": 3,
-        "priority": 9,
+        "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
-            " 2025-10-20 15:20:17",
-            "OpencodeHint"
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "right_align",
-        "virt_text_repeat_linebreak": false
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
       }
     ],
     [
       47,
-      64,
+      58,
       0,
       {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 59,
         "ns_id": 3,
-        "priority": 10,
+        "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
-            "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "2",
+            "PiDiffGutter"
           ],
           [
-            " "
+            " ",
+            "PiDiffGutter"
           ],
           [
-            "USER",
-            "OpencodeMessageRoleUser"
-          ],
-          [
-            " "
-          ],
-          [
-            "",
-            "OpencodeHint"
-          ],
-          [
-            " [msg_a0236fd1c001TlwqL8fwvq529i]",
-            "OpencodeHint"
+            " ",
+            "PiDiffGutter"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": false,
-        "virt_text_win_col": -3
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
       }
     ],
     [
       48,
-      64,
+      58,
       0,
       {
         "ns_id": 3,
-        "priority": 9,
+        "priority": 4096,
         "right_gravity": true,
         "virt_text": [
           [
-            " 2025-10-20 15:22:29",
-            "OpencodeHint"
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "right_align",
-        "virt_text_repeat_linebreak": false
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
       }
     ],
     [
       49,
-      65,
+      59,
       0,
       {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 60,
         "ns_id": 3,
-        "priority": 4096,
+        "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
-            "▌",
-            "OpencodeMessageRoleUser"
+            "3",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": true,
-        "virt_text_win_col": -3
-      }
-    ],
-    [
-      50,
-      66,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 4096,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "▌",
-            "OpencodeMessageRoleUser"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": true,
-        "virt_text_win_col": -3
-      }
-    ],
-    [
-      51,
-      69,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 10,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            " ",
-            "OpencodeMessageRoleAssistant"
-          ],
-          [
-            " "
-          ],
-          [
-            "BUILD",
-            "OpencodeMessageRoleAssistant"
-          ],
-          [
-            " "
-          ],
-          [
-            "github-copilot/gpt-5-mini",
-            "OpencodeHint"
-          ],
-          [
-            " [msg_a0236fd57001pTnTjSBdFlleCb]",
-            "OpencodeHint"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": false,
-        "virt_text_win_col": -3
-      }
-    ],
-    [
-      52,
-      69,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 9,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            " 2025-10-20 15:22:29",
-            "OpencodeHint"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "right_align",
+        "virt_text_pos": "overlay",
         "virt_text_repeat_linebreak": false
       }
     ],
     [
+      50,
+      59,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      51,
+      60,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      52,
+      61,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
       53,
-      76,
+      66,
       0,
       {
         "ns_id": 3,
@@ -1527,26 +1476,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
-            " [msg_a02371241001PBQAsr8Oc9hqNI]",
-            "OpencodeHint"
+            " [msg_a0234f9c6001JCKYaca1HHwwx6]",
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -1557,7 +1506,7 @@
     ],
     [
       54,
-      76,
+      66,
       0,
       {
         "ns_id": 3,
@@ -1565,8 +1514,8 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " 2025-10-20 15:22:34",
-            "OpencodeHint"
+            " 2025-10-20 15:20:17",
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -1576,6 +1525,160 @@
     ],
     [
       55,
+      71,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 10,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌󰭻 ",
+            "PiMessageRoleUser"
+          ],
+          [
+            " "
+          ],
+          [
+            "USER",
+            "PiMessageRoleUser"
+          ],
+          [
+            " "
+          ],
+          [
+            "",
+            "PiHint"
+          ],
+          [
+            " [msg_a0236fd1c001TlwqL8fwvq529i]",
+            "PiHint"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": false,
+        "virt_text_win_col": -3
+      }
+    ],
+    [
+      56,
+      71,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 9,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            " 2025-10-20 15:22:29",
+            "PiHint"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "right_align",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      57,
+      72,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiMessageRoleUser"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -3
+      }
+    ],
+    [
+      58,
+      73,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiMessageRoleUser"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -3
+      }
+    ],
+    [
+      59,
+      76,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 10,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "π ",
+            "PiMessageRoleAssistant"
+          ],
+          [
+            " "
+          ],
+          [
+            "BUILD",
+            "PiMessageRoleAssistant"
+          ],
+          [
+            " "
+          ],
+          [
+            "github-copilot/gpt-5-mini",
+            "PiHint"
+          ],
+          [
+            " [msg_a0236fd57001pTnTjSBdFlleCb]",
+            "PiHint"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": false,
+        "virt_text_win_col": -3
+      }
+    ],
+    [
+      60,
+      76,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 9,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            " 2025-10-20 15:22:29",
+            "PiHint"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "right_align",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      61,
       80,
       0,
       {
@@ -1585,151 +1688,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": true,
-        "virt_text_win_col": -1
-      }
-    ],
-    [
-      56,
-      81,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 4096,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "▌",
-            "OpencodeToolBorder"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": true,
-        "virt_text_win_col": -1
-      }
-    ],
-    [
-      57,
-      82,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 4096,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "▌",
-            "OpencodeToolBorder"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": true,
-        "virt_text_win_col": -1
-      }
-    ],
-    [
-      58,
-      83,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 84,
-        "hl_eol": true,
-        "hl_group": "OpencodeDiffDelete",
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "1",
-            "OpencodeDiffDeleteGutter"
-          ],
-          [
-            "-",
-            "OpencodeDiffDeleteGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffDeleteGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      59,
-      83,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 4096,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "▌",
-            "OpencodeToolBorder"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": true,
-        "virt_text_win_col": -1
-      }
-    ],
-    [
-      60,
-      84,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 85,
-        "hl_eol": true,
-        "hl_group": "OpencodeDiffAdd",
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "1",
-            "OpencodeDiffAddGutter"
-          ],
-          [
-            "+",
-            "OpencodeDiffAddGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffAddGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      61,
-      84,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 4096,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1740,37 +1699,7 @@
     ],
     [
       62,
-      85,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 86,
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "2",
-            "OpencodeDiffGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      63,
-      85,
+      81,
       0,
       {
         "ns_id": 3,
@@ -1779,7 +1708,27 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      63,
+      82,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1790,37 +1739,7 @@
     ],
     [
       64,
-      86,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 87,
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "3",
-            "OpencodeDiffGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      65,
-      86,
+      83,
       0,
       {
         "ns_id": 3,
@@ -1829,7 +1748,27 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      65,
+      84,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1840,7 +1779,7 @@
     ],
     [
       66,
-      87,
+      85,
       0,
       {
         "ns_id": 3,
@@ -1849,7 +1788,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1860,7 +1799,7 @@
     ],
     [
       67,
-      88,
+      86,
       0,
       {
         "ns_id": 3,
@@ -1869,7 +1808,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1880,7 +1819,27 @@
     ],
     [
       68,
-      93,
+      87,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      69,
+      90,
       0,
       {
         "ns_id": 3,
@@ -1888,26 +1847,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
-            " [msg_a023723d0001r87MaJThFssUw1]",
-            "OpencodeHint"
+            " [msg_a02371241001PBQAsr8Oc9hqNI]",
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -1917,8 +1876,369 @@
       }
     ],
     [
-      69,
-      93,
+      70,
+      90,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 9,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            " 2025-10-20 15:22:34",
+            "PiHint"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "right_align",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      71,
+      94,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      72,
+      95,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      73,
+      96,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      74,
+      97,
+      0,
+      {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 98,
+        "hl_eol": true,
+        "hl_group": "PiDiffDelete",
+        "ns_id": 3,
+        "priority": 5000,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "1",
+            "PiDiffDeleteGutter"
+          ],
+          [
+            "-",
+            "PiDiffDeleteGutter"
+          ],
+          [
+            " ",
+            "PiDiffDeleteGutter"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      75,
+      97,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      76,
+      98,
+      0,
+      {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 99,
+        "hl_eol": true,
+        "hl_group": "PiDiffAdd",
+        "ns_id": 3,
+        "priority": 5000,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "1",
+            "PiDiffAddGutter"
+          ],
+          [
+            "+",
+            "PiDiffAddGutter"
+          ],
+          [
+            " ",
+            "PiDiffAddGutter"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      77,
+      98,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      78,
+      99,
+      0,
+      {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 100,
+        "ns_id": 3,
+        "priority": 5000,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "2",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      79,
+      99,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      80,
+      100,
+      0,
+      {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 101,
+        "ns_id": 3,
+        "priority": 5000,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "3",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      81,
+      100,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      82,
+      101,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      83,
+      102,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      84,
+      107,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 10,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "π ",
+            "PiMessageRoleAssistant"
+          ],
+          [
+            " "
+          ],
+          [
+            "BUILD",
+            "PiMessageRoleAssistant"
+          ],
+          [
+            " "
+          ],
+          [
+            "github-copilot/gpt-5-mini",
+            "PiHint"
+          ],
+          [
+            " [msg_a023723d0001r87MaJThFssUw1]",
+            "PiHint"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": false,
+        "virt_text_win_col": -3
+      }
+    ],
+    [
+      85,
+      107,
       0,
       {
         "ns_id": 3,
@@ -1927,7 +2247,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:22:39",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -1949,7 +2269,7 @@
     "",
     "I'll append a single word (\"again\") to the first line of `test.txt`. Applying a precise edit to the existing line now.",
     "",
-    "**  edit** `/home/francis/Projects/_nvim/opencode.nvim/test.txt`",
+    "**  edit** `/home/francis/Projects/_nvim/pi.nvim/test.txt`",
     "",
     "`````txt",
     "   tangram quiver saffron nebula cobalt murmur plinth zephyr ember lattice cadenza another yet extra more",
@@ -1976,14 +2296,21 @@
     "",
     "I'll read `test.txt` to get the current first-line content, then append one word (\"again2\") to that line. Proceeding to read the file.",
     "",
-    "**  read** `/home/francis/Projects/_nvim/opencode.nvim/test.txt`",
+    "**  read** `/home/francis/Projects/_nvim/pi.nvim/test.txt`",
+    "",
+    "`````txt",
+    "    tangram quiver saffron nebula cobalt murmur plinth zephyr ember lattice cadenza another yet extra more again",
+    "",
+    "",
+    "",
+    "`````",
     "",
     "----",
     "",
     "",
     "Now I'll append the word \"again2\" to the first line. I'll apply an exact in-place edit to update that line.",
     "",
-    "**  edit** `/home/francis/Projects/_nvim/opencode.nvim/test.txt`",
+    "**  edit** `/home/francis/Projects/_nvim/pi.nvim/test.txt`",
     "",
     "`````txt",
     "   tangram quiver saffron nebula cobalt murmur plinth zephyr ember lattice cadenza another yet extra more again",
@@ -2010,14 +2337,21 @@
     "",
     "I'll read `test.txt` to get the current first-line content, then append the word `again3`. Proceeding to read the file.",
     "",
-    "**  read** `/home/francis/Projects/_nvim/opencode.nvim/test.txt`",
+    "**  read** `/home/francis/Projects/_nvim/pi.nvim/test.txt`",
+    "",
+    "`````txt",
+    "     tangram quiver saffron nebula cobalt murmur plinth zephyr ember lattice cadenza another yet extra more again again2",
+    "",
+    "",
+    "",
+    "`````",
     "",
     "----",
     "",
     "",
     "I'll append the word \"again3\" to the first line of `test.txt` with an exact in-place edit. Applying the change now.",
     "",
-    "**  edit** `/home/francis/Projects/_nvim/opencode.nvim/test.txt`",
+    "**  edit** `/home/francis/Projects/_nvim/pi.nvim/test.txt`",
     "",
     "`````txt",
     "   tangram quiver saffron nebula cobalt murmur plinth zephyr ember lattice cadenza another yet extra more again again2",
@@ -2039,11 +2373,11 @@
   "timestamp": 1774894778,
   "window": {
     "cursor": [
-      97,
+      111,
       0
     ],
-    "effective_bottom": 97,
-    "line_count": 98,
-    "visible_bottom": 97
+    "effective_bottom": 111,
+    "line_count": 112,
+    "visible_bottom": 112
   }
 }

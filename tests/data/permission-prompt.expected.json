@@ -11,26 +11,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "PLAN",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/claude-sonnet-4.5",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_9eb45fbe60020xE560OGH3Vdoo]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -50,7 +50,7 @@
         "virt_text": [
           [
             " 2025-10-16 04:27:36",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -69,7 +69,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -89,7 +89,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -149,7 +149,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -169,7 +169,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -188,26 +188,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleSystem"
+            "π ",
+            "PiMessageRoleSystem"
           ],
           [
             " "
           ],
           [
             "SYSTEM",
-            "OpencodeMessageRoleSystem"
+            "PiMessageRoleSystem"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [permission-display-message]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -221,7 +221,7 @@
       15,
       0,
       {
-        "line_hl_group": "OpencodePermissionTitle",
+        "line_hl_group": "PiPermissionTitle",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true
@@ -238,7 +238,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -258,7 +258,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -278,7 +278,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -298,7 +298,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -318,7 +318,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -338,7 +338,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -358,7 +358,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -378,7 +378,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -392,7 +392,7 @@
       23,
       0,
       {
-        "line_hl_group": "OpencodeDialogOptionHover",
+        "line_hl_group": "PiDialogOptionHover",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true
@@ -409,7 +409,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -429,7 +429,7 @@
         "virt_text": [
           [
             "› ",
-            "OpencodeDialogOptionHover"
+            "PiDialogOptionHover"
           ]
         ],
         "virt_text_hide": false,
@@ -448,7 +448,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -468,7 +468,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -488,7 +488,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -508,7 +508,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -528,7 +528,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -548,7 +548,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -567,7 +567,7 @@
     "**  run** `Find extmark namespace usage`",
     "",
     "`````bash",
-    "> rg \"nvim_buf_get_extmarks|ns_id\" /Users/cam/Dev/neovim-dev/opencode.nvim/lua/opencode/ui/output_window.lua -B 2 -A 2",
+    "> rg \"nvim_buf_get_extmarks|ns_id\" /Users/cam/Dev/neovim-dev/pi.nvim/lua/pi/ui/output_window.lua -B 2 -A 2",
     "",
     "`````",
     "",
@@ -579,7 +579,7 @@
     "  *bash* Find extmark namespace usage",
     "",
     "```bash",
-    "rg \"nvim_buf_get_extmarks|ns_id\" /Users/cam/Dev/neovim-dev/opencode.nvim/lua/opencode/ui/output_window.lua -B 2 -A 2",
+    "rg \"nvim_buf_get_extmarks|ns_id\" /Users/cam/Dev/neovim-dev/pi.nvim/lua/pi/ui/output_window.lua -B 2 -A 2",
     "```",
     "",
     "    1. Allow once ",

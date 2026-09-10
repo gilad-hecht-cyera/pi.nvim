@@ -1,11 +1,11 @@
-local context_bar = require('opencode.ui.context_bar')
-local context = require('opencode.context')
-local state = require('opencode.state')
-local icons = require('opencode.ui.icons')
-local config = require('opencode.config')
+local context_bar = require('pi.ui.context_bar')
+local context = require('pi.context')
+local state = require('pi.state')
+local icons = require('pi.ui.icons')
+local config = require('pi.config')
 local assert = require('luassert')
 
-describe('opencode.ui.context_bar', function()
+describe('pi.ui.context_bar', function()
   local original_delta_context
   local original_get_context
   local original_is_context_enabled
@@ -115,7 +115,7 @@ describe('opencode.ui.context_bar', function()
     vim.wo = original_wo
   end)
 
-  describe('opencode.ui.context_bar', function()
+  describe('pi.ui.context_bar', function()
     it('renders minimal winbar with right aligh token only', function()
       local mock_input_win = 2001
       local winbar_capture = create_mock_window(mock_input_win)
@@ -159,7 +159,7 @@ describe('opencode.ui.context_bar', function()
       assert.is_string(winbar_capture.value)
       assert.is_not_nil(winbar_capture.value:find(icons.get('attached_file') .. 'test%.lua'))
       -- Check that Comment highlight is used for already-sent files
-      assert.is_not_nil(winbar_capture.value:find('%%#OpencodeContextCurrentFileNotUpdated#'))
+      assert.is_not_nil(winbar_capture.value:find('%%#PiContextCurrentFileNotUpdated#'))
     end)
 
     it('renders winbar with multiple context elements', function()
@@ -300,7 +300,7 @@ describe('opencode.ui.context_bar', function()
       assert.is_table(captured_keys)
 
       local expected_keys =
-        { 'current_context_config', 'current_code_buf', 'is_opencode_focused', 'context_updated_at' }
+        { 'current_context_config', 'current_code_buf', 'is_pi_focused', 'context_updated_at' }
       for _, expected_key in ipairs(expected_keys) do
         local found = false
         for _, key in ipairs(captured_keys) do

@@ -1,5 +1,5 @@
-local image_handler = require('opencode.image_handler')
-local context = require('opencode.context')
+local image_handler = require('pi.image_handler')
+local context = require('pi.context')
 
 describe('image_handler', function()
   local function assert_has_sta(args)

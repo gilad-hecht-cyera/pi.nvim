@@ -1,0 +1,17 @@
+return {
+  bash = require('pi.ui.formatter.tools.bash'),
+  read = require('pi.ui.formatter.tools.file'),
+  edit = require('pi.ui.formatter.tools.file'),
+  write = require('pi.ui.formatter.tools.file'),
+  apply_patch = require('pi.ui.formatter.tools.apply_patch'),
+  todowrite = require('pi.ui.formatter.tools.todowrite'),
+  glob = require('pi.ui.formatter.tools.glob'),
+  grep = require('pi.ui.formatter.tools.grep'),
+  webfetch = require('pi.ui.formatter.tools.webfetch'),
+  list = require('pi.ui.formatter.tools.list'),
+  question = require('pi.ui.formatter.tools.question'),
+  skill = require('pi.ui.formatter.tools.skill'),
+  task = require('pi.ui.formatter.tools.task'),
+  mcp = require('pi.ui.formatter.tools.mcp'),
+  tool = require('pi.ui.formatter.tools.tool'),
+}

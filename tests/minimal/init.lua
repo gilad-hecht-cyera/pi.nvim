@@ -1,4 +1,4 @@
--- Minimal init.lua for testing opencode.nvim
+-- Minimal init.lua for testing pi.nvim
 -- This init file is used by the test harness
 
 -- Disable loading of user config
@@ -32,7 +32,7 @@ _G.test_plugin_root = plugin_root
 -- For debugging
 vim.opt.termguicolors = true
 
-require('opencode')
+require('pi')
 
 -- Safely stub out treesitter during tests, using pcall(require, ...) so tests pass even if vim.treesitter is unavailable.
 local ok, ts = pcall(require, 'vim.treesitter')

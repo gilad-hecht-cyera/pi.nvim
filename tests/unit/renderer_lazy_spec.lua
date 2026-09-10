@@ -1,12 +1,12 @@
 local helpers = require('tests.helpers')
-local state = require('opencode.state')
-local ctx = require('opencode.ui.renderer.ctx')
-local config = require('opencode.config')
+local state = require('pi.state')
+local ctx = require('pi.ui.renderer.ctx')
+local config = require('pi.config')
 
 ---Create a minimal message for testing lazy render.
 ---@param id string Message ID
 ---@param role string 'user' or 'assistant'
----@return OpencodeMessage
+---@return PiMessage
 local function make_message(id, role)
   return {
     info = {
@@ -30,7 +30,7 @@ end
 
 ---Create a list of N user/assistant message pairs.
 ---@param count integer Number of message pairs
----@return OpencodeMessage[]
+---@return PiMessage[]
 local function make_session_data(count)
   local messages = {}
   for i = 1, count do
@@ -46,7 +46,7 @@ local function count_rendered_messages()
   local count = 0
   for _, msg in ipairs(state.messages or {}) do
     local msg_id = msg.info and msg.info.id or ''
-    if msg_id:match('^__opencode_') then
+    if msg_id:match('^__pi_') then
       goto continue
     end
     local rendered = ctx.render_state:get_message(msg_id)
@@ -63,7 +63,7 @@ describe('lazy render', function()
 
   before_each(function()
     helpers.replay_setup()
-    renderer = require('opencode.ui.renderer')
+    renderer = require('pi.ui.renderer')
     state.session.set_active({ id = 'ses_test', title = 'Test Session' })
   end)
 
@@ -71,7 +71,7 @@ describe('lazy render', function()
     ctx:reset()
     config.ui.output.max_messages = nil
     if state.windows then
-      require('opencode.ui.ui').close_windows(state.windows)
+      require('pi.ui.ui').close_windows(state.windows)
     end
   end)
 
@@ -266,7 +266,7 @@ describe('lazy render', function()
 
   it('triggers scroll-to-top load_more from viewport top, not cursor line', function()
     local session_data = make_session_data(50) -- 100 messages total
-    local output_window = require('opencode.ui.output_window')
+    local output_window = require('pi.ui.output_window')
 
     ctx.lazy_render_count = 10
     renderer._render_full_session_data(session_data)
@@ -343,13 +343,13 @@ describe('renderer no debug logging', function()
   after_each(function()
     ctx:reset()
     if state.windows then
-      require('opencode.ui.ui').close_windows(state.windows)
+      require('pi.ui.ui').close_windows(state.windows)
     end
   end)
 
   it('does not emit INFO-level notifications during rendering', function()
     local mock = helpers.mock_notify()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
     local session_data = make_session_data(5)
 
     renderer._render_full_session_data(session_data)

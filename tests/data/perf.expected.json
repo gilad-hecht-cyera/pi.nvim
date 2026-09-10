@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a17b4dc4c001x19oFZANB8CsEB]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2025-10-24 19:32:00",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -149,7 +149,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -169,7 +169,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -188,26 +188,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a17b4e166001vCnLczdZXvqLL6]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -227,7 +227,7 @@
         "virt_text": [
           [
             " 2025-10-24 19:32:01",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -242,7 +242,7 @@
     "",
     "I just want to test the markdown rendering, please write as long session with codeblocksto",
     "",
-    "[`lua/opencode/ui/output_window.lua`](lua/opencode/ui/output_window.lua)",
+    "[`lua/pi/ui/output_window.lua`](lua/pi/ui/output_window.lua)",
     "",
     "----",
     "",
@@ -250,19 +250,19 @@
     "Here's a long markdown-rich session with many fenced code blocks to help test rendering. I include the file you provided plus a variety of smaller snippets in different languages and formats.",
     "",
     "**File Contents**",
-    "- `lua/opencode/ui/output_window.lua:1`",
+    "- `lua/pi/ui/output_window.lua:1`",
     "",
     "```lua",
-    "-- lua/opencode/ui/output_window.lua",
-    "local state = require('opencode.state')",
-    "local config = require('opencode.config')",
+    "-- lua/pi/ui/output_window.lua",
+    "local state = require('pi.state')",
+    "local config = require('pi.config')",
     "",
     "local M = {}",
-    "M.namespace = vim.api.nvim_create_namespace('opencode_output')",
+    "M.namespace = vim.api.nvim_create_namespace('pi_output')",
     "",
     "function M.create_buf()",
     "  local output_buf = vim.api.nvim_create_buf(false, true)",
-    "  vim.api.nvim_set_option_value('filetype', 'opencode_output', { buf = output_buf })",
+    "  vim.api.nvim_set_option_value('filetype', 'pi_output', { buf = output_buf })",
     "  return output_buf",
     "end",
     "",
@@ -405,7 +405,7 @@
     "end",
     "",
     "function M.setup_keymaps(windows)",
-    "  local keymap = require('opencode.keymap')",
+    "  local keymap = require('pi.keymap')",
     "  keymap.setup_window_keymaps(config.keymap.output_window, windows.output_buf)",
     "end",
     "",
@@ -415,8 +415,8 @@
     "    buffer = windows.output_buf,",
     "    callback = function()",
     "      vim.cmd('stopinsert')",
-    "      state.last_focused_opencode_window = 'output'",
-    "      require('opencode.ui.input_window').refresh_placeholder(state.windows)",
+    "      state.last_focused_pi_window = 'output'",
+    "      require('pi.ui.input_window').refresh_placeholder(state.windows)",
     "    end,",
     "  })",
     "",
@@ -425,13 +425,13 @@
     "    buffer = windows.output_buf,",
     "    callback = function()",
     "      vim.cmd('stopinsert')",
-    "      state.last_focused_opencode_window = 'output'",
-    "      require('opencode.ui.input_window').refresh_placeholder(state.windows)",
+    "      state.last_focused_pi_window = 'output'",
+    "      require('pi.ui.input_window').refresh_placeholder(state.windows)",
     "    end,",
     "  })",
     "",
     "  state.subscribe('current_permission', function()",
-    "    require('opencode.keymap').toggle_permission_keymap(windows.output_buf)",
+    "    require('pi.keymap').toggle_permission_keymap(windows.output_buf)",
     "  end)",
     "end",
     "",
@@ -456,7 +456,7 @@
     "",
     "```lua",
     "-- Print buffer line count if mounted",
-    "local out = require('opencode.ui.output_window')",
+    "local out = require('pi.ui.output_window')",
     "if out.mounted() then",
     "  print('Lines:', out.get_buf_line_count())",
     "else",
@@ -468,7 +468,7 @@
     "",
     "```json",
     "{",
-    "  \"name\": \"opencode.nvim\",",
+    "  \"name\": \"pi.nvim\",",
     "  \"version\": \"0.0.0\",",
     "  \"tests\": {",
     "    \"unit\": 128,",
@@ -492,7 +492,7 @@
     "**Unified Diff example**",
     "",
     "```diff",
-    "*** before/lua/opencode/ui/output_window.lua",
+    "*** before/lua/pi/ui/output_window.lua",
     "@@",
     "-  vim.api.nvim_set_option_value('winhighlight', config.ui.window_highlight, { win = windows.output_win })",
     "+  vim.api.nvim_set_option_value('winhighlight', config.ui.window_highlight or '', { win = windows.output_win })",
@@ -537,17 +537,17 @@
     "**Shell snippet with inline env vars**",
     "",
     "```bash",
-    "export OPENCODE_ENV=development",
+    "export PI_ENV=development",
     "nvim --headless -u tests/minimal/init.lua -c \"lua require('plenary.test_harness').test_directory('./tests/unit', {minimal_init = './tests/minimal/init.lua'})\"",
     "```",
     "",
     "**Mixed inline code examples**",
     "- Use backticks for commands: `./run_tests.sh`",
-    "- File path with start line: `lua/opencode/ui/output_window.lua:1`",
+    "- File path with start line: `lua/pi/ui/output_window.lua:1`",
     "- API call: `vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)`",
     "",
     "**Small checklist**",
-    "- [x] Lua file included (`lua/opencode/ui/output_window.lua:1`)",
+    "- [x] Lua file included (`lua/pi/ui/output_window.lua:1`)",
     "- [x] Multiple fenced code blocks",
     "- [x] Several languages: Lua, Bash, JSON, YAML, Python, SQL, HTML, Diff",
     "",

@@ -6,16 +6,16 @@ local M = {}
 M.MOCK_CWD = '/mock/project/path'
 
 function M.replay_setup()
-  local config = require('opencode.config')
-  local config_file = require('opencode.config_file')
-  local state = require('opencode.state')
-  local ui = require('opencode.ui.ui')
-  local renderer = require('opencode.ui.renderer')
-  local permission_window = require('opencode.ui.permission_window')
-  local question_window = require('opencode.ui.question_window')
-  local reference_parser = require('opencode.ui.reference_parser')
+  local config = require('pi.config')
+  local config_file = require('pi.config_file')
+  local state = require('pi.state')
+  local ui = require('pi.ui.ui')
+  local renderer = require('pi.ui.renderer')
+  local permission_window = require('pi.ui.permission_window')
+  local question_window = require('pi.ui.question_window')
+  local reference_parser = require('pi.ui.reference_parser')
 
-  local empty_promise = require('opencode.promise').new():resolve(nil)
+  local empty_promise = require('pi.promise').new():resolve(nil)
   config_file.config_promise = empty_promise
   config_file.project_promise = empty_promise
   config_file.providers_promise = empty_promise
@@ -26,7 +26,7 @@ function M.replay_setup()
 
   renderer.reset()
   -- Ensure replay tests render all messages (lazy-render is always active)
-  require('opencode.ui.renderer.ctx').lazy_render_count = math.huge
+  require('pi.ui.renderer.ctx').lazy_render_count = math.huge
   permission_window.clear_all()
   question_window._clear_dialog()
   question_window._current_question = nil
@@ -36,20 +36,20 @@ function M.replay_setup()
   reference_parser.clear_all()
 
   ---@diagnostic disable-next-line: duplicate-set-field
-  require('opencode.session').project_id = function()
+  require('pi.session').project_id = function()
     return nil
   end
 
   state.model.set_mode('build') -- default mode for tests
 
   -- we use the event manager to dispatch events, have to setup before ui.create_windows
-  require('opencode.event_manager').setup()
+  require('pi.event_manager').setup()
 
   state.ui.set_windows(ui.create_windows())
 
   -- disable fetching session and rendering it (we'll handle it at a lower level)
   renderer.render_full_session = function()
-    return require('opencode.promise').new():resolve(nil)
+    return require('pi.promise').new():resolve(nil)
   end
 
   M.mock_time_utils()
@@ -164,7 +164,7 @@ function M.mock_notify()
 end
 
 function M.mock_time_utils()
-  local util = require('opencode.util')
+  local util = require('pi.util')
   local original_format_time = util.format_time
 
   ---@diagnostic disable-next-line: duplicate-set-field
@@ -331,7 +331,7 @@ end
 function M.replay_event(event)
   event = vim.deepcopy(event)
   -- synthetic "emit" by adding the event to the throttling emitter's queue
-  require('opencode.state').event_manager.throttling_emitter:enqueue(event)
+  require('pi.state').event_manager.throttling_emitter:enqueue(event)
 end
 
 function M.replay_events(events)
@@ -522,7 +522,7 @@ local function preserve_existing_action_order(actions, existing_file)
 end
 
 local function output_window_for_buffer(output_buf)
-  local state = require('opencode.state')
+  local state = require('pi.state')
   local output_win = state.windows and state.windows.output_win
 
   if output_win and vim.api.nvim_win_is_valid(output_win) and vim.api.nvim_win_get_buf(output_win) == output_buf then
@@ -534,7 +534,7 @@ end
 
 local function capture_window(output_buf)
   local output_win = output_window_for_buffer(output_buf)
-  local output_window = require('opencode.ui.output_window')
+  local output_window = require('pi.ui.output_window')
   local line_count = vim.api.nvim_buf_line_count(output_buf)
 
   return {
@@ -612,7 +612,7 @@ function M.capture_output(output_buf, namespace)
   return {
     lines = vim.api.nvim_buf_get_lines(output_buf, 0, -1, false) or {},
     extmarks = extmarks,
-    actions = vim.deepcopy(require('opencode.ui.renderer.ctx').render_state:get_all_actions()),
+    actions = vim.deepcopy(require('pi.ui.renderer.ctx').render_state:get_all_actions()),
     window = capture_window(output_buf),
   }
 end

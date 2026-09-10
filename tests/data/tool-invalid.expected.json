@@ -11,26 +11,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/claude-sonnet-4.5",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_9df31cc90001HGn2UbFUgqJnLr]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -50,7 +50,7 @@
         "virt_text": [
           [
             " 2025-10-13 20:10:06",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -69,7 +69,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -89,7 +89,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -149,7 +149,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -169,7 +169,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -187,7 +187,7 @@
     "",
     "> [!ERROR]",
     ">",
-    "> Invalid input for tool edit: JSON parsing failed: Text: {\"filePath\": \"/Users/cam/Dev/neovim-dev/opencode.nvim/lua/opencode/ui/streaming_renderer.lua\", \"newString\": \"---Event handler for permission.replied events\\n---Re-renders part after permission is resolved\\n---@param event table Event object\\nfunctio.",
+    "> Invalid input for tool edit: JSON parsing failed: Text: {\"filePath\": \"/Users/cam/Dev/neovim-dev/pi.nvim/lua/pi/ui/streaming_renderer.lua\", \"newString\": \"---Event handler for permission.replied events\\n---Re-renders part after permission is resolved\\n---@param event table Event object\\nfunctio.",
     "> Error message: JSON Parse error: Unterminated string",
     "",
     ""

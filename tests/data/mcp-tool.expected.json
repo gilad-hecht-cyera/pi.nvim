@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_mcp_user1]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2025-12-17 19:33:20",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -148,26 +148,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_mcp_asst1]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -187,7 +187,7 @@
         "virt_text": [
           [
             " 2025-12-17 19:33:20",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -200,7 +200,7 @@
       8,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -217,7 +217,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -231,7 +231,7 @@
       9,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -248,7 +248,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -262,7 +262,7 @@
       10,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -279,7 +279,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -293,7 +293,7 @@
       11,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -310,7 +310,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -324,7 +324,7 @@
       12,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -341,7 +341,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -355,7 +355,7 @@
       13,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -372,7 +372,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -386,7 +386,7 @@
       14,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -403,7 +403,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -417,7 +417,7 @@
       15,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -434,7 +434,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -448,7 +448,7 @@
       16,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -465,7 +465,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -479,7 +479,7 @@
       17,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -496,7 +496,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -510,7 +510,7 @@
       18,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -527,7 +527,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -541,7 +541,7 @@
       19,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -558,7 +558,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -572,7 +572,7 @@
       20,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -589,7 +589,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -603,7 +603,7 @@
       21,
       0,
       {
-        "line_hl_group": "OpencodeHint",
+        "line_hl_group": "PiHint",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true
@@ -620,7 +620,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
