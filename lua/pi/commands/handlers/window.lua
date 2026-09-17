@@ -167,6 +167,10 @@ function M.actions.focus_input()
   ui.focus_input({ restore_position = true, start_insert = true })
 end
 
+function M.actions.pin()
+  return require('pi.pin').open()
+end
+
 M.command_defs = {
   open = {
     desc = 'Open pi window (input/output)',
@@ -220,6 +224,10 @@ M.command_defs = {
   focus_input = {
     desc = 'Focus input window',
     execute = M.actions.focus_input,
+  },
+  pin = {
+    desc = 'Open Pi as the only Neovim UI in the current tab',
+    execute = M.actions.pin,
   },
   swap = {
     desc = 'Swap pane position left/right',

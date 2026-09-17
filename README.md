@@ -44,6 +44,15 @@ Open the sidebar:
 :Pi
 ```
 
+Open Pi as the only Neovim UI in the current working directory:
+
+```bash
+bin/pi-in-neovim
+```
+
+Install or symlink `bin/pi-in-neovim` somewhere on your `$PATH` if you want to run it as `pi-in-neovim`.
+This runs `nvim +"Pi pin"`, opens Pi in the current window, and closes other windows in the current tab (for example file explorer/main panes).
+
 Default keymap prefix is `<leader>p`, mirroring the original opencode.nvim layout with a Pi prefix:
 
 - `<leader>pg` toggle Pi sidebar
