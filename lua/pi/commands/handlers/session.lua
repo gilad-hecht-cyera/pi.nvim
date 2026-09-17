@@ -745,9 +745,9 @@ M.command_defs = {
   session = {
     desc = 'Manage sessions (new/select/navigate/compact/share/unshare/rename/autoname/info/toggle_lock)',
     completions = session_subcommands,
-    nested_subcommand = { allow_empty = false },
+    nested_subcommand = { allow_empty = true },
     execute = function(args)
-      local subcommand = args[1]
+      local subcommand = args[1] or 'info'
       local action = session_subcommand_actions[subcommand]
       if not action then
         invalid_arguments('Invalid session subcommand. Use: ' .. table.concat(session_subcommands, ', '))
