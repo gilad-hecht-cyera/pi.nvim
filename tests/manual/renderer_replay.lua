@@ -1,8 +1,8 @@
-local state = require('opencode.state')
-local renderer = require('opencode.ui.renderer')
+local state = require('pi.state')
+local renderer = require('pi.ui.renderer')
 local helpers = require('tests.helpers')
-local output_window = require('opencode.ui.output_window')
-local config = require('opencode.config')
+local output_window = require('pi.ui.output_window')
+local config = require('pi.config')
 
 local M = {
   events = {},
@@ -43,7 +43,7 @@ function M.load_events(file_path)
 end
 
 function M.setup_windows(opts)
-  require('opencode.ui.highlight').setup()
+  require('pi.ui.highlight').setup()
   helpers.replay_setup()
 
   vim.schedule(function()
@@ -179,8 +179,8 @@ end
 function M.wait_for_idle(timeout_ms)
   timeout_ms = timeout_ms or 5000
 
-  local ctx = require('opencode.ui.renderer.ctx')
-  local flush = require('opencode.ui.renderer.flush')
+  local ctx = require('pi.ui.renderer.ctx')
+  local flush = require('pi.ui.renderer.flush')
 
   return vim.wait(timeout_ms, function()
     local emitter = state.event_manager and state.event_manager.throttling_emitter

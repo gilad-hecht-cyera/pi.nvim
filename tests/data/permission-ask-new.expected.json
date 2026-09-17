@@ -52,25 +52,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_b8e7c60a2001Kisjwk2mVB4dye]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -90,7 +90,7 @@
         "virt_text": [
           [
             " 2026-01-05 14:07:54",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -109,7 +109,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -129,7 +129,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -149,7 +149,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -169,7 +169,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -189,7 +189,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -209,7 +209,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -229,7 +229,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -248,26 +248,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-4.1",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_b8e7c60f1001aEWYlAaDRXQ4aJ]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -287,7 +287,7 @@
         "virt_text": [
           [
             " 2026-01-05 14:07:54",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -306,7 +306,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -326,7 +326,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -346,7 +346,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -366,7 +366,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -386,7 +386,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -406,7 +406,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -425,26 +425,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleSystem"
+            "π ",
+            "PiMessageRoleSystem"
           ],
           [
             " "
           ],
           [
             "SYSTEM",
-            "OpencodeMessageRoleSystem"
+            "PiMessageRoleSystem"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [permission-display-message]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -458,7 +458,7 @@
       22,
       0,
       {
-        "line_hl_group": "OpencodePermissionTitle",
+        "line_hl_group": "PiPermissionTitle",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true
@@ -475,7 +475,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -495,7 +495,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -515,7 +515,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -535,7 +535,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -555,7 +555,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -575,7 +575,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -595,7 +595,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -615,7 +615,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -629,7 +629,7 @@
       30,
       0,
       {
-        "line_hl_group": "OpencodeDialogOptionHover",
+        "line_hl_group": "PiDialogOptionHover",
         "ns_id": 3,
         "priority": 4096,
         "right_gravity": true
@@ -646,7 +646,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -666,7 +666,7 @@
         "virt_text": [
           [
             "› ",
-            "OpencodeDialogOptionHover"
+            "PiDialogOptionHover"
           ]
         ],
         "virt_text_hide": false,
@@ -685,7 +685,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -705,7 +705,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -725,7 +725,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -745,7 +745,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -765,7 +765,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -785,7 +785,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodePermissionBorder"
+            "PiPermissionBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -801,7 +801,7 @@
     "",
     "@no-trust run a git status and tell me what files are changed",
     "",
-    "[`lua/opencode/ui/formatter.lua`](lua/opencode/ui/formatter.lua)",
+    "[`lua/pi/ui/formatter.lua`](lua/pi/ui/formatter.lua)",
     "",
     "**Diagnostics:**  (11)",
     "",

@@ -1,12 +1,12 @@
 local assert = require('luassert')
 
-describe('opencode.ui.picker', function()
+describe('pi.ui.picker', function()
   local saved_modules
 
   before_each(function()
     saved_modules = {
-      ['opencode.config'] = package.loaded['opencode.config'],
-      ['opencode.ui.picker'] = package.loaded['opencode.ui.picker'],
+      ['pi.config'] = package.loaded['pi.config'],
+      ['pi.ui.picker'] = package.loaded['pi.ui.picker'],
     }
   end)
 
@@ -17,12 +17,12 @@ describe('opencode.ui.picker', function()
   end)
 
   local function get_best_picker(preferred_picker)
-    package.loaded['opencode.config'] = {
+    package.loaded['pi.config'] = {
       preferred_picker = preferred_picker,
     }
-    package.loaded['opencode.ui.picker'] = nil
+    package.loaded['pi.ui.picker'] = nil
 
-    return require('opencode.ui.picker').get_best_picker()
+    return require('pi.ui.picker').get_best_picker()
   end
 
   it('normalizes fzf-lua preferred picker to the fzf backend', function()

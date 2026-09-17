@@ -1,5 +1,5 @@
 local helpers = require('tests.helpers')
-local context_completion = require('opencode.ui.completion.context')
+local context_completion = require('pi.ui.completion.context')
 
 local function find_item_by_label(items, label)
   for _, item in ipairs(items) do
@@ -104,18 +104,18 @@ describe('context completion', function()
       set_current_line = function() end,
     }
 
-    package.loaded['opencode.config'] = mock_config
-    package.loaded['opencode.context'] = mock_context
-    package.loaded['opencode.state'] = mock_state
-    package.loaded['opencode.ui.input_window'] = mock_input_win
+    package.loaded['pi.config'] = mock_config
+    package.loaded['pi.context'] = mock_context
+    package.loaded['pi.state'] = mock_state
+    package.loaded['pi.ui.input_window'] = mock_input_win
   end)
 
   after_each(function()
-    package.loaded['opencode.config'] = nil
-    package.loaded['opencode.context'] = nil
-    package.loaded['opencode.state'] = nil
-    package.loaded['opencode.ui.input_window'] = nil
-    package.loaded['opencode.ui.completion.context'] = nil
+    package.loaded['pi.config'] = nil
+    package.loaded['pi.context'] = nil
+    package.loaded['pi.state'] = nil
+    package.loaded['pi.ui.input_window'] = nil
+    package.loaded['pi.ui.completion.context'] = nil
   end)
 
   describe('get_source', function()
@@ -133,7 +133,7 @@ describe('context completion', function()
     local source
 
     before_each(function()
-      context_completion = require('opencode.ui.completion.context')
+      context_completion = require('pi.ui.completion.context')
       source = context_completion.get_source()
     end)
 
@@ -272,7 +272,7 @@ describe('context completion', function()
     local source
 
     before_each(function()
-      context_completion = require('opencode.ui.completion.context')
+      context_completion = require('pi.ui.completion.context')
       source = context_completion.get_source()
 
       vim.fn = vim.fn or {}
@@ -324,7 +324,7 @@ describe('context completion', function()
         },
       }
 
-      local context_module = require('opencode.context')
+      local context_module = require('pi.context')
       context_module.toggle_context = function(type)
         toggle_called = true
         assert.are.equal('current_file', type)
@@ -339,7 +339,7 @@ describe('context completion', function()
     it('should remove mentioned file when selected', function()
       local remove_file_called = false
 
-      local context_module = require('opencode.context')
+      local context_module = require('pi.context')
 
       context_module.remove_file = function(name)
         remove_file_called = true
@@ -367,8 +367,8 @@ describe('context completion', function()
       local remove_subagent_called = false
       local remove_mention_called = false
 
-      local context_module = require('opencode.context')
-      local input_win_module = require('opencode.ui.input_window')
+      local context_module = require('pi.context')
+      local input_win_module = require('pi.ui.input_window')
 
       context_module.remove_subagent = function(name)
         remove_subagent_called = true
@@ -399,7 +399,7 @@ describe('context completion', function()
       local remove_selection_called = false
       local selection_data = { content = 'test', lines = '1-1' }
 
-      local context_module = require('opencode.context')
+      local context_module = require('pi.context')
 
       context_module.remove_selection = function(selection)
         remove_selection_called = true
@@ -424,7 +424,7 @@ describe('context completion', function()
     it('should clean up trigger character from current line', function()
       local set_current_line_called = false
 
-      local input_win_module = require('opencode.ui.input_window')
+      local input_win_module = require('pi.ui.input_window')
 
       input_win_module.set_current_line = function(line)
         set_current_line_called = true
@@ -455,7 +455,7 @@ describe('context completion', function()
         return mock_config.context[type] and mock_config.context[type].enabled or false
       end
 
-      local source = require('opencode.ui.completion.context').get_source()
+      local source = require('pi.ui.completion.context').get_source()
 
       local completion_context = {
         trigger_char = '#',
@@ -480,7 +480,7 @@ describe('context completion', function()
         return mock_config.context[type] and mock_config.context[type].enabled or false
       end
 
-      local source = require('opencode.ui.completion.context').get_source()
+      local source = require('pi.ui.completion.context').get_source()
 
       local completion_context = {
         trigger_char = '#',
@@ -549,7 +549,7 @@ describe('context completion', function()
         input = '',
       }
 
-      local source = require('opencode.ui.completion.context').get_source()
+      local source = require('pi.ui.completion.context').get_source()
       local items = source.complete(completion_context)
 
       mock_context.is_context_enabled = original_is_enabled

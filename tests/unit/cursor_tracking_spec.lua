@@ -1,7 +1,7 @@
-local state = require('opencode.state')
-local store = require('opencode.state.store')
-local config = require('opencode.config')
-local ui = require('opencode.ui.ui')
+local state = require('pi.state')
+local store = require('pi.state.store')
+local config = require('pi.config')
+local ui = require('pi.ui.ui')
 
 describe('cursor persistence (state)', function()
   before_each(function()
@@ -10,7 +10,7 @@ describe('cursor persistence (state)', function()
   end)
 
   describe('renderer.scroll_to_bottom', function()
-    local renderer = require('opencode.ui.renderer')
+    local renderer = require('pi.ui.renderer')
     local buf, win
 
     before_each(function()
@@ -59,7 +59,7 @@ describe('cursor persistence (state)', function()
 
       -- Simulate user scrolling away (moves viewport, which fires WinScrolled → sync_cursor_with_viewport)
       vim.api.nvim_win_set_cursor(win, { 5, 0 })
-      local output_window = require('opencode.ui.output_window')
+      local output_window = require('pi.ui.output_window')
       output_window.sync_cursor_with_viewport(win)
 
       vim.api.nvim_buf_set_lines(buf, 20, 20, false, { 'line 21', 'line 22' })
@@ -186,7 +186,7 @@ describe('cursor persistence (state)', function()
 end)
 
 describe('output_window.is_at_bottom', function()
-  local output_window = require('opencode.ui.output_window')
+  local output_window = require('pi.ui.output_window')
   local buf, win
 
   before_each(function()
@@ -240,7 +240,7 @@ describe('output_window.is_at_bottom', function()
 
   it('returns false when user has scrolled viewport away from bottom', function()
     -- Simulate scrolling to bottom then user pressing k to move cursor up
-    local scroll = require('opencode.ui.renderer.scroll')
+    local scroll = require('pi.ui.renderer.scroll')
     scroll.scroll_win_to_bottom(win, buf)
     assert.is_true(output_window.is_at_bottom(win))
 
@@ -284,7 +284,7 @@ describe('output_window.is_at_bottom', function()
 
   it('cursor-based: moving cursor up stops auto-scroll', function()
     -- Scroll to bottom: cursor is at last line
-    local scroll = require('opencode.ui.renderer.scroll')
+    local scroll = require('pi.ui.renderer.scroll')
     scroll.scroll_win_to_bottom(win, buf)
     assert.is_true(output_window.is_at_bottom(win))
 
@@ -316,7 +316,7 @@ describe('output_window.is_at_bottom', function()
 end)
 
 describe('output_window.sync_cursor_with_viewport', function()
-  local output_window = require('opencode.ui.output_window')
+  local output_window = require('pi.ui.output_window')
   local buf, win
 
   before_each(function()
@@ -368,9 +368,9 @@ describe('output_window.sync_cursor_with_viewport', function()
 end)
 
 describe('renderer.scroll_to_bottom', function()
-  local renderer = require('opencode.ui.renderer')
-  local ctx = require('opencode.ui.renderer.ctx')
-  local output_window = require('opencode.ui.output_window')
+  local renderer = require('pi.ui.renderer')
+  local ctx = require('pi.ui.renderer.ctx')
+  local output_window = require('pi.ui.output_window')
   local stub = require('luassert.stub')
   local buf, win, input_buf, input_win
 
@@ -451,7 +451,7 @@ describe('renderer.scroll_to_bottom', function()
   it('scrolls to the last non-empty line when buffer ends with padding', function()
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'line 1', 'line 2', '' })
 
-    local scroll = require('opencode.ui.renderer.scroll')
+    local scroll = require('pi.ui.renderer.scroll')
     scroll.scroll_win_to_bottom(win, buf)
 
     local cursor = vim.api.nvim_win_get_cursor(win)
@@ -465,7 +465,7 @@ describe('renderer.scroll_to_bottom', function()
     vim.api.nvim_win_set_cursor(win, { 1, 0 })
 
     local cmd_stub = stub(vim, 'cmd')
-    local scroll = require('opencode.ui.renderer.scroll')
+    local scroll = require('pi.ui.renderer.scroll')
     scroll.scroll_win_to_bottom(win, buf)
 
     local cursor = vim.api.nvim_win_get_cursor(win)
@@ -485,7 +485,7 @@ describe('renderer.scroll_to_bottom', function()
 
     local cmd_stub = stub(vim, 'cmd')
 
-    local scroll = require('opencode.ui.renderer.scroll')
+    local scroll = require('pi.ui.renderer.scroll')
     scroll.scroll_win_to_bottom(win, buf)
 
     local cursor = vim.api.nvim_win_get_cursor(win)
@@ -506,7 +506,7 @@ describe('renderer.scroll_to_bottom', function()
 
     local cmd_stub = stub(vim, 'cmd')
 
-    local scroll = require('opencode.ui.renderer.scroll')
+    local scroll = require('pi.ui.renderer.scroll')
     scroll.scroll_win_to_bottom(win, buf)
     cmd_stub:clear()
 
@@ -539,7 +539,7 @@ describe('renderer.scroll_to_bottom', function()
       WinEnter = 0,
       WinLeave = 0,
     }
-    local group = vim.api.nvim_create_augroup('OpencodeScrollImeRegression', { clear = true })
+    local group = vim.api.nvim_create_augroup('PiScrollImeRegression', { clear = true })
     vim.api.nvim_create_autocmd('WinEnter', {
       group = group,
       callback = function()
@@ -643,9 +643,9 @@ describe('ui.focus_input', function()
 end)
 
 describe('renderer._add_message_to_buffer scrolling', function()
-  local renderer = require('opencode.ui.renderer')
-  local events = require('opencode.ui.renderer.events')
-  local ctx = require('opencode.ui.renderer.ctx')
+  local renderer = require('pi.ui.renderer')
+  local events = require('pi.ui.renderer.events')
+  local ctx = require('pi.ui.renderer.ctx')
   local stub = require('luassert.stub')
   local buf, win
 

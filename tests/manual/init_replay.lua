@@ -27,12 +27,12 @@ vim.opt.clipboard:append('unnamedplus')
 -- for testing contextual_actions
 vim.o.updatetime = 250
 
-vim.g.opencode_config = {
+vim.g.pi_config = {
   ui = {
     default_mode = 'build',
   },
 }
 
-require('opencode').setup()
+require('pi').setup()
 
 require('tests.manual.renderer_replay').start()

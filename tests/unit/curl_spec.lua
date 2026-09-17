@@ -1,4 +1,4 @@
-local curl = require('opencode.curl')
+local curl = require('pi.curl')
 
 describe('curl stream handle lifecycle', function()
   local original_system

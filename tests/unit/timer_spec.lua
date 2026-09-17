@@ -1,4 +1,4 @@
-local Timer = require('opencode.ui.timer')
+local Timer = require('pi.ui.timer')
 
 local function make_fake_timer()
   local ft = {

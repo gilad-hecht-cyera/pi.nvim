@@ -1,8 +1,8 @@
 local assert = require('luassert')
-local command_parse = require('opencode.commands.parse')
-local commands = require('opencode.commands')
+local command_parse = require('pi.commands.parse')
+local commands = require('pi.commands')
 
-describe('opencode.commands.parse', function()
+describe('pi.commands.parse', function()
   it('parses empty args to toggle intent', function()
     local result = command_parse.command({ args = '', range = 0 }, commands.get_commands())
 

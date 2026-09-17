@@ -1,11 +1,11 @@
 local assert = require('luassert')
-local command_dispatch = require('opencode.commands.dispatch')
-local command_parse = require('opencode.commands.parse')
-local commands = require('opencode.commands')
-local config = require('opencode.config')
-local state = require('opencode.state')
+local command_dispatch = require('pi.commands.dispatch')
+local command_parse = require('pi.commands.parse')
+local commands = require('pi.commands')
+local config = require('pi.config')
+local state = require('pi.state')
 
-describe('opencode.commands.dispatch', function()
+describe('pi.commands.dispatch', function()
   local original_hooks
   local original_event_manager
 
@@ -19,7 +19,7 @@ describe('opencode.commands.dispatch', function()
   end
 
   ---@param overrides? table
-  ---@return OpencodeCommandParseResult
+  ---@return PiCommandParseResult
   local function make_parsed(overrides)
     local defaults = {
       ok = true,
@@ -37,9 +37,9 @@ describe('opencode.commands.dispatch', function()
     return vim.tbl_deep_extend('force', defaults, overrides or {})
   end
 
-  ---@param parsed OpencodeCommandParseResult
-  ---@param execute_override? fun(args: string[], range: OpencodeSelectionRange|nil): any
-  ---@return OpencodeCommandActionContext
+  ---@param parsed PiCommandParseResult
+  ---@param execute_override? fun(args: string[], range: PiSelectionRange|nil): any
+  ---@return PiCommandActionContext
   local function make_ctx(parsed, execute_override)
     return commands.bind_action_context(parsed, execute_override)
   end

@@ -1,8 +1,8 @@
-local context = require('opencode.context')
-local state = require('opencode.state')
+local context = require('pi.context')
+local state = require('pi.state')
 local assert = require('luassert')
 
-describe('extract_from_opencode_message', function()
+describe('extract_from_pi_message', function()
   it('extracts prompt, selected_text, and current_file from tags in parts', function()
     local message = {
       parts = {
@@ -15,15 +15,15 @@ describe('extract_from_opencode_message', function()
         { type = 'file', filename = '/tmp/foo.lua' },
       },
     }
-    local result = context.extract_from_opencode_message(message)
+    local result = context.extract_from_pi_message(message)
     assert.equal('What does this code do?', result.prompt)
     assert.equal('print(42)', result.selected_text)
     assert.equal('/tmp/foo.lua', result.current_file)
   end)
 
   it('returns nils if message or parts missing', function()
-    assert.same({ prompt = nil, selected_text = nil, current_file = nil }, context.extract_from_opencode_message(nil))
-    assert.same({ prompt = nil, selected_text = nil, current_file = nil }, context.extract_from_opencode_message({}))
+    assert.same({ prompt = nil, selected_text = nil, current_file = nil }, context.extract_from_pi_message(nil))
+    assert.same({ prompt = nil, selected_text = nil, current_file = nil }, context.extract_from_pi_message({}))
   end)
 end)
 
@@ -87,7 +87,7 @@ describe('format_message', function()
     assert.equal('text', parts[1].type)
   end)
   it('includes mentioned_files and subagents', function()
-    local ChatContext = require('opencode.context.chat_context')
+    local ChatContext = require('pi.context.chat_context')
     ChatContext.context.mentioned_files = { '/tmp/foo.lua' }
     ChatContext.context.mentioned_subagents = { 'agent1' }
     local parts = context.format_message('prompt @foo.lua @agent1'):wait()
@@ -106,8 +106,8 @@ describe('format_message', function()
   end)
 
   it('includes selection even when current_file context is disabled', function()
-    local ChatContext = require('opencode.context.chat_context')
-    local BaseContext = require('opencode.context.base_context')
+    local ChatContext = require('pi.context.chat_context')
+    local BaseContext = require('pi.context.base_context')
     local original_get_current_buf = BaseContext.get_current_buf
     local original_get_current_selection = BaseContext.get_current_selection
     local original_get_current_file_for_selection = BaseContext.get_current_file_for_selection
@@ -156,8 +156,8 @@ describe('format_message', function()
   end)
 
   it('does not include current_file when disabled even if stale current_file exists', function()
-    local ChatContext = require('opencode.context.chat_context')
-    local BaseContext = require('opencode.context.base_context')
+    local ChatContext = require('pi.context.chat_context')
+    local BaseContext = require('pi.context.base_context')
 
     local original_get_current_buf = BaseContext.get_current_buf
     local original_get_diagnostics = BaseContext.get_diagnostics
@@ -209,7 +209,7 @@ describe('context update notifications', function()
   local original_now
 
   before_each(function()
-    ChatContext = require('opencode.context.chat_context')
+    ChatContext = require('pi.context.chat_context')
     ChatContext.context.mentioned_files = { '/tmp/a.lua' }
     ChatContext.context.selections = { { file = { path = '/tmp/a.lua' }, lines = '1, 1', content = 'x' } }
     ChatContext.context.mentioned_subagents = { 'agent1' }
@@ -282,7 +282,7 @@ describe('delta_context', function()
 end)
 
 describe('add_file/add_selection/add_subagent', function()
-  local ChatContext = require('opencode.context.chat_context')
+  local ChatContext = require('pi.context.chat_context')
   local original_context
 
   before_each(function()
@@ -307,7 +307,7 @@ describe('add_file/add_selection/add_subagent', function()
     vim.fn.filereadable = function()
       return 1
     end
-    local util = require('opencode.util')
+    local util = require('pi.util')
     local original_is_path_in_cwd = util.is_path_in_cwd
     util.is_path_in_cwd = function()
       return true
@@ -471,7 +471,7 @@ describe('get_diagnostics with chat context selections', function()
   local ChatContext
 
   before_each(function()
-    ChatContext = require('opencode.context.chat_context')
+    ChatContext = require('pi.context.chat_context')
     -- Reset chat context
     ChatContext.context = {
       mentioned_files = {},
@@ -493,7 +493,7 @@ describe('get_diagnostics with chat context selections', function()
     ChatContext.add_selection(mock_selection)
 
     -- Mock the BaseContext.get_diagnostics to capture the range parameter
-    local BaseContext = require('opencode.context.base_context')
+    local BaseContext = require('pi.context.base_context')
     local captured_range = nil
     local original_get_diagnostics = BaseContext.get_diagnostics
     BaseContext.get_diagnostics = function(buf, context_config, range)
@@ -525,7 +525,7 @@ describe('get_diagnostics with chat context selections', function()
     ChatContext.add_selection(mock_selection)
 
     -- Mock the BaseContext.get_diagnostics to capture the range parameter
-    local BaseContext = require('opencode.context.base_context')
+    local BaseContext = require('pi.context.base_context')
     local captured_range = nil
     local original_get_diagnostics = BaseContext.get_diagnostics
     BaseContext.get_diagnostics = function(buf, context_config, range)
@@ -556,7 +556,7 @@ describe('get_diagnostics with chat context selections', function()
     ChatContext.add_selection(mock_selection)
 
     -- Mock the BaseContext.get_diagnostics to capture the range parameter
-    local BaseContext = require('opencode.context.base_context')
+    local BaseContext = require('pi.context.base_context')
     local captured_range = nil
     local original_get_diagnostics = BaseContext.get_diagnostics
     BaseContext.get_diagnostics = function(buf, context_config, range)
@@ -583,7 +583,7 @@ describe('get_diagnostics with chat context selections', function()
     ChatContext.clear_selections()
 
     -- Mock the BaseContext.get_diagnostics to capture the range parameter
-    local BaseContext = require('opencode.context.base_context')
+    local BaseContext = require('pi.context.base_context')
     local captured_range = nil
     local original_get_diagnostics = BaseContext.get_diagnostics
     BaseContext.get_diagnostics = function(buf, context_config, range)
@@ -623,7 +623,7 @@ describe('get_diagnostics with chat context selections', function()
     ChatContext.add_selection(selection3)
 
     -- Mock the BaseContext.get_diagnostics to capture the range parameter
-    local BaseContext = require('opencode.context.base_context')
+    local BaseContext = require('pi.context.base_context')
     local captured_range = nil
     local original_get_diagnostics = BaseContext.get_diagnostics
     BaseContext.get_diagnostics = function(buf, context_config, range)
@@ -692,7 +692,7 @@ describe('get_diagnostics with chat context selections', function()
     ChatContext.add_selection(selection3)
 
     -- Mock the BaseContext.get_diagnostics to capture the range parameter
-    local BaseContext = require('opencode.context.base_context')
+    local BaseContext = require('pi.context.base_context')
     local captured_range = nil
     local original_get_diagnostics = BaseContext.get_diagnostics
     BaseContext.get_diagnostics = function(buf, context_config, range)
@@ -745,9 +745,9 @@ describe('ChatContext.load() preserves selections on file switch', function()
   local state
 
   before_each(function()
-    ChatContext = require('opencode.context.chat_context')
-    BaseContext = require('opencode.context.base_context')
-    state = require('opencode.state')
+    ChatContext = require('pi.context.chat_context')
+    BaseContext = require('pi.context.base_context')
+    state = require('pi.state')
 
     -- Reset chat context
     ChatContext.context = {
@@ -1005,12 +1005,12 @@ describe('add_visual_selection API', function()
   local util
 
   before_each(function()
-    context = require('opencode.context')
-    BaseContext = require('opencode.context.base_context')
-    util = require('opencode.util')
+    context = require('pi.context')
+    BaseContext = require('pi.context.base_context')
+    util = require('pi.util')
 
     -- Clear selections before each test
-    local ChatContext = require('opencode.context.chat_context')
+    local ChatContext = require('pi.context.chat_context')
     ChatContext.context.selections = {}
   end)
 
@@ -1199,9 +1199,9 @@ describe('build_inline_selection_text', function()
   local util
 
   before_each(function()
-    context = require('opencode.context')
-    BaseContext = require('opencode.context.base_context')
-    util = require('opencode.util')
+    context = require('pi.context')
+    BaseContext = require('pi.context.base_context')
+    util = require('pi.util')
   end)
 
   it('should return formatted inline text for a visual selection', function()

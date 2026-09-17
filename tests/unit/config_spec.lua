@@ -1,9 +1,9 @@
 -- tests/unit/config_spec.lua
 -- Tests for the config module
 
-local config = require('opencode.config')
+local config = require('pi.config')
 
-describe('opencode.config', function()
+describe('pi.config', function()
   -- Save original config values
   local original_config
 
@@ -55,28 +55,28 @@ describe('opencode.config', function()
     it('remaps keys with matching prefix to new prefix', function()
       test_prefix_update({
         given = {
-          editor = { ['<leader>og'] = { 'toggle' }, ['<esc>'] = { 'close' } },
+          editor = { ['<leader>pg'] = { 'toggle' }, ['<esc>'] = { 'close' } },
         },
-        new_prefix = '<space>o',
+        new_prefix = '<space>p',
         expect = {
-          editor = { ['<space>og'] = { 'toggle' }, ['<esc>'] = { 'close' } },
+          editor = { ['<space>pg'] = { 'toggle' }, ['<esc>'] = { 'close' } },
         },
       })
     end)
 
     it('does not remap when prefix equals default prefix', function()
       test_prefix_update({
-        given = { editor = { ['<leader>og'] = { 'toggle' } } },
-        new_prefix = '<leader>o',
-        expect = { editor = { ['<leader>og'] = { 'toggle' } } },
+        given = { editor = { ['<leader>pg'] = { 'toggle' } } },
+        new_prefix = '<leader>p',
+        expect = { editor = { ['<leader>pg'] = { 'toggle' } } },
       })
     end)
 
     it('does not remap when prefix is nil', function()
       test_prefix_update({
-        given = { editor = { ['<leader>og'] = { 'toggle' } } },
+        given = { editor = { ['<leader>pg'] = { 'toggle' } } },
         new_prefix = nil,
-        expect = { editor = { ['<leader>og'] = { 'toggle' } } },
+        expect = { editor = { ['<leader>pg'] = { 'toggle' } } },
       })
     end)
 
@@ -84,13 +84,13 @@ describe('opencode.config', function()
       test_prefix_update({
         given = {
           editor = {
-            ['<leader>og'] = { 'toggle' },
-            ['<space>og'] = { 'conflict' },
+            ['<leader>pg'] = { 'toggle' },
+            ['<space>pg'] = { 'conflict' },
           },
         },
-        new_prefix = '<space>o',
+        new_prefix = '<space>p',
         expect = {
-          editor = { ['<space>og'] = { 'conflict' } },
+          editor = { ['<space>pg'] = { 'conflict' } },
         },
       })
     end)
@@ -98,11 +98,11 @@ describe('opencode.config', function()
     it('preserves non-prefixed keys unchanged', function()
       test_prefix_update({
         given = {
-          editor = { ['<leader>og'] = { 'toggle' }, ['<C-c>'] = { 'cancel' } },
+          editor = { ['<leader>pg'] = { 'toggle' }, ['<C-c>'] = { 'cancel' } },
         },
-        new_prefix = '<space>o',
+        new_prefix = '<space>p',
         expect = {
-          editor = { ['<space>og'] = { 'toggle' }, ['<C-c>'] = { 'cancel' } },
+          editor = { ['<space>pg'] = { 'toggle' }, ['<C-c>'] = { 'cancel' } },
         },
       })
     end)
@@ -110,13 +110,13 @@ describe('opencode.config', function()
     it('handles multiple categories independently', function()
       test_prefix_update({
         given = {
-          editor = { ['<leader>og'] = { 'toggle' } },
-          input_window = { ['<leader>oD'] = { 'debug' }, ['<cr>'] = { 'submit' } },
+          editor = { ['<leader>pg'] = { 'toggle' } },
+          input_window = { ['<leader>pD'] = { 'debug' }, ['<cr>'] = { 'submit' } },
         },
-        new_prefix = '<space>o',
+        new_prefix = '<space>p',
         expect = {
-          editor = { ['<space>og'] = { 'toggle' } },
-          input_window = { ['<space>oD'] = { 'debug' }, ['<cr>'] = { 'submit' } },
+          editor = { ['<space>pg'] = { 'toggle' } },
+          input_window = { ['<space>pD'] = { 'debug' }, ['<cr>'] = { 'submit' } },
         },
       })
     end)
@@ -124,11 +124,11 @@ describe('opencode.config', function()
     it('preserves false value for keymap with prefix', function()
       test_prefix_update({
         given = {
-          editor = { ['<leader>og'] = false, ['<leader>oh'] = { 'history' } },
+          editor = { ['<leader>pg'] = false, ['<leader>ph'] = { 'history' } },
         },
-        new_prefix = '<space>o',
+        new_prefix = '<space>p',
         expect = {
-          editor = { ['<space>og'] = false, ['<space>oh'] = { 'history' } },
+          editor = { ['<space>pg'] = false, ['<space>ph'] = { 'history' } },
         },
       })
     end)
@@ -136,11 +136,11 @@ describe('opencode.config', function()
     it('preserves false value for keymap without prefix', function()
       test_prefix_update({
         given = {
-          editor = { ['<leader>og'] = { 'toggle' }, ['<C-c>'] = false },
+          editor = { ['<leader>pg'] = { 'toggle' }, ['<C-c>'] = false },
         },
-        new_prefix = '<space>o',
+        new_prefix = '<space>p',
         expect = {
-          editor = { ['<space>og'] = { 'toggle' }, ['<C-c>'] = false },
+          editor = { ['<space>pg'] = { 'toggle' }, ['<C-c>'] = false },
         },
       })
     end)

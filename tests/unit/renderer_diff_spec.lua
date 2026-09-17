@@ -1,4 +1,4 @@
-local output_diff = require('opencode.ui.renderer.output_diff')
+local output_diff = require('pi.ui.renderer.output_diff')
 
 describe('renderer.output_diff.unchanged_prefix_lines', function()
   it('returns full length when both inputs are identical', function()

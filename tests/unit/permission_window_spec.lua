@@ -1,5 +1,5 @@
-local permission_window = require('opencode.ui.permission_window')
-local Output = require('opencode.ui.output')
+local permission_window = require('pi.ui.permission_window')
+local Output = require('pi.ui.output')
 local stub = require('luassert.stub')
 
 describe('permission_window', function()
@@ -11,7 +11,7 @@ describe('permission_window', function()
   end)
 
   describe('format_display', function()
-    local state = require('opencode.state')
+    local state = require('pi.state')
 
     after_each(function()
       state.session.clear_active()
@@ -235,7 +235,7 @@ describe('permission_window', function()
     end)
 
     it('adds the existing session action for a child-session permission', function()
-      local renderer_ctx = require('opencode.ui.renderer.ctx')
+      local renderer_ctx = require('pi.ui.renderer.ctx')
       local child_lookup = stub(renderer_ctx.render_state, 'get_task_part_by_child_session').returns('task-part')
       state.session.set_active({ id = 'ses_parent' })
       setup_mock_dialog()
@@ -258,9 +258,9 @@ describe('permission_window', function()
     end)
 
     it('covers every line produced by the permission dialog', function()
-      local Dialog = require('opencode.ui.dialog')
-      local input_window = require('opencode.ui.input_window')
-      local renderer_ctx = require('opencode.ui.renderer.ctx')
+      local Dialog = require('pi.ui.dialog')
+      local input_window = require('pi.ui.input_window')
+      local renderer_ctx = require('pi.ui.renderer.ctx')
       local child_lookup = stub(renderer_ctx.render_state, 'get_task_part_by_child_session').returns('task-part')
       local hide = stub(input_window, '_hide')
       local show = stub(input_window, '_show')
@@ -296,7 +296,7 @@ describe('permission_window', function()
     end)
 
     it('does not add a session action for the active-session permission', function()
-      local renderer_ctx = require('opencode.ui.renderer.ctx')
+      local renderer_ctx = require('pi.ui.renderer.ctx')
       local child_lookup = stub(renderer_ctx.render_state, 'get_task_part_by_child_session').returns('task-part')
       state.session.set_active({ id = 'ses_main' })
       setup_mock_dialog()
@@ -312,7 +312,7 @@ describe('permission_window', function()
     end)
 
     it('does not add a session action without a matching child task', function()
-      local renderer_ctx = require('opencode.ui.renderer.ctx')
+      local renderer_ctx = require('pi.ui.renderer.ctx')
       local child_lookup = stub(renderer_ctx.render_state, 'get_task_part_by_child_session').returns(nil)
       state.session.set_active({ id = 'ses_parent' })
       setup_mock_dialog()
@@ -447,9 +447,9 @@ describe('permission_window', function()
   end)
 
   describe('restore_pending_permissions', function()
-    local Promise = require('opencode.promise')
-    local state = require('opencode.state')
-    local events = require('opencode.ui.renderer.events')
+    local Promise = require('pi.promise')
+    local state = require('pi.state')
+    local events = require('pi.ui.renderer.events')
 
     after_each(function()
       state.jobs.set_api_client(nil)
@@ -737,9 +737,9 @@ describe('permission_window', function()
   end)
 
   describe('interaction lifecycle', function()
-    local state = require('opencode.state')
-    local ui = require('opencode.ui.ui')
-    local input_window = require('opencode.ui.input_window')
+    local state = require('pi.state')
+    local ui = require('pi.ui.ui')
+    local input_window = require('pi.ui.input_window')
     local original_windows
     local original_schedule
     local original_defer_fn
@@ -760,7 +760,7 @@ describe('permission_window', function()
         style = 'minimal',
       })
       state.ui.set_windows({ output_buf = output_buf, output_win = output_win })
-      stub(ui, 'is_opencode_focused').returns(true)
+      stub(ui, 'is_pi_focused').returns(true)
       stub(input_window, '_hide')
       stub(input_window, '_show')
     end)
@@ -770,8 +770,8 @@ describe('permission_window', function()
       state.ui.set_windows(original_windows)
       vim.schedule = original_schedule
       vim.defer_fn = original_defer_fn
-      if ui.is_opencode_focused.revert then
-        ui.is_opencode_focused:revert()
+      if ui.is_pi_focused.revert then
+        ui.is_pi_focused:revert()
       end
       if input_window._hide.revert then
         input_window._hide:revert()
@@ -788,7 +788,7 @@ describe('permission_window', function()
     end)
 
     it('responds once when the same choice is triggered repeatedly', function()
-      local api = require('opencode.api')
+      local api = require('pi.api')
       local accept = stub(api, 'permission_accept')
       local scheduled = {}
       vim.schedule = function(callback)
@@ -809,8 +809,8 @@ describe('permission_window', function()
     end)
 
     it('keeps a permission pending when feedback input is cancelled', function()
-      local api = require('opencode.api')
-      local inline_input = require('opencode.ui.inline_input')
+      local api = require('pi.api')
+      local inline_input = require('pi.ui.inline_input')
       local deny = stub(api, 'permission_deny')
       local cancel
       local open = stub(inline_input, 'open').invokes(function(opts)
@@ -833,9 +833,9 @@ describe('permission_window', function()
     end)
 
     it('closes feedback and rejects its stale submit callback when permission disappears', function()
-      local api = require('opencode.api')
-      local inline_input = require('opencode.ui.inline_input')
-      local renderer_ctx = require('opencode.ui.renderer.ctx')
+      local api = require('pi.api')
+      local inline_input = require('pi.ui.inline_input')
+      local renderer_ctx = require('pi.ui.renderer.ctx')
       local deny = stub(api, 'permission_deny')
       local submit
       local closed = 0
@@ -891,8 +891,8 @@ describe('permission_window', function()
     end)
 
     it('ignores an expired timer callback after feedback starts', function()
-      local inline_input = require('opencode.ui.inline_input')
-      local renderer_events = require('opencode.ui.renderer.events')
+      local inline_input = require('pi.ui.inline_input')
+      local renderer_events = require('pi.ui.renderer.events')
       local timer_callback
       local timer
       local render_count = 0
@@ -929,7 +929,7 @@ describe('permission_window', function()
     end)
 
     it('rejects the current permission once on the second escape', function()
-      local api = require('opencode.api')
+      local api = require('pi.api')
       local deny = stub(api, 'permission_deny')
       vim.defer_fn = function()
         return {

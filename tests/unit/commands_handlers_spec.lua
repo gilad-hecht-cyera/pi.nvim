@@ -1,21 +1,21 @@
 local assert = require('luassert')
 local stub = require('luassert.stub')
 
-describe('opencode.commands.handlers', function()
+describe('pi.commands.handlers', function()
   local tracked_modules = {
-    'opencode.state',
-    'opencode.promise',
-    'opencode.services.session_runtime',
-    'opencode.services.messaging',
-    'opencode.services.agent_model',
-    'opencode.commands',
-    'opencode.commands.handlers.window',
-    'opencode.commands.handlers.agent',
-    'opencode.commands.handlers.surface',
-    'opencode.commands.handlers.workflow',
-    'opencode.commands.handlers.session',
-    'opencode.commands.handlers.diff',
-    'opencode.commands.handlers.permission',
+    'pi.state',
+    'pi.promise',
+    'pi.services.session_runtime',
+    'pi.services.messaging',
+    'pi.services.agent_model',
+    'pi.commands',
+    'pi.commands.handlers.window',
+    'pi.commands.handlers.agent',
+    'pi.commands.handlers.surface',
+    'pi.commands.handlers.workflow',
+    'pi.commands.handlers.session',
+    'pi.commands.handlers.diff',
+    'pi.commands.handlers.permission',
   }
 
   local original_loaded = {}
@@ -40,44 +40,44 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('fails fast when duplicate command_def key is registered across handler modules', function()
-    package.preload['opencode.commands.handlers.window'] = function()
+    package.preload['pi.commands.handlers.window'] = function()
       return {
         command_defs = {
           duplicate = { desc = 'dup', execute = function() end },
         },
       }
     end
-    package.preload['opencode.commands.handlers.session'] = function()
+    package.preload['pi.commands.handlers.session'] = function()
       return {
         command_defs = {
           duplicate = { desc = 'dup', execute = function() end },
         },
       }
     end
-    package.preload['opencode.commands.handlers.diff'] = function()
+    package.preload['pi.commands.handlers.diff'] = function()
       return { command_defs = {} }
     end
-    package.preload['opencode.commands.handlers.permission'] = function()
+    package.preload['pi.commands.handlers.permission'] = function()
       return { command_defs = {} }
     end
-    package.preload['opencode.commands.handlers.agent'] = function()
+    package.preload['pi.commands.handlers.agent'] = function()
       return { command_defs = {} }
     end
-    package.preload['opencode.commands.handlers.workflow'] = function()
+    package.preload['pi.commands.handlers.workflow'] = function()
       return { command_defs = {} }
     end
-    package.preload['opencode.commands.handlers.surface'] = function()
+    package.preload['pi.commands.handlers.surface'] = function()
       return { command_defs = {} }
     end
 
-    local ok, err = pcall(require, 'opencode.commands')
+    local ok, err = pcall(require, 'pi.commands')
 
     assert.is_false(ok)
     assert.match("Duplicate command definition 'duplicate'", err)
   end)
 
   it('exposes command_defs with completions and nested_subcommand from handler modules', function()
-    local commands = require('opencode.commands')
+    local commands = require('pi.commands')
     local defs = commands.get_commands()
 
     assert.same({ 'plan', 'build', 'select' }, defs.agent.completions)
@@ -95,7 +95,7 @@ describe('opencode.commands.handlers', function()
     assert.same({ allow_empty = false }, defs.permission.nested_subcommand)
 
     assert.same(
-      { 'new', 'select', 'navigate', 'compact', 'share', 'unshare', 'agents_init', 'rename', 'toggle_lock' },
+      { 'new', 'select', 'navigate', 'compact', 'share', 'unshare', 'agents_init', 'rename', 'autoname', 'info', 'toggle_lock' },
       defs.session.completions
     )
     assert.same({ allow_empty = false }, defs.session.nested_subcommand)
@@ -105,7 +105,7 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('keeps command semantic validation in window handler (open target)', function()
-    local window = require('opencode.commands.handlers.window')
+    local window = require('pi.commands.handlers.window')
     local ok, err = pcall(window.command_defs.open.execute, { 'sideways' })
 
     assert.is_false(ok)
@@ -116,9 +116,9 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('returns actionable invalid subcommand errors for agent/session/diff handlers', function()
-    local agent = require('opencode.commands.handlers.agent')
-    local session = require('opencode.commands.handlers.session')
-    local diff = require('opencode.commands.handlers.diff')
+    local agent = require('pi.commands.handlers.agent')
+    local session = require('pi.commands.handlers.session')
+    local diff = require('pi.commands.handlers.diff')
 
     local ok_agent, err_agent = pcall(agent.command_defs.agent.execute, { 'unknown' })
     local ok_session, err_session = pcall(session.command_defs.session.execute, { 'unknown' })
@@ -144,10 +144,10 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('keeps help rendering stable in narrow output windows', function()
-    local surface = require('opencode.commands.handlers.surface')
-    local window = require('opencode.commands.handlers.window')
-    local state = require('opencode.state')
-    local ui = require('opencode.ui.ui')
+    local surface = require('pi.commands.handlers.surface')
+    local window = require('pi.commands.handlers.window')
+    local state = require('pi.state')
+    local ui = require('pi.ui.ui')
 
     local open_input_stub = stub(window.actions, 'open_input')
     local is_visible_stub = stub(state.ui, 'is_visible').returns(true)
@@ -175,7 +175,7 @@ describe('opencode.commands.handlers', function()
 
   it('keeps command semantic routing in diff revert handler (session target -> nil snapshot)', function()
     local called = {}
-    local diff = require('opencode.commands.handlers.diff')
+    local diff = require('pi.commands.handlers.diff')
     local original_revert_all = diff.actions.diff_revert_all
     local original_revert_this = diff.actions.diff_revert_this
     local original_revert_all_last_prompt = diff.actions.diff_revert_all_last_prompt
@@ -208,9 +208,9 @@ describe('opencode.commands.handlers', function()
 
   -- navigate_session_tree tests
   it('navigate parent + direct calls switch_session with parentID', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local state = require('pi.state')
 
     state.session.set_active({ id = 'child1', parentID = 'root1', title = 'Child 1' })
     local switched_to
@@ -226,9 +226,9 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate parent + direct notifies when no parent with empty_policy=notify', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local state = require('pi.state')
 
     state.session.set_active({ id = 'root1', parentID = nil, title = 'Root' })
     local switched_to = nil
@@ -247,9 +247,9 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate parent + direct no-ops when no parent with empty_policy=noop', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local state = require('pi.state')
 
     state.session.set_active({ id = 'root1', parentID = nil, title = 'Root' })
     local switched_to = nil
@@ -268,9 +268,9 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate child + picker calls select_session with active.id', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local state = require('pi.state')
 
     state.session.set_active({ id = 'child1', parentID = 'root1', title = 'Child 1' })
     local selected_with
@@ -286,9 +286,9 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate sibling + picker calls select_session with active.parentID', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local state = require('pi.state')
 
     state.session.set_active({ id = 'child1', parentID = 'root1', title = 'Child 1' })
     local selected_with
@@ -304,9 +304,9 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate sibling + picker falls back to nil when active has no parent', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local state = require('pi.state')
 
     state.session.set_active({ id = 'root1', parentID = nil, title = 'Root' })
     local selected_with = 'sentinel'
@@ -322,8 +322,8 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate nil active notifies with empty_policy=notify', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local state = require('pi.state')
 
     state.session.set_active(nil)
     local notify_stub = stub(vim, 'notify')
@@ -335,8 +335,8 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate nil active no-ops with empty_policy=noop', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local state = require('pi.state')
 
     state.session.set_active(nil)
     local notify_stub = stub(vim, 'notify')
@@ -348,11 +348,11 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate forward + direct switches to more recent session', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local session_store = require('opencode.session')
-    local state = require('opencode.state')
-    local Promise = require('opencode.promise')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local session_store = require('pi.session')
+    local state = require('pi.state')
+    local Promise = require('pi.promise')
 
     local sessions = {
       { id = 's3', parentID = nil, title = 'S3', time = { updated = 3000 } },
@@ -382,11 +382,11 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate backward + direct switches to older session', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local session_store = require('opencode.session')
-    local state = require('opencode.state')
-    local Promise = require('opencode.promise')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local session_store = require('pi.session')
+    local state = require('pi.state')
+    local Promise = require('pi.promise')
 
     local sessions = {
       { id = 's3', parentID = nil, title = 'S3', time = { updated = 3000 } },
@@ -416,11 +416,11 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate forward + wrap: newest session wraps to oldest', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local session_store = require('opencode.session')
-    local state = require('opencode.state')
-    local Promise = require('opencode.promise')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local session_store = require('pi.session')
+    local state = require('pi.state')
+    local Promise = require('pi.promise')
 
     local sessions = {
       { id = 's3', parentID = nil, title = 'S3', time = { updated = 3000 } },
@@ -450,11 +450,11 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate backward + wrap: oldest session wraps to newest', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local session_store = require('opencode.session')
-    local state = require('opencode.state')
-    local Promise = require('opencode.promise')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local session_store = require('pi.session')
+    local state = require('pi.state')
+    local Promise = require('pi.promise')
 
     local sessions = {
       { id = 's3', parentID = nil, title = 'S3', time = { updated = 3000 } },
@@ -484,11 +484,11 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate forward + no-wrap + empty_policy=notify notifies at newest', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local session_runtime = require('opencode.services.session_runtime')
-    local session_store = require('opencode.session')
-    local state = require('opencode.state')
-    local Promise = require('opencode.promise')
+    local session_handler = require('pi.commands.handlers.session')
+    local session_runtime = require('pi.services.session_runtime')
+    local session_store = require('pi.session')
+    local state = require('pi.state')
+    local Promise = require('pi.promise')
 
     local sessions = {
       { id = 's3', parentID = nil, title = 'S3', time = { updated = 3000 } },
@@ -520,8 +520,8 @@ describe('opencode.commands.handlers', function()
 
   -- normalize_navigate_args tests via command_defs
   it('non-direction string is treated as session ID, notifies when no active session', function()
-    local session_handler = require('opencode.commands.handlers.session')
-    local state = require('opencode.state')
+    local session_handler = require('pi.commands.handlers.session')
+    local state = require('pi.state')
     local notify_stub = stub(vim, 'notify')
     state.session.clear_active()
     local ok = pcall(session_handler.command_defs.navigate_session_tree.execute, { 'up' })
@@ -531,21 +531,21 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('normalize_navigate_args rejects invalid interaction', function()
-    local session_handler = require('opencode.commands.handlers.session')
+    local session_handler = require('pi.commands.handlers.session')
     local ok, err = pcall(session_handler.command_defs.navigate_session_tree.execute, { 'parent', 'modal' })
     assert.is_false(ok)
     assert.equal('invalid_arguments', err.code)
   end)
 
   it('normalize_navigate_args rejects invalid wrap', function()
-    local session_handler = require('opencode.commands.handlers.session')
+    local session_handler = require('pi.commands.handlers.session')
     local ok, err = pcall(session_handler.command_defs.navigate_session_tree.execute, { 'forward', 'direct', 'yes' })
     assert.is_false(ok)
     assert.equal('invalid_arguments', err.code)
   end)
 
   it('normalize_navigate_args rejects invalid empty_policy', function()
-    local session_handler = require('opencode.commands.handlers.session')
+    local session_handler = require('pi.commands.handlers.session')
     local ok, err =
       pcall(session_handler.command_defs.navigate_session_tree.execute, { 'forward', 'direct', 'false', 'silent' })
     assert.is_false(ok)
@@ -554,7 +554,7 @@ describe('opencode.commands.handlers', function()
 
   -- subcommand routing test
   it('session subcommand navigate routes to navigate_session_tree', function()
-    local session_handler = require('opencode.commands.handlers.session')
+    local session_handler = require('pi.commands.handlers.session')
     local called = false
     local original = session_handler.actions.navigate_session_tree
     session_handler.actions.navigate_session_tree = function()
@@ -568,7 +568,7 @@ describe('opencode.commands.handlers', function()
   end)
 
   it('navigate_session_tree command_defs execute routes to action', function()
-    local session_handler = require('opencode.commands.handlers.session')
+    local session_handler = require('pi.commands.handlers.session')
     local called_with = {}
     local original = session_handler.actions.navigate_session_tree
     session_handler.actions.navigate_session_tree = function(direction, interaction, wrap, empty_policy)
@@ -584,13 +584,38 @@ describe('opencode.commands.handlers', function()
     assert.equal('noop', called_with.empty_policy)
   end)
 
+  it('routes automatic naming through the backend extension command', function()
+    local state = require('pi.state')
+    local rpc_client = require('pi.rpc_client')
+    local original_active_session = state.active_session
+    state.session.set_active({ id = 'session-id', title = 'Initial prompt' })
+    local prompted
+    local get_stub = stub(rpc_client, 'get').returns({
+      prompt = function(_, message)
+        prompted = message
+        return require('pi.promise').new():resolve(true)
+      end,
+      get_state = function()
+        return require('pi.promise').new():resolve({ sessionName = 'Automatic session naming' })
+      end,
+    })
+
+    local title = require('pi.commands.handlers.session').actions.autoname_session():await()
+
+    assert.equal('/pi-nvim-autoname', prompted)
+    assert.equal('Automatic session naming', title)
+    assert.equal('Automatic session naming', state.active_session.title)
+    get_stub:revert()
+    state.session.set_active(original_active_session)
+  end)
+
   describe('copy_message', function()
     local state
     local active_session
     local messages
 
     before_each(function()
-      state = require('opencode.state')
+      state = require('pi.state')
       active_session = state.active_session
       messages = state.messages
       state.session.set_active({ id = 'session-copy' })
@@ -618,7 +643,7 @@ describe('opencode.commands.handlers', function()
       })
       local setreg_stub = stub(vim.fn, 'setreg')
 
-      require('opencode.commands.handlers.session').actions.copy_message('user-message')
+      require('pi.commands.handlers.session').actions.copy_message('user-message')
 
       assert.stub(setreg_stub).was_called_with('+', '  first  \n\nsecond\nline')
       setreg_stub:revert()
@@ -639,7 +664,7 @@ describe('opencode.commands.handlers', function()
       local setreg_stub = stub(vim.fn, 'setreg')
       local notify_stub = stub(vim, 'notify')
 
-      require('opencode.commands.handlers.session').actions.copy_message('empty-message')
+      require('pi.commands.handlers.session').actions.copy_message('empty-message')
 
       assert.stub(setreg_stub).was_not_called()
       assert.stub(notify_stub).was_called_with('No message text to copy', vim.log.levels.WARN)
@@ -656,7 +681,7 @@ describe('opencode.commands.handlers', function()
       })
       local setreg_stub = stub(vim.fn, 'setreg')
       local notify_stub = stub(vim, 'notify')
-      local session = require('opencode.commands.handlers.session')
+      local session = require('pi.commands.handlers.session')
 
       session.actions.copy_message('missing-message')
       session.actions.copy_message('assistant-message')

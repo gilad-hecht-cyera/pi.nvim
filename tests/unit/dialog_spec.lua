@@ -1,7 +1,7 @@
-local Dialog = require('opencode.ui.dialog')
-local Output = require('opencode.ui.output')
-local state = require('opencode.state')
-local config = require('opencode.config')
+local Dialog = require('pi.ui.dialog')
+local Output = require('pi.ui.output')
+local state = require('pi.state')
+local config = require('pi.config')
 
 describe('Dialog', function()
   local input_buf, output_buf, input_win, output_win
@@ -37,7 +37,7 @@ describe('Dialog', function()
     })
 
     -- Mock input_window module
-    package.loaded['opencode.ui.input_window'] = nil
+    package.loaded['pi.ui.input_window'] = nil
   end)
 
   after_each(function()
@@ -51,7 +51,7 @@ describe('Dialog', function()
     pcall(vim.api.nvim_buf_delete, output_buf, { force = true })
 
     state.ui.clear_windows()
-    package.loaded['opencode.ui.input_window'] = nil
+    package.loaded['pi.ui.input_window'] = nil
   end)
 
   describe('teardown with hide_input enabled', function()
@@ -65,7 +65,7 @@ describe('Dialog', function()
         end,
         _hide = function() end,
       }
-      package.loaded['opencode.ui.input_window'] = input_window
+      package.loaded['pi.ui.input_window'] = input_window
 
       local dialog = Dialog.new({
         buffer = output_buf,
@@ -92,7 +92,7 @@ describe('Dialog', function()
         end,
         _hide = function() end,
       }
-      package.loaded['opencode.ui.input_window'] = input_window
+      package.loaded['pi.ui.input_window'] = input_window
 
       local dialog = Dialog.new({
         buffer = output_buf,
@@ -119,7 +119,7 @@ describe('Dialog', function()
         end,
         _hide = function() end,
       }
-      package.loaded['opencode.ui.input_window'] = input_window
+      package.loaded['pi.ui.input_window'] = input_window
 
       local dialog = Dialog.new({
         buffer = output_buf,
@@ -148,7 +148,7 @@ describe('Dialog', function()
           hide_called = true
         end,
       }
-      package.loaded['opencode.ui.input_window'] = input_window
+      package.loaded['pi.ui.input_window'] = input_window
 
       local dialog = Dialog.new({
         buffer = output_buf,
@@ -174,7 +174,7 @@ describe('Dialog', function()
           hide_called = true
         end,
       }
-      package.loaded['opencode.ui.input_window'] = input_window
+      package.loaded['pi.ui.input_window'] = input_window
 
       local dialog = Dialog.new({
         buffer = output_buf,
@@ -205,7 +205,7 @@ describe('Dialog', function()
           hide_called = true
         end,
       }
-      package.loaded['opencode.ui.input_window'] = input_window
+      package.loaded['pi.ui.input_window'] = input_window
 
       -- Simulate question dialog flow
       local dialog = Dialog.new({
@@ -238,7 +238,7 @@ describe('Dialog', function()
           hide_called = true
         end,
       }
-      package.loaded['opencode.ui.input_window'] = input_window
+      package.loaded['pi.ui.input_window'] = input_window
 
       -- Simulate permission dialog flow
       local dialog = Dialog.new({
@@ -271,7 +271,7 @@ describe('Dialog', function()
           hide_called = true
         end,
       }
-      package.loaded['opencode.ui.input_window'] = input_window
+      package.loaded['pi.ui.input_window'] = input_window
 
       -- Simulate question dialog flow
       local dialog = Dialog.new({
@@ -436,7 +436,7 @@ describe('Dialog', function()
       assert.is_truthy(legend:find('Submit: select Confirm and press `<CR>`'))
       for _, extmarks in pairs(multiple_output.extmarks) do
         for _, extmark in ipairs(extmarks) do
-          assert.are_not.equal('OpencodeQuestionTabPending', extmark.line_hl_group)
+          assert.are_not.equal('PiQuestionTabPending', extmark.line_hl_group)
         end
       end
       multiple:teardown()
@@ -472,7 +472,7 @@ describe('Dialog formatting', function()
     assert.is_nil(output.extmarks[0])
     assert.is_not_nil(output.extmarks[1])
     assert.is_nil(output.extmarks[2])
-    assert.are.equal('OpencodeDialogOptionHover', output.extmarks[1][1].line_hl_group)
-    assert.are.same({ { '› ', 'OpencodeDialogOptionHover' } }, output.extmarks[1][2].virt_text)
+    assert.are.equal('PiDialogOptionHover', output.extmarks[1][1].line_hl_group)
+    assert.are.same({ { '› ', 'PiDialogOptionHover' } }, output.extmarks[1][2].virt_text)
   end)
 end)

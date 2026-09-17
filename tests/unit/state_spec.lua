@@ -1,9 +1,9 @@
 -- tests/unit/state_spec.lua
 -- Tests for the observable state module
 
-local state = require('opencode.state')
+local state = require('pi.state')
 
-describe('opencode.state (observable)', function()
+describe('pi.state (observable)', function()
   it('notifies listeners on key change', function()
     local called = false
     local changed_key, new_val, old_val

@@ -1,5 +1,5 @@
-local event_scope = require('opencode.ui.event_scope')
-local state = require('opencode.state')
+local event_scope = require('pi.ui.event_scope')
+local state = require('pi.state')
 
 describe('event_scope', function()
   before_each(function()
@@ -11,7 +11,7 @@ describe('event_scope', function()
   end)
 
   it('has a scope policy for every renderer event subscription', function()
-    for _, sub in ipairs(require('opencode.ui.renderer').event_subscriptions()) do
+    for _, sub in ipairs(require('pi.ui.renderer').event_subscriptions()) do
       assert.is_true(event_scope.has_policy(sub[1]), 'Missing event scope policy for ' .. sub[1])
     end
   end)

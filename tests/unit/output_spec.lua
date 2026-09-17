@@ -1,4 +1,4 @@
-local Output = require('opencode.ui.output')
+local Output = require('pi.ui.output')
 
 describe('Output targets', function()
   it('initializes and appends targets', function()
@@ -26,7 +26,7 @@ describe('Output targets', function()
   it('clears targets with the rest of the carrier data', function()
     local output = Output.new()
     output:add_line('README.md')
-    output:add_extmark(1, { hl_group = 'OpencodeFile' })
+    output:add_extmark(1, { hl_group = 'PiFile' })
     output:add_action({ text = 'Open', type = 'diff_open', key = 'o' })
     output:add_target({
       kind = 'file',

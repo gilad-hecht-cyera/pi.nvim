@@ -1,5 +1,5 @@
 local assert = require('luassert')
-local OpencodeServer = require('opencode.opencode_server')
+local PiServer = require('pi.pi_server')
 
 -- port_mapping writes/reads a JSON file via vim.fn.stdpath('data').
 -- Redirect it to a temp path so tests are isolated.
@@ -15,10 +15,10 @@ vim.fn.stdpath = function(what)
   return original_stdpath(what)
 end
 
-local port_mapping = require('opencode.port_mapping')
+local port_mapping = require('pi.port_mapping')
 
 local function mappings_file()
-  return tmp_dir .. '/opencode_port_mappings.json'
+  return tmp_dir .. '/pi_port_mappings.json'
 end
 
 local function write_mappings(t)
@@ -53,22 +53,22 @@ describe('port_mapping', function()
     kill_pid_calls = {}
     graceful_calls = {}
 
-    original_kill_pid = OpencodeServer.kill_pid
-    original_graceful_shutdown = OpencodeServer.request_graceful_shutdown
+    original_kill_pid = PiServer.kill_pid
+    original_graceful_shutdown = PiServer.request_graceful_shutdown
     original_getpid = vim.fn.getpid
     original_uv_kill = vim.uv.kill
 
-    OpencodeServer.kill_pid = function(pid)
+    PiServer.kill_pid = function(pid)
       table.insert(kill_pid_calls, pid)
     end
-    OpencodeServer.request_graceful_shutdown = function(url)
+    PiServer.request_graceful_shutdown = function(url)
       table.insert(graceful_calls, url)
     end
   end)
 
   after_each(function()
-    OpencodeServer.kill_pid = original_kill_pid
-    OpencodeServer.request_graceful_shutdown = original_graceful_shutdown
+    PiServer.kill_pid = original_kill_pid
+    PiServer.request_graceful_shutdown = original_graceful_shutdown
     vim.fn.getpid = original_getpid
     vim.uv.kill = original_uv_kill
     os.remove(mappings_file())

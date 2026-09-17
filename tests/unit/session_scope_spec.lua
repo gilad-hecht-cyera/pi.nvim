@@ -1,6 +1,6 @@
-local session_scope = require('opencode.ui.session_scope')
-local state = require('opencode.state')
-local ctx = require('opencode.ui.renderer.ctx')
+local session_scope = require('pi.ui.session_scope')
+local state = require('pi.state')
+local ctx = require('pi.ui.renderer.ctx')
 
 describe('session_scope', function()
   before_each(function()

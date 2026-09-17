@@ -1,6 +1,6 @@
 local assert = require('luassert')
 
-describe('opencode.ui.completion', function()
+describe('pi.ui.completion', function()
   local completion
   local mock_config
 
@@ -27,15 +27,15 @@ describe('opencode.ui.completion', function()
       },
     }
 
-    package.loaded['opencode.config'] = mock_config
-    package.loaded['opencode.ui.completion'] = nil
-    package.loaded['opencode.ui.completion.files'] = nil
-    package.loaded['opencode.ui.completion.subagents'] = nil
-    package.loaded['opencode.ui.completion.commands'] = nil
-    package.loaded['opencode.ui.completion.context'] = nil
-    package.loaded['opencode.ui.completion.skills'] = nil
+    package.loaded['pi.config'] = mock_config
+    package.loaded['pi.ui.completion'] = nil
+    package.loaded['pi.ui.completion.files'] = nil
+    package.loaded['pi.ui.completion.subagents'] = nil
+    package.loaded['pi.ui.completion.commands'] = nil
+    package.loaded['pi.ui.completion.context'] = nil
+    package.loaded['pi.ui.completion.skills'] = nil
 
-    completion = require('opencode.ui.completion')
+    completion = require('pi.ui.completion')
     completion._sources = {}
     completion._pending = {}
     completion._last_line = ''
@@ -43,47 +43,47 @@ describe('opencode.ui.completion', function()
   end)
 
   after_each(function()
-    package.loaded['opencode.config'] = nil
-    package.loaded['opencode.ui.completion'] = nil
-    package.loaded['opencode.ui.completion.files'] = nil
-    package.loaded['opencode.ui.completion.subagents'] = nil
-    package.loaded['opencode.ui.completion.commands'] = nil
-    package.loaded['opencode.ui.completion.context'] = nil
-    package.loaded['opencode.ui.completion.skills'] = nil
+    package.loaded['pi.config'] = nil
+    package.loaded['pi.ui.completion'] = nil
+    package.loaded['pi.ui.completion.files'] = nil
+    package.loaded['pi.ui.completion.subagents'] = nil
+    package.loaded['pi.ui.completion.commands'] = nil
+    package.loaded['pi.ui.completion.context'] = nil
+    package.loaded['pi.ui.completion.skills'] = nil
   end)
 
   describe('setup', function()
     it('registers all built-in sources', function()
       local registered = {}
 
-      package.loaded['opencode.ui.completion.files'] = {
+      package.loaded['pi.ui.completion.files'] = {
         get_source = function()
           return { name = 'files', priority = 10, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.subagents'] = {
+      package.loaded['pi.ui.completion.subagents'] = {
         get_source = function()
           return { name = 'subagents', priority = 5, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.commands'] = {
+      package.loaded['pi.ui.completion.commands'] = {
         get_source = function()
           return { name = 'commands', priority = 8, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.context'] = {
+      package.loaded['pi.ui.completion.context'] = {
         get_source = function()
           return { name = 'context', priority = 1, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.skills'] = {
+      package.loaded['pi.ui.completion.skills'] = {
         get_source = function()
           return { name = 'skills', priority = 1, complete = function() end }
         end,
       }
 
-      package.loaded['opencode.ui.completion'] = nil
-      completion = require('opencode.ui.completion')
+      package.loaded['pi.ui.completion'] = nil
+      completion = require('pi.ui.completion')
       completion._sources = {}
 
       completion.setup()
@@ -102,34 +102,34 @@ describe('opencode.ui.completion', function()
     end)
 
     it('sorts sources in descending priority order after setup', function()
-      package.loaded['opencode.ui.completion.files'] = {
+      package.loaded['pi.ui.completion.files'] = {
         get_source = function()
           return { name = 'files', priority = 10, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.subagents'] = {
+      package.loaded['pi.ui.completion.subagents'] = {
         get_source = function()
           return { name = 'subagents', priority = 5, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.commands'] = {
+      package.loaded['pi.ui.completion.commands'] = {
         get_source = function()
           return { name = 'commands', priority = 8, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.context'] = {
+      package.loaded['pi.ui.completion.context'] = {
         get_source = function()
           return { name = 'context', priority = 1, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.skills'] = {
+      package.loaded['pi.ui.completion.skills'] = {
         get_source = function()
           return { name = 'skills', priority = 1, complete = function() end }
         end,
       }
 
-      package.loaded['opencode.ui.completion'] = nil
-      completion = require('opencode.ui.completion')
+      package.loaded['pi.ui.completion'] = nil
+      completion = require('pi.ui.completion')
       completion._sources = {}
 
       completion.setup()
@@ -141,34 +141,34 @@ describe('opencode.ui.completion', function()
     end)
 
     it('sources without priority are treated as priority 0', function()
-      package.loaded['opencode.ui.completion.files'] = {
+      package.loaded['pi.ui.completion.files'] = {
         get_source = function()
           return { name = 'files', complete = function() end } -- no priority
         end,
       }
-      package.loaded['opencode.ui.completion.subagents'] = {
+      package.loaded['pi.ui.completion.subagents'] = {
         get_source = function()
           return { name = 'subagents', priority = 5, complete = function() end }
         end,
       }
-      package.loaded['opencode.ui.completion.commands'] = {
+      package.loaded['pi.ui.completion.commands'] = {
         get_source = function()
           return { name = 'commands', complete = function() end } -- no priority
         end,
       }
-      package.loaded['opencode.ui.completion.context'] = {
+      package.loaded['pi.ui.completion.context'] = {
         get_source = function()
           return { name = 'context', complete = function() end } -- no priority
         end,
       }
-      package.loaded['opencode.ui.completion.skills'] = {
+      package.loaded['pi.ui.completion.skills'] = {
         get_source = function()
           return { name = 'skills', priority = 1, complete = function() end }
         end,
       }
 
-      package.loaded['opencode.ui.completion'] = nil
-      completion = require('opencode.ui.completion')
+      package.loaded['pi.ui.completion'] = nil
+      completion = require('pi.ui.completion')
       completion._sources = {}
 
       assert.has_no.errors(function()

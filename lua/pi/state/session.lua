@@ -1,0 +1,130 @@
+local store = require('pi.state.store')
+
+---@class PiSessionStateMutations
+local M = {}
+
+local next_queued_message_id = 0
+
+---@param session Session|nil
+function M.set_active(session)
+  return store.batch(function()
+    store.set('restore_points', {})
+    store.set('last_sent_context', nil)
+    store.set('user_message_count', {})
+    return store.set('active_session', session)
+  end)
+end
+
+function M.clear_active()
+  return store.batch(function()
+    store.set('restore_points', {})
+    store.set('last_sent_context', nil)
+    store.set('user_message_count', {})
+    return store.set('active_session', nil)
+  end)
+end
+
+---@return boolean
+function M.is_locked()
+  return store.get('session_locked') == true
+end
+
+---@param value boolean|nil nil = inherit default
+function M.set_locked(value)
+  if value == nil then
+    store.set_raw('session_locked', nil)
+  else
+    store.set('session_locked', value and true or false)
+  end
+end
+
+---@return boolean new_value
+function M.toggle_locked()
+  local new_value = not M.is_locked()
+  M.set_locked(new_value)
+  return new_value
+end
+
+---@param points RestorePoint[]
+function M.set_restore_points(points)
+  return store.set('restore_points', points)
+end
+
+function M.reset_restore_points()
+  return store.set('restore_points', {})
+end
+
+---@param context PiContext|nil
+function M.set_last_sent_context(context)
+  return store.set('last_sent_context', context)
+end
+
+---@param count table<string, number>
+function M.set_user_message_count(count)
+  return store.set('user_message_count', count)
+end
+
+function M.queue_user_message(session_id, prompt)
+  next_queued_message_id = next_queued_message_id + 1
+  local id = tostring(next_queued_message_id)
+  store.update('queued_user_messages', function(current)
+    local queued = vim.deepcopy(current or {})
+    queued[session_id] = queued[session_id] or {}
+    table.insert(queued[session_id], { id = id, prompt = prompt })
+    return queued
+  end)
+  return id
+end
+
+function M.remove_queued_user_message(session_id, id)
+  store.update('queued_user_messages', function(current)
+    local queued = vim.deepcopy(current or {})
+    local session_queue = queued[session_id] or {}
+    for index, item in ipairs(session_queue) do
+      if item.id == id then
+        table.remove(session_queue, index)
+        break
+      end
+    end
+    if #session_queue == 0 then
+      queued[session_id] = nil
+    end
+    return queued
+  end)
+end
+
+function M.acknowledge_queued_user_message(session_id)
+  store.update('queued_user_messages', function(current)
+    local queued = vim.deepcopy(current or {})
+    local session_queue = queued[session_id] or {}
+    table.remove(session_queue, 1)
+    if #session_queue == 0 then
+      queued[session_id] = nil
+    end
+    return queued
+  end)
+end
+
+function M.clear_queued_user_messages()
+  store.set('queued_user_messages', {})
+end
+
+---Increment/decrement the message count for a session, clamped to >= 0
+---@param session_id string
+---@param delta integer
+function M.increment_user_message_count(session_id, delta)
+  store.mutate('user_message_count', function(counts)
+    local new_value = (counts[session_id] or 0) + delta
+    counts[session_id] = new_value >= 0 and new_value or 0
+  end)
+end
+
+---Update active_session without emitting a change event, used when a silent
+---in-place update is needed (e.g. session metadata refresh that must not
+---trigger a re-render)
+---@param session Session
+function M.update_silently(session)
+  store.set_raw('active_session', session)
+end
+
+return M

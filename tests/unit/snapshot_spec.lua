@@ -1,7 +1,7 @@
-local snapshot = require('opencode.snapshot')
-local state = require('opencode.state')
-local Promise = require('opencode.promise')
-local config_file = require('opencode.config_file')
+local snapshot = require('pi.snapshot')
+local state = require('pi.state')
+local Promise = require('pi.promise')
+local config_file = require('pi.config_file')
 
 -- Save originals to restore after tests
 local orig_notify = vim.notify

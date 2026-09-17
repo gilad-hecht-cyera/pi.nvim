@@ -1,4 +1,4 @@
-local id = require('opencode.id')
+local id = require('pi.id')
 
 describe('ID module', function()
   it('should generate ascending session IDs', function()

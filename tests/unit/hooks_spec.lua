@@ -1,11 +1,11 @@
-local renderer = require('opencode.ui.renderer')
+local renderer = require('pi.ui.renderer')
 local stub = require('luassert.stub')
-local config = require('opencode.config')
-local state = require('opencode.state')
-local session_runtime = require('opencode.services.session_runtime')
-local events = require('opencode.ui.renderer.events')
+local config = require('pi.config')
+local state = require('pi.state')
+local session_runtime = require('pi.services.session_runtime')
+local events = require('pi.ui.renderer.events')
 local helpers = require('tests.helpers')
-local ui = require('opencode.ui.ui')
+local ui = require('pi.ui.ui')
 
 local function expect_nil_hook_no_error(run)
   assert.has_no.errors(run)
@@ -129,10 +129,10 @@ describe('hooks', function()
       end
 
       -- Mock session.get_all_workspace_sessions to return our test session
-      local session_module = require('opencode.session')
+      local session_module = require('pi.session')
       local original_get_all = session_module.get_all_workspace_sessions
       session_module.get_all_workspace_sessions = function()
-        local promise = require('opencode.promise').new()
+        local promise = require('pi.promise').new()
         promise:resolve({ { id = 'test-session', title = 'Test' } })
         return promise
       end
@@ -188,10 +188,10 @@ describe('hooks', function()
       end
 
       -- Mock session.get_by_id to return our test session
-      local session_module = require('opencode.session')
+      local session_module = require('pi.session')
       local original_get_by_id = session_module.get_by_id
       session_module.get_by_id = function(id)
-        local promise = require('opencode.promise').new()
+        local promise = require('pi.promise').new()
         promise:resolve({ id = id, title = 'Test' })
         return promise
       end
@@ -234,7 +234,7 @@ describe('hooks', function()
 end)
 
 describe('reference target local file lifecycle autocmds', function()
-  local autocmds = require('opencode.ui.autocmds')
+  local autocmds = require('pi.ui.autocmds')
 
   it('invalidates rendered reference targets on local file writes, renames, unloads, and shell changes', function()
     local original_create_augroup = vim.api.nvim_create_augroup

@@ -1,8 +1,8 @@
-local question_window = require('opencode.ui.question_window')
-local Output = require('opencode.ui.output')
-local Promise = require('opencode.promise')
-local state = require('opencode.state')
-local config = require('opencode.config')
+local question_window = require('pi.ui.question_window')
+local Output = require('pi.ui.output')
+local Promise = require('pi.promise')
+local state = require('pi.state')
+local config = require('pi.config')
 local stub = require('luassert.stub')
 local helpers = require('tests.helpers')
 
@@ -115,8 +115,8 @@ describe('question_window', function()
 
     assert.are.equal(' 1 [Color] 󰄳    2 [Shape]   ', output.lines[1])
 
-    assert.are.equal('OpencodeQuestionTabDone', output.extmarks[0][1].hl_group)
-    assert.are.equal('OpencodeQuestionTabActive', output.extmarks[0][2].hl_group)
+    assert.are.equal('PiQuestionTabDone', output.extmarks[0][1].hl_group)
+    assert.are.equal('PiQuestionTabActive', output.extmarks[0][2].hl_group)
   end)
 
   it('adds the Other option when missing', function()
@@ -180,7 +180,7 @@ describe('question_window', function()
     assert.is_true(question_window._dialog._is_multiple)
 
     question_window.clear_question()
-    require('opencode.ui.ui').close_windows(state.windows)
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('requires two Enter presses to submit an empty multi-select answer', function()
@@ -245,7 +245,7 @@ describe('question_window', function()
     end))
     assert.are.same({ {} }, replies[1].answers)
     assert.is_nil(question_window._current_question)
-    require('opencode.ui.ui').close_windows(state.windows)
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('hides custom input when custom is false', function()
@@ -393,7 +393,7 @@ describe('question_window', function()
     assert.are.same({ { 'multi custom' } }, replies[2].answers)
 
     vim.ui.input = original_input
-    require('opencode.ui.ui').close_windows(state.windows)
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('routes synchronous question actions through the current question mode', function()
@@ -419,7 +419,7 @@ describe('question_window', function()
     vim.ui.input = function(_, callback)
       input_callback = callback
     end
-    local actions = require('opencode.commands.handlers.permission').actions
+    local actions = require('pi.commands.handlers.permission').actions
 
     question_window.show_question({
       id = 'q-command-multi',
@@ -448,7 +448,7 @@ describe('question_window', function()
     assert.are.equal(0, rejections)
 
     vim.ui.input = original_input
-    require('opencode.ui.ui').close_windows(state.windows)
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('releases inline editors when questions are replaced or cleared', function()
@@ -462,7 +462,7 @@ describe('question_window', function()
         sessionID = 'sess1',
         questions = { { question = 'Pick many', multiple = true, options = { { label = 'One' } } } },
       })
-      require('opencode.ui.renderer.flush').flush()
+      require('pi.ui.renderer.flush').flush()
       question_window._dialog:set_selection(2)
       question_window._dialog:select()
       assert.is_not_nil(question_window._inline_input)
@@ -486,7 +486,7 @@ describe('question_window', function()
 
     assert.is_false(vim.api.nvim_win_is_valid(cleared.win))
     assert.is_nil(question_window._inline_input)
-    require('opencode.ui.ui').close_windows(state.windows)
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('releases Dialog resources before switching to vim.ui.select', function()
@@ -499,7 +499,7 @@ describe('question_window', function()
       questions = { { question = 'Pick one', options = { { label = 'One' } } } },
     })
     local old_dialog = question_window._dialog
-    local flush = require('opencode.ui.renderer.flush')
+    local flush = require('pi.ui.renderer.flush')
     flush.flush()
 
     config.ui.questions.use_vim_ui_select = true
@@ -520,11 +520,11 @@ describe('question_window', function()
       end
     end
     assert.is_false(has_dialog_tab)
-    assert.is_nil(require('opencode.ui.renderer.ctx').render_state:get_part('question-display-part'))
+    assert.is_nil(require('pi.ui.renderer.ctx').render_state:get_part('question-display-part'))
 
     vim.ui.select = original_select
     question_window.clear_question()
-    require('opencode.ui.ui').close_windows(state.windows)
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('keeps the question open when a custom editor is cancelled', function()
@@ -626,7 +626,7 @@ describe('question_window', function()
 
     vim.ui.input = original_input
     vim.ui.select = original_select
-    require('opencode.ui.ui').close_windows(state.windows)
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('uses vim.ui.select for every single question and Dialog for mixed requests', function()
@@ -675,15 +675,15 @@ describe('question_window', function()
       },
     })
 
-    local flush = require('opencode.ui.renderer.flush')
+    local flush = require('pi.ui.renderer.flush')
     flush.flush()
     assert.is_not_nil(question_window._dialog)
-    assert.is_not_nil(require('opencode.ui.renderer.ctx').render_state:get_part('question-display-part'))
+    assert.is_not_nil(require('pi.ui.renderer.ctx').render_state:get_part('question-display-part'))
 
     question_window.clear_question()
     flush.flush()
-    assert.is_nil(require('opencode.ui.renderer.ctx').render_state:get_part('question-display-part'))
-    require('opencode.ui.ui').close_windows(state.windows)
+    assert.is_nil(require('pi.ui.renderer.ctx').render_state:get_part('question-display-part'))
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('ignores callbacks after another request replaces their question', function()
@@ -781,18 +781,18 @@ describe('question_window', function()
 
     vim.ui.input = original_input
     vim.ui.select = original_select
-    require('opencode.ui.ui').close_windows(state.windows)
+    require('pi.ui.ui').close_windows(state.windows)
   end)
 
   it('keeps separate custom drafts for each question and clears them for a new request', function()
     helpers.replay_setup()
     state.session.set_active({ id = 'sess1' })
     vim.api.nvim_set_current_win(state.windows.output_win)
-    local flush = require('opencode.ui.renderer.flush')
+    local flush = require('pi.ui.renderer.flush')
 
     local function open_other()
       flush.flush()
-      assert.is_not_nil(require('opencode.ui.renderer.ctx').render_state:get_part('question-display-part'))
+      assert.is_not_nil(require('pi.ui.renderer.ctx').render_state:get_part('question-display-part'))
       assert.is_not_nil(question_window._dialog:get_option_position(2))
       question_window._dialog:set_selection(2)
       question_window._dialog:select()
@@ -857,7 +857,7 @@ describe('question_window', function()
     vim.api.nvim_set_current_win(state.windows.output_win)
     question_window.clear_question()
     if state.windows then
-      require('opencode.ui.ui').close_windows(state.windows)
+      require('pi.ui.ui').close_windows(state.windows)
     end
 
     assert.equals('draft for first question', first_draft)
@@ -991,18 +991,18 @@ describe('question_window', function()
         },
       },
     })
-    require('opencode.ui.renderer.flush').flush()
+    require('pi.ui.renderer.flush').flush()
     question_window._dialog:teardown()
 
     question_window.restore_pending_question('sess1'):wait()
-    require('opencode.ui.renderer.flush').flush()
+    require('pi.ui.renderer.flush').flush()
 
     assert.is_true(question_window._dialog:is_active())
     assert.is_not_nil(question_window._dialog:get_option_position(2))
 
     question_window.clear_question()
     if state.windows then
-      require('opencode.ui.ui').close_windows(state.windows)
+      require('pi.ui.ui').close_windows(state.windows)
     end
   end)
 
@@ -1011,8 +1011,8 @@ describe('question_window', function()
     state.session.set_active({ id = 'sess1' })
     vim.api.nvim_set_current_win(state.windows.output_win)
 
-    local renderer = require('opencode.ui.renderer')
-    local output_window = require('opencode.ui.output_window')
+    local renderer = require('pi.ui.renderer')
+    local output_window = require('pi.ui.output_window')
 
     local lines = {}
     for i = 1, 40 do
@@ -1036,7 +1036,7 @@ describe('question_window', function()
       },
     })
 
-    local flush = require('opencode.ui.renderer.flush')
+    local flush = require('pi.ui.renderer.flush')
     flush.flush()
     output_window.sync_cursor_with_viewport(state.windows.output_win)
 
@@ -1050,7 +1050,7 @@ describe('question_window', function()
 
     question_window.clear_question()
     if state.windows then
-      require('opencode.ui.ui').close_windows(state.windows)
+      require('pi.ui.ui').close_windows(state.windows)
     end
   end)
 
@@ -1088,7 +1088,7 @@ describe('question_window', function()
 
     question_window.clear_question()
     if state.windows then
-      require('opencode.ui.ui').close_windows(state.windows)
+      require('pi.ui.ui').close_windows(state.windows)
     end
   end)
 end)

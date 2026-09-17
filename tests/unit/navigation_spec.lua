@@ -1,13 +1,13 @@
 local assert = require('luassert')
 local stub = require('luassert.stub')
 
-local navigation = require('opencode.ui.navigation')
-local config = require('opencode.config')
-local ui = require('opencode.ui.ui')
-local renderer = require('opencode.ui.renderer')
-local state = require('opencode.state')
+local navigation = require('pi.ui.navigation')
+local config = require('pi.config')
+local ui = require('pi.ui.ui')
+local renderer = require('pi.ui.renderer')
+local state = require('pi.state')
 
-local existing_path = 'lua/opencode/ui/navigation.lua'
+local existing_path = 'lua/pi/ui/navigation.lua'
 
 describe('output token navigation', function()
   local output_buf, output_win, input_buf, input_win, code_buf, code_win
@@ -15,7 +15,7 @@ describe('output token navigation', function()
 
   before_each(function()
     original_windows = state.store.get('windows')
-    original_code_win = state.store.get('last_code_win_before_opencode')
+    original_code_win = state.store.get('last_code_win_before_pi')
     original_code_buf = state.store.get('current_code_buf')
     original_config = vim.deepcopy(config.values)
     state.ui.clear_hidden_window_state()
@@ -155,12 +155,12 @@ describe('output token navigation', function()
   end)
 
   it('keypress consumes rendered targets instead of deriving targets from screen text', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
     local original_navigate_to_location = navigation.navigate_to_location
     local navigated = {}
     local target_stub = stub(renderer, 'get_target_at_position').returns(nil)
 
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       new_cycle = function()
         error('symbol target resolution must not run without a rendered target')
       end,
@@ -181,7 +181,7 @@ describe('output token navigation', function()
     end)
 
     navigation.navigate_to_location = original_navigate_to_location
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
     target_stub:revert()
 
     assert.is_true(ok, err)
@@ -195,7 +195,7 @@ describe('output token navigation', function()
   end)
 
   it('keeps gf file-and-diff only', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
     local original_navigate_to_location = navigation.navigate_to_location
     local navigated = {}
     local targets = {
@@ -217,7 +217,7 @@ describe('output token navigation', function()
       end
       return target
     end)
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       new_cycle = function()
         error('gf must not resolve symbol targets')
       end,
@@ -239,7 +239,7 @@ describe('output token navigation', function()
     end)
 
     navigation.navigate_to_location = original_navigate_to_location
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
     target_stub:revert()
 
     assert.is_true(ok, err)
@@ -247,7 +247,7 @@ describe('output token navigation', function()
   end)
 
   it('executes a symbol rendered target with current file contents', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
     local original_navigate_to_location = navigation.navigate_to_location
     local navigated
     local target_stub = stub(renderer, 'get_target_at_position').returns({
@@ -257,7 +257,7 @@ describe('output token navigation', function()
       part_id = 'part_1',
       message_id = 'msg_1',
     })
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       new_cycle = function()
         return { cycle = 'fresh' }
       end,
@@ -288,7 +288,7 @@ describe('output token navigation', function()
     end)
 
     navigation.navigate_to_location = original_navigate_to_location
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
     state.renderer.set_messages({})
     target_stub:revert()
 
@@ -297,7 +297,7 @@ describe('output token navigation', function()
   end)
 
   it('reports symbol misses without mutating target lifecycle', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
     local notify_stub = stub(vim, 'notify')
     local dirty_stub = stub(renderer, 'mark_part_dirty')
     local target_stub = stub(renderer, 'get_target_at_position').returns({
@@ -307,7 +307,7 @@ describe('output token navigation', function()
       part_id = 'part_1',
       message_id = 'msg_1',
     })
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       new_cycle = function()
         return {}
       end,
@@ -320,7 +320,7 @@ describe('output token navigation', function()
     vim.api.nvim_win_set_cursor(output_win, { 1, 0 })
     navigation.jump_to_target_at_cursor()
 
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
     target_stub:revert()
 
     assert.stub(notify_stub).was_called_with('No symbol target found: foo', vim.log.levels.INFO)
@@ -331,8 +331,8 @@ describe('output token navigation', function()
   end)
 
   it('offers multiple symbol rendered targets through the base picker', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
-    local original_base_picker = package.loaded['opencode.ui.base_picker']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
+    local original_base_picker = package.loaded['pi.ui.base_picker']
     local original_navigate_to_location = navigation.navigate_to_location
     local picked_opts
     local navigated
@@ -348,7 +348,7 @@ describe('output token navigation', function()
       message_id = 'msg_1',
     })
 
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       new_cycle = function()
         return {}
       end,
@@ -356,7 +356,7 @@ describe('output token navigation', function()
         return targets
       end,
     }
-    package.loaded['opencode.ui.base_picker'] = {
+    package.loaded['pi.ui.base_picker'] = {
       create_time_picker_item = function(text)
         return {
           text = text,
@@ -380,8 +380,8 @@ describe('output token navigation', function()
     navigation.jump_to_target_at_cursor()
 
     navigation.navigate_to_location = original_navigate_to_location
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
-    package.loaded['opencode.ui.base_picker'] = original_base_picker
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.base_picker'] = original_base_picker
     target_stub:revert()
 
     assert.same(targets, picked_opts.items)
@@ -395,8 +395,8 @@ describe('output token navigation', function()
   end)
 
   it('does not mutate target lifecycle when a picked symbol target fails to open', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
-    local original_base_picker = package.loaded['opencode.ui.base_picker']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
+    local original_base_picker = package.loaded['pi.ui.base_picker']
     local original_navigate_to_location = navigation.navigate_to_location
     local dirty_stub = stub(renderer, 'mark_part_dirty')
     local source_target = {
@@ -412,7 +412,7 @@ describe('output token navigation', function()
     }
     local target_stub = stub(renderer, 'get_target_at_position').returns(source_target)
 
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       new_cycle = function()
         return {}
       end,
@@ -420,7 +420,7 @@ describe('output token navigation', function()
         return targets
       end,
     }
-    package.loaded['opencode.ui.base_picker'] = {
+    package.loaded['pi.ui.base_picker'] = {
       create_time_picker_item = function(text)
         return {
           text = text,
@@ -442,8 +442,8 @@ describe('output token navigation', function()
     navigation.jump_to_target_at_cursor()
 
     navigation.navigate_to_location = original_navigate_to_location
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
-    package.loaded['opencode.ui.base_picker'] = original_base_picker
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.base_picker'] = original_base_picker
     target_stub:revert()
 
     assert.stub(dirty_stub).was_not_called()
@@ -462,7 +462,7 @@ describe('output token navigation', function()
   end)
 
   it('keeps <CR> file-first without running the symbol resolver', function()
-    local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+    local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
     local original_navigate_to_location = navigation.navigate_to_location
     local navigated
     local target_stub = stub(renderer, 'get_target_at_position').returns({
@@ -472,7 +472,7 @@ describe('output token navigation', function()
       col = 2,
     })
 
-    package.loaded['opencode.ui.symbol_snapshot'] = {
+    package.loaded['pi.ui.symbol_snapshot'] = {
       new_cycle = function()
         error('symbol resolver should not run when a file target exists')
       end,
@@ -489,7 +489,7 @@ describe('output token navigation', function()
     navigation.jump_to_target_at_cursor()
 
     navigation.navigate_to_location = original_navigate_to_location
-    package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+    package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
     target_stub:revert()
 
     assert.same({ path = existing_path, line = 7, col = 2 }, navigated)
@@ -547,7 +547,7 @@ describe('navigation jumplist preservation', function()
 
   before_each(function()
     original_windows = state.store.get('windows')
-    original_code_win = state.store.get('last_code_win_before_opencode')
+    original_code_win = state.store.get('last_code_win_before_pi')
     original_code_buf = state.store.get('current_code_buf')
     original_config = vim.deepcopy(config.values)
     state.ui.clear_hidden_window_state()
@@ -595,8 +595,8 @@ describe('navigation jumplist preservation', function()
   end)
 
   it('marks the output cursor before goto_next_message moves', function()
-    local renderer = require('opencode.ui.renderer')
-    local ctx = require('opencode.ui.renderer.ctx')
+    local renderer = require('pi.ui.renderer')
+    local ctx = require('pi.ui.renderer.ctx')
     state.renderer.set_messages({
       { info = { id = 'm1', role = 'user' } },
       { info = { id = 'm2', role = 'assistant' } },
@@ -615,8 +615,8 @@ describe('navigation jumplist preservation', function()
   end)
 
   it('marks the output cursor before goto_prev_message moves', function()
-    local renderer = require('opencode.ui.renderer')
-    local ctx = require('opencode.ui.renderer.ctx')
+    local renderer = require('pi.ui.renderer')
+    local ctx = require('pi.ui.renderer.ctx')
     state.renderer.set_messages({
       { info = { id = 'm1', role = 'user' } },
       { info = { id = 'm2', role = 'assistant' } },
@@ -690,15 +690,15 @@ describe('navigation hidden-messages-notice handling', function()
   end)
 
   it('does not jump [[ to the hidden-messages notice when max_messages truncates', function()
-    local ctx = require('opencode.ui.renderer.ctx')
+    local ctx = require('pi.ui.renderer.ctx')
     -- Simulate `on_message_updated` appending the hidden notice to `state.messages` after a `max_messages` truncation.
     state.renderer.set_messages({
       { info = { id = 'real_old', role = 'assistant', sessionID = 's1' } },
       { info = { id = 'real_mid', role = 'user', sessionID = 's1' } },
-      { info = { id = '__opencode_hidden_messages_notice__', role = 'system', sessionID = 's1' } },
+      { info = { id = '__pi_hidden_messages_notice__', role = 'system', sessionID = 's1' } },
     })
     ctx.render_state:set_message(
-      { info = { id = '__opencode_hidden_messages_notice__', role = 'system', sessionID = 's1' } },
+      { info = { id = '__pi_hidden_messages_notice__', role = 'system', sessionID = 's1' } },
       1,
       2
     )

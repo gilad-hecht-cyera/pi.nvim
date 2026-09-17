@@ -522,11 +522,11 @@
     "properties": {
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "cost": 0,
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "deepseek-v4-flash-free",
           "variant": "max"
         },
@@ -551,11 +551,11 @@
     "properties": {
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "cost": 0,
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "deepseek-v4-flash-free",
           "variant": "max"
         },
@@ -584,7 +584,7 @@
         "id": "msg_f5bf094d40010EarsFjD5WvW47",
         "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "variant": "max",
           "modelID": "deepseek-v4-flash-free"
         },
@@ -602,7 +602,7 @@
         "id": "msg_f5bf094d40010EarsFjD5WvW47",
         "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "variant": "max",
           "modelID": "deepseek-v4-flash-free"
         },
@@ -630,11 +630,11 @@
     "properties": {
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "cost": 0,
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "deepseek-v4-flash-free",
           "variant": "max"
         },
@@ -659,11 +659,11 @@
     "properties": {
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "cost": 0,
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "deepseek-v4-flash-free",
           "variant": "max"
         },
@@ -696,14 +696,14 @@
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
         "path": {
-          "cwd": "/home/francis/Projects/_nvim/opencode.nvim",
-          "root": "/home/francis/Projects/_nvim/opencode.nvim"
+          "cwd": "/home/francis/Projects/_nvim/pi.nvim",
+          "root": "/home/francis/Projects/_nvim/pi.nvim"
         },
         "parentID": "msg_f5bf094d40010EarsFjD5WvW47",
         "variant": "max",
         "time": { "created": 1783953921253 },
         "mode": "build",
-        "providerID": "opencode",
+        "providerID": "pi",
         "role": "assistant",
         "id": "msg_f5bf094e4001s2intunIXa7y7E",
         "tokens": {
@@ -725,14 +725,14 @@
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
         "path": {
-          "cwd": "/home/francis/Projects/_nvim/opencode.nvim",
-          "root": "/home/francis/Projects/_nvim/opencode.nvim"
+          "cwd": "/home/francis/Projects/_nvim/pi.nvim",
+          "root": "/home/francis/Projects/_nvim/pi.nvim"
         },
         "parentID": "msg_f5bf094d40010EarsFjD5WvW47",
         "variant": "max",
         "time": { "created": 1783953921253 },
         "mode": "build",
-        "providerID": "opencode",
+        "providerID": "pi",
         "role": "assistant",
         "id": "msg_f5bf094e4001s2intunIXa7y7E",
         "tokens": {
@@ -755,7 +755,7 @@
     "properties": {
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "summary": { "deletions": 0, "additions": 0, "files": 0 },
         "tokens": {
@@ -765,7 +765,7 @@
           "cache": { "write": 0, "read": 0 }
         },
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "deepseek-v4-flash-free",
           "variant": "max"
         },
@@ -785,7 +785,7 @@
     "properties": {
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "summary": { "deletions": 0, "additions": 0, "files": 0 },
         "tokens": {
@@ -795,7 +795,7 @@
           "cache": { "write": 0, "read": 0 }
         },
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "deepseek-v4-flash-free",
           "variant": "max"
         },
@@ -823,7 +823,7 @@
         "id": "msg_f5bf094d40010EarsFjD5WvW47",
         "summary": { "diffs": [] },
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "variant": "max",
           "modelID": "deepseek-v4-flash-free"
         },
@@ -842,7 +842,7 @@
         "id": "msg_f5bf094d40010EarsFjD5WvW47",
         "summary": { "diffs": [] },
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "variant": "max",
           "modelID": "deepseek-v4-flash-free"
         },
@@ -889,7 +889,7 @@
   { "properties": { "id": "llmgateway" }, "type": "plugin.added" },
   { "properties": { "id": "mistral" }, "type": "plugin.added" },
   { "properties": { "id": "nvidia" }, "type": "plugin.added" },
-  { "properties": { "id": "opencode" }, "type": "plugin.added" },
+  { "properties": { "id": "pi" }, "type": "plugin.added" },
   { "properties": { "id": "snowflake-cortex" }, "type": "plugin.added" },
   { "properties": { "id": "openai-compatible" }, "type": "plugin.added" },
   { "properties": { "id": "openai" }, "type": "plugin.added" },
@@ -1167,7 +1167,7 @@
     "properties": {
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "summary": { "deletions": 0, "additions": 0, "files": 0 },
         "tokens": {
@@ -1177,7 +1177,7 @@
           "cache": { "write": 0, "read": 0 }
         },
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "deepseek-v4-flash-free",
           "variant": "max"
         },
@@ -1197,7 +1197,7 @@
     "properties": {
       "sessionID": "ses_0a4100c91ffecReou1daUfYBxU",
       "info": {
-        "directory": "/home/francis/Projects/_nvim/opencode.nvim",
+        "directory": "/home/francis/Projects/_nvim/pi.nvim",
         "projectID": "33e70a20e5609c39bd22991cf43ef28daf65fc0b",
         "summary": { "deletions": 0, "additions": 0, "files": 0 },
         "tokens": {
@@ -1207,7 +1207,7 @@
           "cache": { "write": 0, "read": 0 }
         },
         "model": {
-          "providerID": "opencode",
+          "providerID": "pi",
           "id": "deepseek-v4-flash-free",
           "variant": "max"
         },

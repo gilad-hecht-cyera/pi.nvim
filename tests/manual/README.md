@@ -49,8 +49,8 @@ events from a real session that can be replayed to test the streaming renderer b
 To capture new event data for testing:
 
 1. Set `capture_streamed_events = true` in your config
-2. Use OpenCode normally to generate the events you want to capture
-3. Call `:lua require('opencode.ui.debug_helper').save_captured_events('data.json')`
+2. Use Pi normally to generate the events you want to capture
+3. Call `:lua require('pi.ui.debug_helper').save_captured_events('data.json')`
 4. The captured events will be saved to `data.json` in the current directory
 5. That data can then be loaded with `:ReplayLoad`
 
@@ -59,4 +59,4 @@ To capture new event data for testing:
 - Watch the buffer updates in real-time with `:ReplayAll 500` (slower replay)
 - Use `:ReplayNext` to step through problematic events
 - Check `:messages` to see event notifications and any errors
-- Inspect `state.messages` with `:lua vim.print(require('opencode.state').messages)`
+- Inspect `state.messages` with `:lua vim.print(require('pi.state').messages)`

@@ -1,8 +1,8 @@
-local state = require('opencode.state')
-local config = require('opencode.config')
-local input_window = require('opencode.ui.input_window')
-local output_window = require('opencode.ui.output_window')
-local ui = require('opencode.ui.ui')
+local state = require('pi.state')
+local config = require('pi.config')
+local input_window = require('pi.ui.input_window')
+local output_window = require('pi.ui.output_window')
+local ui = require('pi.ui.ui')
 
 describe('ui zoom state', function()
   local windows
@@ -137,8 +137,8 @@ describe('ui zoom state', function()
         },
       })
 
-      package.loaded['opencode.ui.input_window'] = nil
-      local dynamic_height_input_window = require('opencode.ui.input_window')
+      package.loaded['pi.ui.input_window'] = nil
+      local dynamic_height_input_window = require('pi.ui.input_window')
 
       local update_calls = 0
       local original_defer_fn = vim.defer_fn
@@ -159,8 +159,8 @@ describe('ui zoom state', function()
 
       vim.defer_fn = original_defer_fn
       dynamic_height_input_window.update_dimensions = original_update_dimensions
-      package.loaded['opencode.ui.input_window'] = nil
-      require('opencode.ui.input_window')
+      package.loaded['pi.ui.input_window'] = nil
+      require('pi.ui.input_window')
     end)
 
     it('does not call update_dimensions when dynamic height disabled (fixed input height)', function()
@@ -173,8 +173,8 @@ describe('ui zoom state', function()
         },
       })
 
-      package.loaded['opencode.ui.input_window'] = nil
-      local fixed_height_input_window = require('opencode.ui.input_window')
+      package.loaded['pi.ui.input_window'] = nil
+      local fixed_height_input_window = require('pi.ui.input_window')
 
       local update_calls = 0
       local original_update_dimensions = fixed_height_input_window.update_dimensions
@@ -196,8 +196,8 @@ describe('ui zoom state', function()
           },
         },
       })
-      package.loaded['opencode.ui.input_window'] = nil
-      require('opencode.ui.input_window')
+      package.loaded['pi.ui.input_window'] = nil
+      require('pi.ui.input_window')
     end)
   end)
 

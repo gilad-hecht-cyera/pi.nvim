@@ -67,9 +67,9 @@ if [ -n "$FILTER" ]; then
 fi
 
 if [ -n "$FILTER" ]; then
-    echo -e "${YELLOW}Running tests for opencode.nvim (filter: '$FILTER')${NC}"
+    echo -e "${YELLOW}Running tests for pi.nvim (filter: '$FILTER')${NC}"
 else
-    echo -e "${YELLOW}Running tests for opencode.nvim${NC}"
+    echo -e "${YELLOW}Running tests for pi.nvim${NC}"
 fi
 echo "------------------------------------------------"
 

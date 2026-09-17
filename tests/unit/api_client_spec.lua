@@ -1,17 +1,21 @@
-local api_client = require('opencode.api_client')
+local api_client = require('pi.api_client')
 local assert = require('luassert')
+local stub = require('luassert.stub')
 
 describe('api_client', function()
   local original_cli_version
+  local original_backend
   local state
 
   before_each(function()
-    state = require('opencode.state')
-    original_cli_version = state.opencode_cli_version
+    state = require('pi.state')
+    original_cli_version = state.pi_cli_version
+    original_backend = require('pi.config').backend
   end)
 
   after_each(function()
-    state.jobs.set_opencode_cli_version(original_cli_version)
+    state.jobs.set_pi_cli_version(original_cli_version)
+    require('pi.config').backend = original_backend
   end)
 
   it('should create a new client instance', function()
@@ -71,11 +75,11 @@ describe('api_client', function()
   end)
 
   it('should construct URLs correctly with query parameters', function()
-    local server_job = require('opencode.server_job')
+    local server_job = require('pi.server_job')
     local original_call_api = server_job.call_api
     local captured_calls = {}
     local original_cwd = vim.fn.getcwd
-    local state = require('opencode.state')
+    local state = require('pi.state')
     state.context.set_current_cwd('/current/directory')
 
     vim.fn.getcwd = function()
@@ -84,7 +88,7 @@ describe('api_client', function()
 
     server_job.call_api = function(url, method, body)
       table.insert(captured_calls, { url = url, method = method, body = body })
-      local promise = require('opencode.promise').new()
+      local promise = require('pi.promise').new()
       promise:resolve({})
       return promise
     end
@@ -117,11 +121,59 @@ describe('api_client', function()
     vim.fn.getcwd = original_cwd
   end)
 
+  it('routes pi backend message revert through fork entry ids', function()
+    require('pi.config').backend = 'pi'
+    local original_messages = state.messages
+    local original_active_session = state.active_session
+    state.store.set_raw('active_session', { id = 'session-id', title = 'Original title' })
+    state.store.set_raw('messages', {
+      {
+        info = { id = 'message-id', role = 'user' },
+        parts = { { type = 'text', text = 'hello' } },
+      },
+    })
+    local rpc_client = require('pi.rpc_client')
+    local fork_calls = {}
+    local fork_title
+    local get_stub = stub(rpc_client, 'get').returns({
+      get_fork_messages = function()
+        return require('pi.promise').new():resolve({ messages = { { entryId = 'entry-id', text = 'hello' } } })
+      end,
+      fork = function(_, entry_id)
+        fork_calls[#fork_calls + 1] = entry_id
+        return require('pi.promise').new():resolve({ text = 'forked text' })
+      end,
+      set_session_name = function(_, name)
+        fork_title = name
+        return require('pi.promise').new():resolve(true)
+      end,
+      get_state = function()
+        return require('pi.promise').new():resolve({
+          sessionFile = '/tmp/pi-session.jsonl',
+          sessionId = 'session-id',
+          sessionName = 'Forked session',
+        })
+      end,
+    })
+
+    local client = api_client.new('http://localhost:8080')
+    local result = client:revert_message('session-id', { messageID = 'message-id' }):await()
+
+    assert.same({ 'entry-id' }, fork_calls)
+    assert.equal('FORK 1 Original title', fork_title)
+    assert.equal('/tmp/pi-session.jsonl', result.id)
+    assert.equal('forked text', result.text)
+    assert.equal('Forked session', result.session.title)
+    state.store.set_raw('messages', original_messages)
+    state.store.set_raw('active_session', original_active_session)
+    get_stub:revert()
+  end)
+
   it('normalizes /global/event payloads into legacy event shape', function()
-    local server_job = require('opencode.server_job')
+    local server_job = require('pi.server_job')
     local original_stream_api = server_job.stream_api
-    local Promise = require('opencode.promise')
-    state.jobs.set_opencode_cli_version(Promise.new():resolve('1.14.42'))
+    local Promise = require('pi.promise')
+    state.jobs.set_pi_cli_version(Promise.new():resolve('1.14.42'))
 
     local received = {}
 
@@ -162,10 +214,10 @@ describe('api_client', function()
   end)
 
   it('normalizes /global/event sync payloads into legacy event shape', function()
-    local server_job = require('opencode.server_job')
+    local server_job = require('pi.server_job')
     local original_stream_api = server_job.stream_api
-    local Promise = require('opencode.promise')
-    state.jobs.set_opencode_cli_version(Promise.new():resolve('1.14.42'))
+    local Promise = require('pi.promise')
+    state.jobs.set_pi_cli_version(Promise.new():resolve('1.14.42'))
 
     local received = {}
 

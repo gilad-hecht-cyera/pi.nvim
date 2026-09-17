@@ -1,7 +1,7 @@
-local EventManager = require('opencode.event_manager')
-local Promise = require('opencode.promise')
-local state = require('opencode.state')
-local config = require('opencode.config')
+local EventManager = require('pi.event_manager')
+local Promise = require('pi.promise')
+local state = require('pi.state')
+local config = require('pi.config')
 
 describe('EventManager', function()
   local event_manager
@@ -142,7 +142,7 @@ describe('EventManager', function()
     assert.are.equal(first_start, event_manager.is_started)
   end)
 
-  it('does not duplicate opencode_server listener across restart', function()
+  it('does not duplicate pi_server listener across restart', function()
     local original_defer_fn = vim.defer_fn
     vim.defer_fn = function(fn, _)
       fn()
@@ -240,6 +240,51 @@ describe('EventManager', function()
     assert.are.equal('hello world', received[1].text)
   end)
 
+  it('does not collapse distinct tool parts that share a callID', function()
+    local original_event_collapsing = config.ui.output.rendering.event_collapsing
+    config.ui.output.rendering.event_collapsing = true
+
+    local received = {}
+    event_manager:subscribe('message.part.updated', function(data)
+      table.insert(received, vim.deepcopy(data.part))
+    end)
+
+    event_manager:_on_drained_events({
+      {
+        type = 'message.part.updated',
+        properties = {
+          part = {
+            id = 'part_pending',
+            messageID = 'msg_1',
+            sessionID = 'ses_1',
+            type = 'tool',
+            callID = 'call_same',
+            state = { status = 'pending' },
+          },
+        },
+      },
+      {
+        type = 'message.part.updated',
+        properties = {
+          part = {
+            id = 'part_completed',
+            messageID = 'msg_1',
+            sessionID = 'ses_1',
+            type = 'tool',
+            callID = 'call_same',
+            state = { status = 'completed' },
+          },
+        },
+      },
+    })
+
+    config.ui.output.rendering.event_collapsing = original_event_collapsing
+
+    assert.are.equal(2, #received)
+    assert.are.equal('part_pending', received[1].id)
+    assert.are.equal('part_completed', received[2].id)
+  end)
+
   it('keeps accumulated delta text across event batches', function()
     local received = {}
     event_manager:subscribe('message.part.updated', function(data)
@@ -283,7 +328,7 @@ describe('EventManager', function()
       local autocmd_data = nil
 
       local autocmd_id = vim.api.nvim_create_autocmd('User', {
-        pattern = 'OpencodeEvent:test_event',
+        pattern = 'PiEvent:test_event',
         callback = function(args)
           autocmd_called = true
           autocmd_data = args.data
@@ -311,7 +356,7 @@ describe('EventManager', function()
       local autocmd_called = false
 
       local autocmd_id = vim.api.nvim_create_autocmd('User', {
-        pattern = 'OpencodeEvent:orphan_event',
+        pattern = 'PiEvent:orphan_event',
         callback = function(args)
           autocmd_called = true
         end,

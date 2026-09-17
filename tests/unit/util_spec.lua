@@ -1,4 +1,4 @@
-local util = require('opencode.util')
+local util = require('pi.util')
 
 describe('util.parse_dot_args', function()
   it('parses flat booleans', function()

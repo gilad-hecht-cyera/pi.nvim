@@ -1,4 +1,4 @@
-local sha1 = require('opencode.sha1')
+local sha1 = require('pi.sha1')
 
 describe('sha1', function()
   it('produces correct hash for empty string', function()

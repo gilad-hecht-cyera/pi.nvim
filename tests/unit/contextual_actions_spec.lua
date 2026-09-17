@@ -1,7 +1,7 @@
 local assert = require('luassert')
 local stub = require('luassert.stub')
-local state = require('opencode.state')
-local contextual_actions = require('opencode.ui.contextual_actions')
+local state = require('pi.state')
+local contextual_actions = require('pi.ui.contextual_actions')
 
 local function mapping(buf, key)
   for _, value in ipairs(vim.api.nvim_buf_get_keymap(buf, 'n')) do
@@ -91,7 +91,7 @@ describe('contextual actions', function()
     local script = vim.fn.tempname()
     vim.fn.writefile({
       'function! s:contextual_action_probe() abort',
-      "  let g:opencode_contextual_action_probe = get(g:, 'opencode_contextual_action_probe', 0) + 1",
+      "  let g:pi_contextual_action_probe = get(g:, 'pi_contextual_action_probe', 0) + 1",
       'endfunction',
       'nnoremap <script> <buffer> R :call <SID>contextual_action_probe()<CR>',
     }, script)
@@ -105,16 +105,16 @@ describe('contextual actions', function()
     local restored = mapping(buf, 'R')
     assert.equal(original.rhs, restored.rhs)
     assert.equal(original.script, restored.script)
-    vim.g.opencode_contextual_action_probe = nil
+    vim.g.pi_contextual_action_probe = nil
     vim.api.nvim_feedkeys('R', 'xt', false)
-    assert.equal(1, vim.g.opencode_contextual_action_probe)
+    assert.equal(1, vim.g.pi_contextual_action_probe)
   end)
 
   it('restores callback and script-local mappings with their native options', function()
     local script = vim.fn.tempname()
     vim.fn.writefile({
       'function! s:contextual_action_probe() abort',
-      "  let g:opencode_contextual_action_probe = get(g:, 'opencode_contextual_action_probe', 0) + 1",
+      "  let g:pi_contextual_action_probe = get(g:, 'pi_contextual_action_probe', 0) + 1",
       'endfunction',
       'nnoremap <script> <buffer> S :call <SID>contextual_action_probe()<CR>',
     }, script)
@@ -149,9 +149,9 @@ describe('contextual actions', function()
     assert.equal(1, restored.silent)
     restored.callback()
     assert.equal(1, callback_calls)
-    vim.g.opencode_contextual_action_probe = nil
+    vim.g.pi_contextual_action_probe = nil
     vim.api.nvim_feedkeys('S', 'xt', false)
-    assert.equal(1, vim.g.opencode_contextual_action_probe)
+    assert.equal(1, vim.g.pi_contextual_action_probe)
   end)
 
   it('attaches one observer and invalidates once when buffer lines change', function()
@@ -186,8 +186,8 @@ describe('contextual actions', function()
     vim.api.nvim_exec_autocmds('BufHidden', { buffer = buf })
     assert.equal('Original R', mapping(buf, 'R').desc)
 
-    local renderer = package.loaded['opencode.ui.renderer']
-    package.loaded['opencode.ui.renderer'] = {
+    local renderer = package.loaded['pi.ui.renderer']
+    package.loaded['pi.ui.renderer'] = {
       get_actions_for_line = function()
         return { action('R') }
       end,
@@ -196,13 +196,13 @@ describe('contextual actions', function()
     assert.is_true(vim.wait(100, function()
       return mapping(buf, 'R') and mapping(buf, 'R').desc == 'R'
     end))
-    package.loaded['opencode.ui.renderer'] = renderer
+    package.loaded['pi.ui.renderer'] = renderer
   end)
 
   it('refreshes actions on setup and output re-entry', function()
     vim.keymap.set('n', 'R', function() end, { buffer = buf, desc = 'Original R' })
-    local renderer = package.loaded['opencode.ui.renderer']
-    package.loaded['opencode.ui.renderer'] = {
+    local renderer = package.loaded['pi.ui.renderer']
+    package.loaded['pi.ui.renderer'] = {
       get_actions_for_line = function()
         return { action('R') }
       end,
@@ -219,13 +219,13 @@ describe('contextual actions', function()
     vim.api.nvim_exec_autocmds('BufLeave', { buffer = buf })
     vim.api.nvim_exec_autocmds('WinEnter', { buffer = buf })
     assert.equal('R', mapping(buf, 'R').desc)
-    package.loaded['opencode.ui.renderer'] = renderer
+    package.loaded['pi.ui.renderer'] = renderer
   end)
 
   it('refreshes a persistent output buffer when setup runs again', function()
     vim.keymap.set('n', 'R', function() end, { buffer = buf, desc = 'Original R' })
-    local renderer = package.loaded['opencode.ui.renderer']
-    package.loaded['opencode.ui.renderer'] = {
+    local renderer = package.loaded['pi.ui.renderer']
+    package.loaded['pi.ui.renderer'] = {
       get_actions_for_line = function()
         return { action('R') }
       end,
@@ -237,7 +237,7 @@ describe('contextual actions', function()
 
     contextual_actions.setup_contextual_actions({ output_buf = buf })
     assert.equal('R', mapping(buf, 'R').desc)
-    package.loaded['opencode.ui.renderer'] = renderer
+    package.loaded['pi.ui.renderer'] = renderer
   end)
 
   it('does not redraw contextual actions while the cursor stays in their range', function()
@@ -245,8 +245,8 @@ describe('contextual actions', function()
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'header', 'text', 'context', '' })
     vim.keymap.set('n', 'R', function() end, { buffer = buf, desc = 'Original R' })
 
-    local renderer = package.loaded['opencode.ui.renderer']
-    package.loaded['opencode.ui.renderer'] = {
+    local renderer = package.loaded['pi.ui.renderer']
+    package.loaded['pi.ui.renderer'] = {
       get_actions_for_line = function()
         return { action('R', 'undo', { 'message-one' }, { from = 0, to = 3 }) }
       end,
@@ -265,7 +265,7 @@ describe('contextual actions', function()
     assert.equal('R', mapping(buf, 'R').desc)
     clear_namespace:revert()
     set_mapping:revert()
-    package.loaded['opencode.ui.renderer'] = renderer
+    package.loaded['pi.ui.renderer'] = renderer
   end)
 
   it('shows, replaces, and clears contextual actions through CursorMoved', function()
@@ -279,10 +279,10 @@ describe('contextual actions', function()
     )
     vim.keymap.set('n', 'R', function() end, { buffer = buf, desc = 'Original R' })
 
-    local renderer = package.loaded['opencode.ui.renderer']
-    local api = package.loaded['opencode.api']
+    local renderer = package.loaded['pi.ui.renderer']
+    local api = package.loaded['pi.api']
     local calls = {}
-    package.loaded['opencode.ui.renderer'] = {
+    package.loaded['pi.ui.renderer'] = {
       get_actions_for_line = function(line)
         if line <= 2 then
           return { action('R', 'undo', { 'message-one' }, { from = 0, to = 2 }) }
@@ -292,7 +292,7 @@ describe('contextual actions', function()
         end
       end,
     }
-    package.loaded['opencode.api'] = {
+    package.loaded['pi.api'] = {
       undo = function(id)
         calls[#calls + 1] = id
       end,
@@ -311,8 +311,8 @@ describe('contextual actions', function()
     vim.api.nvim_exec_autocmds('CursorMoved', { buffer = buf })
     assert.equal('Original R', mapping(buf, 'R').desc)
     assert.same({ 'message-one', 'message-two' }, calls)
-    package.loaded['opencode.ui.renderer'] = renderer
-    package.loaded['opencode.api'] = api
+    package.loaded['pi.ui.renderer'] = renderer
+    package.loaded['pi.api'] = api
   end)
 
   it('keeps another buffer lifecycle isolated from an old buffer observer', function()
@@ -329,11 +329,11 @@ describe('contextual actions', function()
     vim.api.nvim_buf_delete(other, { force = true })
   end)
 
-  it('dispatches R/C/F through opencode.api with the original message id', function()
+  it('dispatches R/C/F through pi.api with the original message id', function()
     contextual_actions.setup_contextual_actions({ output_buf = buf })
-    local api = package.loaded['opencode.api']
+    local api = package.loaded['pi.api']
     local calls = {}
-    package.loaded['opencode.api'] = {
+    package.loaded['pi.api'] = {
       undo = function(id)
         calls.undo = id
       end,
@@ -354,15 +354,15 @@ describe('contextual actions', function()
       mapping(buf, value.key).callback()
     end
 
-    package.loaded['opencode.api'] = api
+    package.loaded['pi.api'] = api
     assert.same({ undo = 'message-r', copy_message = 'message-c', fork_session = 'message-f' }, calls)
   end)
 
   it('ignores a callback from a replaced action set', function()
     contextual_actions.setup_contextual_actions({ output_buf = buf })
-    local api = package.loaded['opencode.api']
+    local api = package.loaded['pi.api']
     local calls = {}
-    package.loaded['opencode.api'] = {
+    package.loaded['pi.api'] = {
       undo = function(id)
         calls[#calls + 1] = id
       end,
@@ -376,6 +376,6 @@ describe('contextual actions', function()
     assert.same({}, calls)
     mapping(buf, 'R').callback()
     assert.same({ 'current-message' }, calls)
-    package.loaded['opencode.api'] = api
+    package.loaded['pi.api'] = api
   end)
 end)

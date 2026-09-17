@@ -1,17 +1,17 @@
 -- tests/unit/session_picker_spec.lua
 -- Tests for session_picker helpers and delete action behaviour
 
-local session_picker = require('opencode.ui.session_picker')
-local session_mod = require('opencode.session')
-local session_runtime = require('opencode.services.session_runtime')
-local state = require('opencode.state')
-local store = require('opencode.state.store')
-local Promise = require('opencode.promise')
+local session_picker = require('pi.ui.session_picker')
+local session_mod = require('pi.session')
+local session_runtime = require('pi.services.session_runtime')
+local state = require('pi.state')
+local store = require('pi.state.store')
+local Promise = require('pi.promise')
 local stub = require('luassert.stub')
 local assert = require('luassert')
 local support = require('tests.unit.services_spec_support')
 
-describe('opencode.ui.session_picker', function()
+describe('pi.ui.session_picker', function()
   -- -----------------------------------------------------------------------
   -- Pure unit tests for the helper – no mocks needed
   -- -----------------------------------------------------------------------
@@ -64,17 +64,17 @@ describe('opencode.ui.session_picker', function()
 
     before_each(function()
       original_api_client = state.api_client
-      local base_picker = require('opencode.ui.base_picker')
+      local base_picker = require('pi.ui.base_picker')
       original_pick = base_picker.pick
     end)
 
     after_each(function()
       state.jobs.set_api_client(original_api_client)
-      require('opencode.ui.base_picker').pick = original_pick
+      require('pi.ui.base_picker').pick = original_pick
     end)
 
     it('writes through the backend-neutral preview target', function()
-      local base_picker = require('opencode.ui.base_picker')
+      local base_picker = require('pi.ui.base_picker')
       local captured_opts
       base_picker.pick = function(opts)
         captured_opts = opts
@@ -114,9 +114,9 @@ describe('opencode.ui.session_picker', function()
     end)
 
     it('formats preview parts with non-interactive formatter context', function()
-      local base_picker = require('opencode.ui.base_picker')
-      local formatter = require('opencode.ui.formatter')
-      local Output = require('opencode.ui.output')
+      local base_picker = require('pi.ui.base_picker')
+      local formatter = require('pi.ui.formatter')
+      local Output = require('pi.ui.output')
       local captured_opts
       local contexts = {}
       local format_stub = stub(formatter, 'format_part').invokes(function(_, _, _, context)
@@ -171,13 +171,13 @@ describe('opencode.ui.session_picker', function()
     end)
 
     it('does not resolve rendered targets while formatting preview parts', function()
-      local base_picker = require('opencode.ui.base_picker')
-      local original_symbol_snapshot = package.loaded['opencode.ui.symbol_snapshot']
+      local base_picker = require('pi.ui.base_picker')
+      local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
       local captured_opts
       local writes = {}
       local bufnr = vim.api.nvim_create_buf(false, true)
 
-      package.loaded['opencode.ui.symbol_snapshot'] = {
+      package.loaded['pi.ui.symbol_snapshot'] = {
         new_cycle = function()
           error('preview formatting must not create a symbol cycle')
         end,
@@ -226,7 +226,7 @@ describe('opencode.ui.session_picker', function()
         return #writes >= 2
       end)
 
-      package.loaded['opencode.ui.symbol_snapshot'] = original_symbol_snapshot
+      package.loaded['pi.ui.symbol_snapshot'] = original_symbol_snapshot
       pcall(vim.api.nvim_buf_delete, bufnr, { force = true })
 
       assert.is_truthy(table.concat(writes[#writes], '\n'):find('src/main.lua', 1, true))
@@ -293,7 +293,7 @@ describe('opencode.ui.session_picker', function()
       -- by invoking the delete fn directly through a fake opts table.
       local delete_fn = nil
       -- Monkey-patch base_picker.pick to capture the actions
-      local base_picker = require('opencode.ui.base_picker')
+      local base_picker = require('pi.ui.base_picker')
       local orig_pick = base_picker.pick
       base_picker.pick = function(opts)
         -- grab delete fn from the actions passed in
@@ -334,8 +334,8 @@ describe('opencode.ui.session_picker', function()
     end)
 
     it('resets agent mode when all sessions are deleted and a new session is created', function()
-      local agent_model = require('opencode.services.agent_model')
-      local store = require('opencode.state.store')
+      local agent_model = require('pi.services.agent_model')
+      local store = require('pi.state.store')
 
       -- Simulate being stuck in a subagent mode (e.g. EXPLORE)
       store.set('current_mode', 'explore')

@@ -2,45 +2,6 @@
   "actions": [
     {
       "args": [
-        "msg_a0234c0b7001y2o9S1jMaNVZar"
-      ],
-      "display_line": 6,
-      "key": "R",
-      "range": {
-        "from": 0,
-        "to": 6
-      },
-      "text": "[R]evert",
-      "type": "undo"
-    },
-    {
-      "args": [
-        "msg_a0234c0b7001y2o9S1jMaNVZar"
-      ],
-      "display_line": 6,
-      "key": "C",
-      "range": {
-        "from": 0,
-        "to": 6
-      },
-      "text": "[C]opy",
-      "type": "copy_message"
-    },
-    {
-      "args": [
-        "msg_a0234c0b7001y2o9S1jMaNVZar"
-      ],
-      "display_line": 6,
-      "key": "F",
-      "range": {
-        "from": 0,
-        "to": 6
-      },
-      "text": "[F]ork",
-      "type": "fork_session"
-    },
-    {
-      "args": [
         "msg_a0234e308001SKl5bQUibp5gtI"
       ],
       "display_line": 33,
@@ -80,78 +41,117 @@
     },
     {
       "args": [
-        "1b6ba655c6c0d899965adff278ac6320d5fc3b12"
+        "msg_a0234c0b7001y2o9S1jMaNVZar"
       ],
-      "display_line": 22,
+      "display_line": 6,
       "key": "R",
       "range": {
-        "from": 22,
-        "to": 22
+        "from": 0,
+        "to": 6
+      },
+      "text": "[R]evert",
+      "type": "undo"
+    },
+    {
+      "args": [
+        "msg_a0234c0b7001y2o9S1jMaNVZar"
+      ],
+      "display_line": 6,
+      "key": "C",
+      "range": {
+        "from": 0,
+        "to": 6
+      },
+      "text": "[C]opy",
+      "type": "copy_message"
+    },
+    {
+      "args": [
+        "msg_a0234c0b7001y2o9S1jMaNVZar"
+      ],
+      "display_line": 6,
+      "key": "F",
+      "range": {
+        "from": 0,
+        "to": 6
+      },
+      "text": "[F]ork",
+      "type": "fork_session"
+    },
+    {
+      "args": [
+        "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
+      ],
+      "display_line": 63,
+      "key": "R",
+      "range": {
+        "from": 63,
+        "to": 63
       },
       "text": "[R]evert file",
       "type": "diff_revert_selected_file"
     },
     {
       "args": [
-        "1b6ba655c6c0d899965adff278ac6320d5fc3b12"
+        "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
       ],
-      "display_line": 22,
+      "display_line": 63,
       "key": "A",
       "range": {
-        "from": 22,
-        "to": 22
+        "from": 63,
+        "to": 63
       },
       "text": "Revert [A]ll",
       "type": "diff_revert_all"
     },
     {
       "args": [
-        "1b6ba655c6c0d899965adff278ac6320d5fc3b12"
+        "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
       ],
-      "display_line": 22,
+      "display_line": 63,
       "key": "D",
       "range": {
-        "from": 22,
-        "to": 22
+        "from": 63,
+        "to": 63
       },
       "text": "[D]iff",
       "type": "diff_open"
     },
     {
       "args": [
-        "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
+        "1b6ba655c6c0d899965adff278ac6320d5fc3b12"
       ],
-      "display_line": 56,
+      "display_line": 22,
       "key": "R",
       "range": {
-        "from": 56,
-        "to": 56
+        "from": 22,
+        "to": 22
       },
       "text": "[R]evert file",
       "type": "diff_revert_selected_file"
     },
     {
       "args": [
-        "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
+        "1b6ba655c6c0d899965adff278ac6320d5fc3b12"
       ],
-      "display_line": 56,
+      "display_line": 22,
       "key": "A",
       "range": {
-        "from": 56,
-        "to": 56
+        "from": 22,
+        "to": 22
       },
       "text": "Revert [A]ll",
       "type": "diff_revert_all"
     },
     {
       "args": [
-        "57d83f5596cb1f142fbc681d3d93b7184f7f73cd"
+        "1b6ba655c6c0d899965adff278ac6320d5fc3b12"
       ],
-      "display_line": 56,
+      "display_line": 22,
       "key": "D",
       "range": {
-        "from": 56,
-        "to": 56
+        "from": 22,
+        "to": 22
       },
       "text": "[D]iff",
       "type": "diff_open"
@@ -169,25 +169,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234c0b7001y2o9S1jMaNVZar]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -207,7 +207,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:02",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -226,7 +226,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -246,7 +246,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -266,7 +266,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -286,7 +286,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -305,26 +305,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234c7960011LTxTvD94hfWCi]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -344,7 +344,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:04",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -363,7 +363,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -383,7 +383,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -403,7 +403,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -421,22 +421,22 @@
         "end_right_gravity": false,
         "end_row": 16,
         "hl_eol": true,
-        "hl_group": "OpencodeDiffDelete",
+        "hl_group": "PiDiffDelete",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
             "1",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ],
           [
             "-",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ],
           [
             " ",
-            "OpencodeDiffDeleteGutter"
+            "PiDiffDeleteGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -455,7 +455,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -473,22 +473,22 @@
         "end_right_gravity": false,
         "end_row": 17,
         "hl_eol": true,
-        "hl_group": "OpencodeDiffAdd",
+        "hl_group": "PiDiffAdd",
         "ns_id": 3,
         "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
             "1",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ],
           [
             "+",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ],
           [
             " ",
-            "OpencodeDiffAddGutter"
+            "PiDiffAddGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -507,7 +507,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -530,15 +530,15 @@
         "virt_text": [
           [
             "2",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ],
           [
             " ",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ],
           [
             " ",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -557,7 +557,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -580,15 +580,15 @@
         "virt_text": [
           [
             "3",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ],
           [
             " ",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ],
           [
             " ",
-            "OpencodeDiffGutter"
+            "PiDiffGutter"
           ]
         ],
         "virt_text_hide": false,
@@ -607,7 +607,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -627,7 +627,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -647,7 +647,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -666,26 +666,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234d8fb001SXyngLjuKSuxOY]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -705,7 +705,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:09",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -724,25 +724,25 @@
         "virt_text": [
           [
             "▌󰭻 ",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "USER",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ],
           [
             " "
           ],
           [
             "",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234e308001SKl5bQUibp5gtI]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -762,7 +762,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:11",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -781,7 +781,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -801,7 +801,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeMessageRoleUser"
+            "PiMessageRoleUser"
           ]
         ],
         "virt_text_hide": false,
@@ -820,26 +820,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234e31f001m4EsQdPmY3PTtS]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -859,7 +859,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:11",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -869,64 +869,7 @@
     ],
     [
       30,
-      42,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 10,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            " ",
-            "OpencodeMessageRoleAssistant"
-          ],
-          [
-            " "
-          ],
-          [
-            "BUILD",
-            "OpencodeMessageRoleAssistant"
-          ],
-          [
-            " "
-          ],
-          [
-            "github-copilot/gpt-5-mini",
-            "OpencodeHint"
-          ],
-          [
-            " [msg_a0234f482001PQbMjWc6W8s0eF]",
-            "OpencodeHint"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": false,
-        "virt_text_win_col": -3
-      }
-    ],
-    [
-      31,
-      42,
-      0,
-      {
-        "ns_id": 3,
-        "priority": 9,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            " 2025-10-20 15:20:16",
-            "OpencodeHint"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "right_align",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      32,
-      46,
+      39,
       0,
       {
         "ns_id": 3,
@@ -935,7 +878,47 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      31,
+      40,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      32,
+      41,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -946,7 +929,7 @@
     ],
     [
       33,
-      47,
+      42,
       0,
       {
         "ns_id": 3,
@@ -955,7 +938,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -966,7 +949,7 @@
     ],
     [
       34,
-      48,
+      43,
       0,
       {
         "ns_id": 3,
@@ -975,7 +958,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -986,39 +969,7 @@
     ],
     [
       35,
-      49,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 50,
-        "hl_eol": true,
-        "hl_group": "OpencodeDiffDelete",
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "1",
-            "OpencodeDiffDeleteGutter"
-          ],
-          [
-            "-",
-            "OpencodeDiffDeleteGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffDeleteGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      36,
-      49,
+      44,
       0,
       {
         "ns_id": 3,
@@ -1027,7 +978,27 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      36,
+      45,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1038,39 +1009,7 @@
     ],
     [
       37,
-      50,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 51,
-        "hl_eol": true,
-        "hl_group": "OpencodeDiffAdd",
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "1",
-            "OpencodeDiffAddGutter"
-          ],
-          [
-            "+",
-            "OpencodeDiffAddGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffAddGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      38,
-      50,
+      46,
       0,
       {
         "ns_id": 3,
@@ -1079,7 +1018,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1089,38 +1028,65 @@
       }
     ],
     [
-      39,
-      51,
+      38,
+      49,
       0,
       {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 52,
         "ns_id": 3,
-        "priority": 5000,
+        "priority": 10,
         "right_gravity": true,
         "virt_text": [
           [
-            "2",
-            "OpencodeDiffGutter"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
-            " ",
-            "OpencodeDiffGutter"
+            " "
           ],
           [
-            " ",
-            "OpencodeDiffGutter"
+            "BUILD",
+            "PiMessageRoleAssistant"
+          ],
+          [
+            " "
+          ],
+          [
+            "github-copilot/gpt-5-mini",
+            "PiHint"
+          ],
+          [
+            " [msg_a0234f482001PQbMjWc6W8s0eF]",
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "overlay",
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": false,
+        "virt_text_win_col": -3
+      }
+    ],
+    [
+      39,
+      49,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 9,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            " 2025-10-20 15:20:16",
+            "PiHint"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "right_align",
         "virt_text_repeat_linebreak": false
       }
     ],
     [
       40,
-      51,
+      53,
       0,
       {
         "ns_id": 3,
@@ -1129,7 +1095,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1140,37 +1106,7 @@
     ],
     [
       41,
-      52,
-      0,
-      {
-        "end_col": 0,
-        "end_right_gravity": false,
-        "end_row": 53,
-        "ns_id": 3,
-        "priority": 5000,
-        "right_gravity": true,
-        "virt_text": [
-          [
-            "3",
-            "OpencodeDiffGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffGutter"
-          ],
-          [
-            " ",
-            "OpencodeDiffGutter"
-          ]
-        ],
-        "virt_text_hide": false,
-        "virt_text_pos": "overlay",
-        "virt_text_repeat_linebreak": false
-      }
-    ],
-    [
-      42,
-      52,
+      54,
       0,
       {
         "ns_id": 3,
@@ -1179,7 +1115,27 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      42,
+      55,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1190,27 +1146,39 @@
     ],
     [
       43,
-      53,
+      56,
       0,
       {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 57,
+        "hl_eol": true,
+        "hl_group": "PiDiffDelete",
         "ns_id": 3,
-        "priority": 4096,
+        "priority": 5000,
         "right_gravity": true,
         "virt_text": [
           [
-            "▌",
-            "OpencodeToolBorder"
+            "1",
+            "PiDiffDeleteGutter"
+          ],
+          [
+            "-",
+            "PiDiffDeleteGutter"
+          ],
+          [
+            " ",
+            "PiDiffDeleteGutter"
           ]
         ],
         "virt_text_hide": false,
-        "virt_text_pos": "win_col",
-        "virt_text_repeat_linebreak": true,
-        "virt_text_win_col": -1
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
       }
     ],
     [
       44,
-      54,
+      56,
       0,
       {
         "ns_id": 3,
@@ -1219,7 +1187,7 @@
         "virt_text": [
           [
             "▌",
-            "OpencodeToolBorder"
+            "PiToolBorder"
           ]
         ],
         "virt_text_hide": false,
@@ -1230,7 +1198,199 @@
     ],
     [
       45,
+      57,
+      0,
+      {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 58,
+        "hl_eol": true,
+        "hl_group": "PiDiffAdd",
+        "ns_id": 3,
+        "priority": 5000,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "1",
+            "PiDiffAddGutter"
+          ],
+          [
+            "+",
+            "PiDiffAddGutter"
+          ],
+          [
+            " ",
+            "PiDiffAddGutter"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      46,
+      57,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      47,
+      58,
+      0,
+      {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 59,
+        "ns_id": 3,
+        "priority": 5000,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "2",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      48,
+      58,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      49,
       59,
+      0,
+      {
+        "end_col": 0,
+        "end_right_gravity": false,
+        "end_row": 60,
+        "ns_id": 3,
+        "priority": 5000,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "3",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ],
+          [
+            " ",
+            "PiDiffGutter"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "overlay",
+        "virt_text_repeat_linebreak": false
+      }
+    ],
+    [
+      50,
+      59,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      51,
+      60,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      52,
+      61,
+      0,
+      {
+        "ns_id": 3,
+        "priority": 4096,
+        "right_gravity": true,
+        "virt_text": [
+          [
+            "▌",
+            "PiToolBorder"
+          ]
+        ],
+        "virt_text_hide": false,
+        "virt_text_pos": "win_col",
+        "virt_text_repeat_linebreak": true,
+        "virt_text_win_col": -1
+      }
+    ],
+    [
+      53,
+      66,
       0,
       {
         "ns_id": 3,
@@ -1238,26 +1398,26 @@
         "right_gravity": true,
         "virt_text": [
           [
-            " ",
-            "OpencodeMessageRoleAssistant"
+            "π ",
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "BUILD",
-            "OpencodeMessageRoleAssistant"
+            "PiMessageRoleAssistant"
           ],
           [
             " "
           ],
           [
             "github-copilot/gpt-5-mini",
-            "OpencodeHint"
+            "PiHint"
           ],
           [
             " [msg_a0234f9c6001JCKYaca1HHwwx6]",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -1267,8 +1427,8 @@
       }
     ],
     [
-      46,
-      59,
+      54,
+      66,
       0,
       {
         "ns_id": 3,
@@ -1277,7 +1437,7 @@
         "virt_text": [
           [
             " 2025-10-20 15:20:17",
-            "OpencodeHint"
+            "PiHint"
           ]
         ],
         "virt_text_hide": false,
@@ -1286,8 +1446,8 @@
       }
     ],
     [
-      47,
-      69,
+      55,
+      76,
       0,
       {
         "ns_id": 3,
@@ -1296,7 +1456,7 @@
         "virt_text": [
           [
             "+1",
-            "OpencodeDiffAddText"
+            "PiDiffAddText"
           ]
         ],
         "virt_text_hide": false,
@@ -1306,8 +1466,8 @@
       }
     ],
     [
-      48,
-      69,
+      56,
+      76,
       0,
       {
         "ns_id": 3,
@@ -1316,7 +1476,7 @@
         "virt_text": [
           [
             "-1",
-            "OpencodeDiffDeleteText"
+            "PiDiffDeleteText"
           ]
         ],
         "virt_text_hide": false,
@@ -1339,7 +1499,7 @@
     "",
     "I'll append a single word (\"again\") to the first line of `test.txt`. Applying a precise edit to the existing line now.",
     "",
-    "**  edit** `/home/francis/Projects/_nvim/opencode.nvim/test.txt`",
+    "**  edit** `/home/francis/Projects/_nvim/pi.nvim/test.txt`",
     "",
     "`````txt",
     "   tangram quiver saffron nebula cobalt murmur plinth zephyr ember lattice cadenza another yet extra more",
@@ -1366,14 +1526,21 @@
     "",
     "I'll read `test.txt` to get the current first-line content, then append one word (\"again2\") to that line. Proceeding to read the file.",
     "",
-    "**  read** `/home/francis/Projects/_nvim/opencode.nvim/test.txt`",
+    "**  read** `/home/francis/Projects/_nvim/pi.nvim/test.txt`",
+    "",
+    "`````txt",
+    "    tangram quiver saffron nebula cobalt murmur plinth zephyr ember lattice cadenza another yet extra more again",
+    "",
+    "",
+    "",
+    "`````",
     "",
     "----",
     "",
     "",
     "Now I'll append the word \"again2\" to the first line. I'll apply an exact in-place edit to update that line.",
     "",
-    "**  edit** `/home/francis/Projects/_nvim/opencode.nvim/test.txt`",
+    "**  edit** `/home/francis/Projects/_nvim/pi.nvim/test.txt`",
     "",
     "`````txt",
     "   tangram quiver saffron nebula cobalt murmur plinth zephyr ember lattice cadenza another yet extra more again",
@@ -1403,11 +1570,11 @@
   "timestamp": 1774894778,
   "window": {
     "cursor": [
-      71,
+      78,
       0
     ],
-    "effective_bottom": 71,
-    "line_count": 72,
-    "visible_bottom": 71
+    "effective_bottom": 78,
+    "line_count": 79,
+    "visible_bottom": 78
   }
 }

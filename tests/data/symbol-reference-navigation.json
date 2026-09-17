@@ -40,9 +40,9 @@
                 "state": {
                     "status": "completed",
                     "input": {
-                        "filePath": "lua/opencode/ui/symbol_snapshot.lua"
+                        "filePath": "lua/pi/ui/symbol_snapshot.lua"
                     },
-                    "output": "<path>lua/opencode/ui/symbol_snapshot.lua</path>\n<content>function M.collect(refs)</content>",
+                    "output": "<path>lua/pi/ui/symbol_snapshot.lua</path>\n<content>function M.collect(refs)</content>",
                     "time": {
                         "start": 1760000001000,
                         "end": 1760000001001

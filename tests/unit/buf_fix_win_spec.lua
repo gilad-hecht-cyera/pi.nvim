@@ -1,4 +1,4 @@
-local buf_fix_win = require('opencode.ui.buf_fix_win')
+local buf_fix_win = require('pi.ui.buf_fix_win')
 
 describe('buf_fix_win module', function()
   local test_bufs = {}
@@ -274,14 +274,14 @@ describe('buf_fix_win module', function()
 
     before_each(function()
       -- Reload module to reset internal state for these tests only
-      package.loaded['opencode.ui.buf_fix_win'] = nil
-      fresh_buf_fix_win = require('opencode.ui.buf_fix_win')
+      package.loaded['pi.ui.buf_fix_win'] = nil
+      fresh_buf_fix_win = require('pi.ui.buf_fix_win')
     end)
 
     after_each(function()
       -- Restore the original module for other tests
-      package.loaded['opencode.ui.buf_fix_win'] = nil
-      buf_fix_win = require('opencode.ui.buf_fix_win')
+      package.loaded['pi.ui.buf_fix_win'] = nil
+      buf_fix_win = require('pi.ui.buf_fix_win')
     end)
 
     it('should setup global WinNew autocmd when fix_to_win is first called', function()
