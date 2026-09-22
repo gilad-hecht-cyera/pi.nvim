@@ -66,6 +66,7 @@ M.defaults = {
       ['<leader>ptt'] = { 'toggle_tool_output',                                desc = 'Toggle tool output' },
       ['<leader>ptm'] = { 'toggle_max_messages',                               desc = 'Toggle max messages' },
       ['<leader>p/'] =  { 'quick_chat',                   mode = { 'n', 'x' }, desc = 'Quick chat with current context' },
+      ['<M-v>'] =       { 'paste', { 'clipboard' },       mode = { 'n', 'i', 'x' }, desc = 'Paste text or image from clipboard' },
 
     },
     output_window = {
@@ -89,6 +90,7 @@ M.defaults = {
       ['<leader>pD'] =  { 'debug_message',                                     desc = 'Open raw message debug view' },
       ['<leader>pO'] =  { 'debug_output',                                      desc = 'Open raw output debug view' },
       ['<leader>pds'] = { 'debug_session',                                     desc = 'Open raw session debug view' },
+      ['<leader>pv'] =  { 'preview_image',                                      desc = 'Preview pasted image under cursor' },
     },
     input_window = {
       ['<cr>']   =      { 'submit_input_prompt',          mode = { 'n' },      desc = 'Submit prompt'                                            },
@@ -99,7 +101,11 @@ M.defaults = {
       ['@']      =      { 'mention',                      mode = 'i',          desc = 'Open mention picker'                                      },
       ['/']      =      { 'slash_commands',               mode = 'i',          desc = 'Open slash commands picker'                               },
       ['#']      =      { 'context_items',                mode = 'i',          desc = 'Open context items picker'                                },
-      ['<M-v>']  =      { 'paste_image',                  mode = 'i',          desc = 'Paste image from clipboard'                               },
+      ['p']      =      { 'paste', { 'p' },               mode = 'n',          desc = 'Paste text or image from clipboard'                       },
+      ['P']      =      { 'paste', { 'P' },               mode = 'n',          desc = 'Paste text or image before cursor'                        },
+      ['<C-r>+'] =      { 'paste', { 'clipboard' },       mode = 'i',          desc = 'Paste text or image from clipboard'                       },
+      ['<M-v>']  =      { 'paste', { 'clipboard' },       mode = { 'n', 'i' }, desc = 'Paste text or image from clipboard'                       },
+      ['<D-v>']  =      { 'paste', { 'clipboard' },       mode = { 'n', 'i' }, desc = 'Paste text or image from clipboard'                       },
       ['<tab>']  =      { 'toggle_pane',                  mode = { 'n' },      desc = 'Toggle input/output panes',    defer_to_completion = true },
       ['<up>']   =      { 'prev_prompt_history',          mode = { 'n', 'i' }, desc = 'Previous prompt history item', defer_to_completion = true },
       ['<down>'] =      { 'next_prompt_history',          mode = { 'n', 'i' }, desc = 'Next prompt history item' ,    defer_to_completion = true },
@@ -113,6 +119,7 @@ M.defaults = {
       ['<leader>pD'] =  { 'debug_message',                                     desc = 'Open raw message debug view'                              },
       ['<leader>pO'] =  { 'debug_output',                                      desc = 'Open raw output debug view'                               },
       ['<leader>pds'] = { 'debug_session',                                     desc = 'Open raw session debug view'                              },
+      ['<leader>pv'] =  { 'preview_image',                                      desc = 'Preview pasted image under cursor'                        },
     },
     session_picker = {
       rename_session = { '<C-r>',                                              desc = 'Rename selected session' },
@@ -221,6 +228,12 @@ M.defaults = {
       },
       -- Auto-hide input window when prompt is submitted or focus switches to output window
       auto_hide = false,
+      image_preview = {
+        enabled = true,
+        width = 30,
+        height = 10,
+        border = 'rounded',
+      },
       -- Window-local options applied to the input window.
       -- Any valid Neovim window option can be added here.
       -- Users can override these and add any extra option, e.g.:

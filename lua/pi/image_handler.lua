@@ -151,7 +151,7 @@ end
 
 --- Handle clipboard image data by saving it to a file and adding it to context
 --- @return boolean success True if image was successfully handled
-function M.paste_image_from_clipboard()
+function M.paste_image_from_clipboard(notify_on_failure)
   if not cached_temp_dir then
     cached_temp_dir = vim.fn.tempname()
     vim.fn.mkdir(cached_temp_dir, 'p')
@@ -177,11 +177,70 @@ function M.paste_image_from_clipboard()
       context.add_file(image_path)
     end)
 
+    require('pi.ui.image_preview').show(image_path)
     vim.notify('Image saved and added to context: ' .. vim.fn.fnamemodify(image_path, ':t'), vim.log.levels.INFO)
     return true
   end
 
-  vim.notify('No image found in clipboard.', vim.log.levels.WARN)
+  if notify_on_failure ~= false then
+    vim.notify('No image found in clipboard.', vim.log.levels.WARN)
+  end
+  return false
+end
+
+function M.preview_image_at_cursor()
+  local line = vim.api.nvim_get_current_line()
+  local cursor_col = vim.api.nvim_win_get_cursor(0)[2] + 1
+  local search_from = 1
+  local matches = {}
+
+  while true do
+    local mention_start, mention_end, name = line:find('(pasted_image_[%w_.%-]+)', search_from)
+    if not mention_start then
+      break
+    end
+    local match = { start_col = mention_start, end_col = mention_end, name = name }
+    table.insert(matches, match)
+    if cursor_col >= mention_start and cursor_col <= mention_end then
+      matches = { match }
+      break
+    end
+    search_from = mention_end + 1
+  end
+
+  if #matches == 1 then
+    local path = M.restore_img_path(matches[1].name)
+    if not path then
+      vim.notify('Pasted image is no longer available.', vim.log.levels.WARN)
+      return false
+    end
+    return require('pi.ui.image_preview').toggle(path, vim.api.nvim_get_current_win())
+  end
+
+  vim.notify('Cursor is not on a pasted image.', vim.log.levels.WARN)
+  return false
+end
+
+function M.paste(fallback)
+  if vim.bo.filetype == 'pi' and M.paste_image_from_clipboard(false) then
+    return true
+  end
+
+  if fallback == 'p' or fallback == 'P' then
+    vim.api.nvim_feedkeys(fallback, 'n', false)
+    return false
+  end
+
+  local content = vim.fn.getreg('+')
+  if type(content) == 'table' then
+    content = table.concat(content, '\n')
+  end
+  if not content or content == '' then
+    vim.notify('Nothing in clipboard.', vim.log.levels.WARN)
+    return false
+  end
+
+  vim.api.nvim_paste(content, true, -1)
   return false
 end
 

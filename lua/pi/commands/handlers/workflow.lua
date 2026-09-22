@@ -216,6 +216,14 @@ function M.actions.paste_image()
   session_runtime.paste_image_from_clipboard()
 end
 
+function M.actions.paste(args)
+  require('pi.image_handler').paste(args and args[1] or 'clipboard')
+end
+
+function M.actions.preview_image()
+  require('pi.image_handler').preview_image_at_cursor()
+end
+
 M.actions.submit_input_prompt = Promise.async(function()
   if state.display_route then
     state.ui.clear_display_route()
@@ -571,6 +579,14 @@ M.command_defs = {
   paste_image = {
     desc = 'Paste image from clipboard and add to context',
     execute = M.actions.paste_image,
+  },
+  paste = {
+    desc = 'Paste text or image from clipboard',
+    execute = M.actions.paste,
+  },
+  preview_image = {
+    desc = 'Preview pasted image under cursor',
+    execute = M.actions.preview_image,
   },
   references = {
     desc = 'Browse code references from conversation',

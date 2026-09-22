@@ -17,6 +17,13 @@ describe('image_handler', function()
   local original_uv = vim.uv
   local original_context_add_file = context.add_file
   local original_notify = vim.notify
+  local original_feedkeys = vim.api.nvim_feedkeys
+  local original_nvim_paste = vim.api.nvim_paste
+  local original_get_current_line = vim.api.nvim_get_current_line
+  local original_win_get_cursor = vim.api.nvim_win_get_cursor
+  local original_get_current_win = vim.api.nvim_get_current_win
+  local original_image_preview = package.loaded['pi.ui.image_preview']
+  local original_filetype = vim.bo.filetype
   local original_os_date = os.date
 
   local mocks = {
@@ -110,6 +117,37 @@ describe('image_handler', function()
       table.insert(mocks.notifications, { msg = msg, level = level })
     end
 
+    vim.api.nvim_feedkeys = function(keys, mode, escape_csi)
+      mocks.fed_keys = { keys = keys, mode = mode, escape_csi = escape_csi }
+    end
+
+    vim.api.nvim_paste = function(data, crlf, phase)
+      mocks.pasted_text = { data = data, crlf = crlf, phase = phase }
+      return true
+    end
+
+    vim.api.nvim_get_current_line = function()
+      return mocks.current_line or ''
+    end
+
+    vim.api.nvim_win_get_cursor = function()
+      return { 1, mocks.cursor_col or 0 }
+    end
+
+    vim.api.nvim_get_current_win = function()
+      return 42
+    end
+
+    package.loaded['pi.ui.image_preview'] = {
+      show = function(path)
+        mocks.preview_path = path
+      end,
+      toggle = function(path, win)
+        mocks.toggled_preview = { path = path, win = win }
+        return true
+      end,
+    }
+
     os.date = function(fmt)
       if fmt == '%Y%m%d_%H%M%S' then
         return '20240101_120000'
@@ -124,6 +162,13 @@ describe('image_handler', function()
     vim.uv = original_uv
     context.add_file = original_context_add_file
     vim.notify = original_notify
+    vim.api.nvim_feedkeys = original_feedkeys
+    vim.api.nvim_paste = original_nvim_paste
+    vim.api.nvim_get_current_line = original_get_current_line
+    vim.api.nvim_win_get_cursor = original_win_get_cursor
+    vim.api.nvim_get_current_win = original_get_current_win
+    package.loaded['pi.ui.image_preview'] = original_image_preview
+    vim.bo.filetype = original_filetype
     os.date = original_os_date
   end)
 
@@ -137,6 +182,7 @@ describe('image_handler', function()
     assert.is_true(success)
     assert.equals(1, #mocks.added_files)
     assert.equals('/tmp/test_dir/pasted_image_20240101_120000.png', mocks.added_files[1])
+    assert.equals('/tmp/test_dir/pasted_image_20240101_120000.png', mocks.preview_path)
     assert.is_true(#mocks.system_calls > 0)
     local cmd = mocks.system_calls[1].cmd
     assert.matches('osascript', cmd[3])
@@ -239,6 +285,58 @@ describe('image_handler', function()
 
     assert.is_false(success)
     assert.equals(0, #mocks.added_files)
+  end)
+
+  it('automatically attaches an image when pasting in the Pi input', function()
+    vim.cmd('noautocmd setfiletype pi')
+    mocks.os_name = 'Darwin'
+    mocks.executable['osascript'] = 1
+    table.insert(mocks.existing_files, '/tmp/test_dir/pasted_image_20240101_120000.png')
+
+    local success = image_handler.paste('clipboard')
+
+    assert.is_true(success)
+    assert.equals('/tmp/test_dir/pasted_image_20240101_120000.png', mocks.added_files[1])
+    assert.is_nil(mocks.pasted_text)
+  end)
+
+  it('previews a pasted image under the cursor', function()
+    mocks.os_name = 'Darwin'
+    mocks.executable['osascript'] = 1
+    local path = '/tmp/test_dir/pasted_image_20240101_120000.png'
+    table.insert(mocks.existing_files, path)
+    image_handler.paste_image_from_clipboard()
+    mocks.current_line = 'attachment: /tmp/test_dir/pasted_image_20240101_120000.png'
+    mocks.cursor_col = 0
+
+    local success = image_handler.preview_image_at_cursor()
+
+    assert.is_true(success)
+    assert.same({ path = path, win = 42 }, mocks.toggled_preview)
+  end)
+
+  it('falls back to normal-mode paste when the clipboard has no image', function()
+    mocks.os_name = 'Darwin'
+    mocks.executable['osascript'] = 0
+    mocks.clipboard_content = 'plain text'
+
+    local success = image_handler.paste('p')
+
+    assert.is_false(success)
+    assert.same({ keys = 'p', mode = 'n', escape_csi = false }, mocks.fed_keys)
+    assert.equals(0, #mocks.notifications)
+  end)
+
+  it('falls back to text paste when the clipboard has no image', function()
+    mocks.os_name = 'Darwin'
+    mocks.executable['osascript'] = 0
+    mocks.clipboard_content = 'plain text'
+
+    local success = image_handler.paste('clipboard')
+
+    assert.is_false(success)
+    assert.same({ data = 'plain text', crlf = true, phase = -1 }, mocks.pasted_text)
+    assert.equals(0, #mocks.notifications)
   end)
 
   it('restores image path when file exists and name is valid', function()

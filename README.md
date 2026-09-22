@@ -68,6 +68,43 @@ Default keymap prefix is `<leader>p`, mirroring the original opencode.nvim layou
 
 The output filetype is `pi_output`.
 
+Pasteboard images can be pasted directly in the input window with `p`, `P`, `<C-r>+`, or `<M-v>`. The image is saved to a temporary file, attached to the prompt, and previewed in a small floating window when `snacks.nvim` image support is available. Text paste keeps its normal behavior.
+
+WezTerm handles `Cmd-v` before Neovim sees it. To route `Cmd-v` through pi.nvim while preserving normal paste outside Neovim, add this key to your WezTerm configuration:
+
+```lua
+{
+  key = "v",
+  mods = "CMD",
+  action = wezterm.action_callback(function(window, pane)
+    local process = pane:get_foreground_process_name() or ""
+    local action = process:match("nvim$")
+        and wezterm.action.SendKey({ key = "v", mods = "ALT" })
+      or wezterm.action.PasteFrom("Clipboard")
+    window:perform_action(action, pane)
+  end),
+}
+```
+
+After sending, place the cursor on an `@pasted_image_…` mention in either Pi pane and press `<leader>pv` to toggle its preview. The temporary image must still exist in the current Neovim session.
+
+The preview can be sized or disabled:
+
+```lua
+require("pi").setup({
+  ui = {
+    input = {
+      image_preview = {
+        enabled = true,
+        width = 30,
+        height = 10,
+        border = "rounded",
+      },
+    },
+  },
+})
+```
+
 Useful slash commands in the input window:
 
 - `/sessions` select between sessions (`/resume` remains an alias)

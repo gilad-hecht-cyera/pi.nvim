@@ -113,6 +113,7 @@ function M.mounted(windows)
 end
 
 function M.close()
+  require('pi.ui.image_preview').close()
   if not M.mounted() then
     return
   end
@@ -137,6 +138,8 @@ function M.handle_submit()
   if input_content == '' then
     return false
   end
+
+  require('pi.ui.image_preview').close()
 
   if input_content:match('^!') then
     M._execute_shell_command(input_content:sub(2))
