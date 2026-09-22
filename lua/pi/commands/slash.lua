@@ -54,12 +54,22 @@ local function builtin_commands()
     local_command('/help', 'Show pi.nvim help', function()
       return require('pi.commands').execute_parsed_intent(require('pi.commands').build_parsed_intent('help', {}))
     end),
-    local_command('/model', 'Select Pi model', function()
+    local_command('/model', 'Select model (opens selector UI)', function(args)
+      if args and #args > 0 then
+        return M.send_pi_command('model', args)
+      end
       return require('pi.services.agent_model').configure_provider()
-    end),
-    local_command('/thinking', 'Select Pi thinking level', function()
+    end, true),
+    local_command('/settings', 'Open Pi settings menu', function(args)
+      return M.send_pi_command('settings', args)
+    end, true),
+    local_command('/thinking', 'Set thinking level', function(args)
+      if args and #args > 0 then
+        return M.send_pi_command('thinking', args)
+      end
       return require('pi.services.agent_model').configure_variant()
-    end),
+    end, true),
+    pi_command('/scoped-models', 'Enable/disable models for Ctrl+P cycling', 'scoped-models', false),
     local_command('/new', 'Start a new Pi session', function()
       return require('pi.services.session_runtime').open({ new_session = true, focus = 'input' })
     end),
@@ -105,12 +115,19 @@ local function builtin_commands()
     pi_command('/share', 'Share Pi session in Pi', 'share', false),
     pi_command('/import', 'Import Pi session in Pi', 'import', true),
     pi_command('/trust', 'Trust project in Pi', 'trust', false),
+    pi_command('/login', 'Configure provider authentication', 'login', true),
+    pi_command('/logout', 'Remove provider authentication', 'logout', true),
+    pi_command('/settings', 'Open settings menu', 'settings', false),
+    pi_command('/changelog', 'Show changelog entries', 'changelog', false),
+    pi_command('/hotkeys', 'Show all keyboard shortcuts', 'hotkeys', false),
+    pi_command('/session', 'Show session info and stats', 'session', false),
+    local_command('/quit', 'Close pi.nvim windows', function()
+      return require('pi.commands.handlers.window').actions.close()
+    end),
   }
 end
 
-local excluded_slash_commands = {
-  ['/session'] = true,
-}
+local excluded_slash_commands = {}
 
 local function add_unique(result, seen, command)
   if

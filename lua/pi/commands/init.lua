@@ -10,6 +10,7 @@ local command_definitions = (function()
   local handler_modules = {
     'pi.commands.handlers.window',
     'pi.commands.handlers.workflow',
+    'pi.commands.handlers.vanilla',
     'pi.commands.handlers.session',
     'pi.commands.handlers.diff',
     'pi.commands.handlers.surface',

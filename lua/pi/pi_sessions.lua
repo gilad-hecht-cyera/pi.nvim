@@ -1,10 +1,16 @@
 local M = {}
 
 local function session_root()
-  local env = vim.uv.os_getenv('PI_CODING_AGENT_SESSION_DIR')
-  if env and env ~= '' then
-    return vim.fs.normalize(vim.fn.expand(env))
+  local session_dir = vim.uv.os_getenv('PI_CODING_AGENT_SESSION_DIR')
+  if session_dir and session_dir ~= '' then
+    return vim.fs.normalize(vim.fn.expand(session_dir))
   end
+
+  local agent_dir = vim.uv.os_getenv('PI_CODING_AGENT_DIR')
+  if agent_dir and agent_dir ~= '' then
+    return vim.fs.normalize(vim.fs.joinpath(vim.fn.expand(agent_dir), 'sessions'))
+  end
+
   return vim.fs.normalize(vim.fs.joinpath(vim.uv.os_homedir(), '.pi', 'agent', 'sessions'))
 end
 

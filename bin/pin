@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec nvim --cmd 'let g:pi_nvim_pin = 1' '+Pi pin' "$@"
