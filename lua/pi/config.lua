@@ -80,6 +80,7 @@ M.defaults = {
       ['i']     =       { 'focus_input',                                       desc = 'Focus input window' },
       ['gr']    =       { 'references',                                        desc = 'Browse code references' },
       ['gf']    =       { 'jump_to_file',                                       desc = 'Jump to file at cursor' },
+      ['g<Space>'] =    { 'pick_file_at_cursor',                                desc = 'Find file at cursor' },
       ['<CR>']  =       { 'jump_to_target_at_cursor',                          desc = 'Jump to target at cursor' },
       ['<M-i>'] =       { 'toggle_input',                 mode = { 'n' },      desc = 'Toggle input window' },
       ['<M-m>'] =       { 'switch_mode',                  mode = { 'n' },      desc = 'Switch agent mode' },

@@ -469,9 +469,9 @@ describe('formatter', function()
     }, output.extmarks[0])
   end)
 
-  it('leaves unavailable file mentions inert', function()
-    local text = 'See `src/missing.lua` now'
-    local ref_start, ref_end = text:find('`src/missing.lua`', 1, true)
+  it('creates fuzzy targets for unavailable file mentions', function()
+    local text = 'See `src/missing.lua:42:7` now'
+    local ref_start, ref_end = text:find('`src/missing.lua:42:7`', 1, true)
     local part = { id = 'part_missing_ref', text = text }
     local message = { info = { id = 'msg_missing_ref' }, parts = { part } }
 
@@ -484,6 +484,8 @@ describe('formatter', function()
           message_id = 'msg_missing_ref',
           part_id = 'part_missing_ref',
           path = 'src/missing.lua',
+          line = 42,
+          col = 7,
           source_kind = 'assistant_text',
           raw_range = { start_offset = ref_start, end_offset = ref_end },
         },
@@ -491,7 +493,17 @@ describe('formatter', function()
     })
 
     assert.are.equal(text, output.lines[1])
-    assert.are.same({}, output.targets)
+    assert.are.same({
+      kind = 'file_candidate',
+      path = 'src/missing.lua',
+      line = 42,
+      col = 7,
+      range = {
+        line = 1,
+        start_col = ref_start - 1,
+        end_col = ref_end,
+      },
+    }, output.targets[1])
     assert.is_nil(output.extmarks[0])
   end)
 

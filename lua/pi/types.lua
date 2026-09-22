@@ -586,7 +586,7 @@
 ---@field end_col integer Output-local column, 0-based exclusive
 
 ---@class OutputTarget
----@field kind 'file'|'diff'|'symbol'
+---@field kind 'file'|'file_candidate'|'diff'|'symbol'
 ---@field range OutputTargetRange
 ---@field path? string
 ---@field line? integer

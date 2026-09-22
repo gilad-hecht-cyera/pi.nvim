@@ -246,6 +246,57 @@ describe('output token navigation', function()
     assert.same({ { path = existing_path, line = 9, col = nil } }, navigated)
   end)
 
+  it('opens a filtered file picker and preserves the target position', function()
+    local original_file_picker = package.loaded['pi.ui.file_picker']
+    local original_navigate_to_location = navigation.navigate_to_location
+    local picker_query
+    local navigated
+    local target_stub = stub(renderer, 'get_target_at_position').returns({
+      kind = 'file_candidate',
+      path = 'partial/main.rs',
+      line = 204,
+      col = 12,
+    })
+    package.loaded['pi.ui.file_picker'] = {
+      pick = function(callback, path, query)
+        assert.is_nil(path)
+        picker_query = query
+        callback({ path = 'crates/server/src/main.rs' })
+      end,
+    }
+    navigation.navigate_to_location = function(path, line, col)
+      navigated = { path = path, line = line, col = col }
+      return true
+    end
+
+    navigation.pick_file_at_cursor()
+
+    navigation.navigate_to_location = original_navigate_to_location
+    package.loaded['pi.ui.file_picker'] = original_file_picker
+    target_stub:revert()
+
+    assert.equal('partial/main.rs', picker_query)
+    assert.same({ path = 'crates/server/src/main.rs', line = 204, col = 12 }, navigated)
+  end)
+
+  it('does not open the file picker without a rendered file target', function()
+    local original_file_picker = package.loaded['pi.ui.file_picker']
+    local pick_calls = 0
+    local target_stub = stub(renderer, 'get_target_at_position').returns(nil)
+    package.loaded['pi.ui.file_picker'] = {
+      pick = function()
+        pick_calls = pick_calls + 1
+      end,
+    }
+
+    navigation.pick_file_at_cursor()
+
+    package.loaded['pi.ui.file_picker'] = original_file_picker
+    target_stub:revert()
+
+    assert.equal(0, pick_calls)
+  end)
+
   it('executes a symbol rendered target with current file contents', function()
     local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
     local original_navigate_to_location = navigation.navigate_to_location

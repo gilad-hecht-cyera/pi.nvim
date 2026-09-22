@@ -335,6 +335,10 @@ function M.actions.jump_to_file()
   require('pi.ui.navigation').jump_to_file_at_cursor()
 end
 
+function M.actions.pick_file_at_cursor()
+  require('pi.ui.navigation').pick_file_at_cursor()
+end
+
 function M.actions.jump_to_target_at_cursor()
   require('pi.ui.navigation').jump_to_target_at_cursor()
 end
@@ -547,6 +551,10 @@ M.command_defs = {
   jump_to_file = {
     desc = 'Jump to file at cursor in output window',
     execute = M.actions.jump_to_file,
+  },
+  pick_file_at_cursor = {
+    desc = 'Find file at cursor in output window',
+    execute = M.actions.pick_file_at_cursor,
   },
   jump_to_target_at_cursor = {
     desc = 'Jump to target at cursor in output window',

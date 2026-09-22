@@ -66,6 +66,13 @@ Default keymap prefix is `<leader>p`, mirroring the original opencode.nvim layou
 - `<leader>pV` select thinking level
 - `<leader>p/` quick chat
 
+In the Pi output window:
+
+- `gf` opens an exact file reference under the cursor
+- `g<Space>` opens the file picker filtered by the reference under the cursor, then jumps to its line and column
+- `gr` browses all file references from the conversation
+- `<CR>` opens any rendered navigation target under the cursor
+
 The output filetype is `pi_output`.
 
 Pasteboard images can be pasted directly in the input window with `p`, `P`, `<C-r>+`, or `<M-v>`. The image is saved to a temporary file, attached to the prompt, and previewed in a small floating window when `snacks.nvim` image support is available. Text paste keeps its normal behavior.

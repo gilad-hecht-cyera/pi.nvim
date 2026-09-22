@@ -89,6 +89,7 @@ local action_groups = {
     slash_commands = workflow.slash_commands,
     references = workflow.references,
     jump_to_file = workflow.jump_to_file,
+    pick_file_at_cursor = workflow.pick_file_at_cursor,
     jump_to_target_at_cursor = workflow.jump_to_target_at_cursor,
     debug_output = workflow.debug_output,
     debug_message = workflow.debug_message,

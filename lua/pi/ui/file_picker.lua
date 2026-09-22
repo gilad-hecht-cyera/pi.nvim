@@ -14,7 +14,7 @@ local function format_file(path)
   }
 end
 
-local function telescope_ui(callback, path)
+local function telescope_ui(callback, path, query)
   local builtin = require('telescope.builtin')
   local actions = require('telescope.actions')
   local action_state = require('telescope.actions.state')
@@ -47,11 +47,14 @@ local function telescope_ui(callback, path)
   if path then
     opts.cwd = path
   end
+  if query then
+    opts.default_text = query
+  end
 
   builtin.find_files(opts)
 end
 
-local function fzf_ui(callback, path)
+local function fzf_ui(callback, path, query)
   local fzf_lua = require('fzf-lua')
 
   local opts = {
@@ -74,11 +77,14 @@ local function fzf_ui(callback, path)
   if path then
     opts.cwd = path
   end
+  if query then
+    opts.query = query
+  end
 
   fzf_lua.files(opts)
 end
 
-local function mini_pick_ui(callback, path)
+local function mini_pick_ui(callback, path, query)
   local mini_pick = require('mini.pick')
   local opts = {
     source = {
@@ -96,9 +102,14 @@ local function mini_pick_ui(callback, path)
   end
 
   mini_pick.builtin.files(nil, opts)
+  if query and mini_pick.set_picker_query then
+    vim.schedule(function()
+      mini_pick.set_picker_query(vim.split(query, '\\zs'))
+    end)
+  end
 end
 
-local function snacks_picker_ui(callback, path)
+local function snacks_picker_ui(callback, path, query)
   local Snacks = require('snacks')
 
   local origin_win = vim.api.nvim_get_current_win()
@@ -139,11 +150,14 @@ local function snacks_picker_ui(callback, path)
   if path then
     opts.cwd = path
   end
+  if query then
+    opts.pattern = query
+  end
 
   Snacks.picker.files(opts)
 end
 
-function M.pick(callback, path)
+function M.pick(callback, path, query)
   local picker_type = picker.get_best_picker()
 
   local wrapped_callback = function(selected_file)
@@ -153,13 +167,13 @@ function M.pick(callback, path)
 
   vim.schedule(function()
     if picker_type == 'telescope' then
-      telescope_ui(wrapped_callback, path)
+      telescope_ui(wrapped_callback, path, query)
     elseif picker_type == 'fzf' then
-      fzf_ui(wrapped_callback, path)
+      fzf_ui(wrapped_callback, path, query)
     elseif picker_type == 'mini.pick' then
-      mini_pick_ui(wrapped_callback, path)
+      mini_pick_ui(wrapped_callback, path, query)
     elseif picker_type == 'snacks' then
-      snacks_picker_ui(wrapped_callback, path)
+      snacks_picker_ui(wrapped_callback, path, query)
     else
       callback(nil)
     end

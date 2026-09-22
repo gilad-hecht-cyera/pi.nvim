@@ -308,4 +308,20 @@ function M.jump_to_file_at_cursor()
   jump_to_rendered_target(target)
 end
 
+function M.pick_file_at_cursor()
+  local target = target_at_cursor(function(candidate)
+    return candidate.kind == 'file' or candidate.kind == 'file_candidate' or candidate.kind == 'diff'
+  end)
+  if not target then
+    return
+  end
+
+  local query = vim.fn.fnamemodify(target.path, ':~:.')
+  require('pi.ui.file_picker').pick(function(file)
+    if file then
+      M.navigate_to_location(file.path, target.line, target.col)
+    end
+  end, nil, query)
+end
+
 return M

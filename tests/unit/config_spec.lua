@@ -38,10 +38,11 @@ describe('pi.config', function()
     assert.same(config.defaults.keymap, config.values.keymap)
   end)
 
-  it('maps output enter to target jump while keeping gf on file jump', function()
+  it('maps output navigation keys to target actions', function()
     local output_keymap = config.defaults.keymap.output_window
 
     assert.equal('jump_to_file', output_keymap['gf'][1])
+    assert.equal('pick_file_at_cursor', output_keymap['g<Space>'][1])
     assert.equal('jump_to_target_at_cursor', output_keymap['<CR>'][1])
   end)
 

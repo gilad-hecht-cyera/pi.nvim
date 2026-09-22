@@ -814,8 +814,8 @@ local function add_file_reference_targets(output, rendered, rendered_reference_r
     local output_range = output_range_for_absolute_range(rendered, first_line_idx, range.start_offset, range.end_offset)
     if output_range then
       output:add_target({
-        kind = 'file',
-        path = range.absolute_path,
+        kind = range.absolute_path and 'file' or 'file_candidate',
+        path = range.absolute_path or range.path,
         line = range.line,
         col = range.col,
         range = output_range,
@@ -970,7 +970,7 @@ function M._format_assistant_message(output, text, part, message, context, opts)
     add_interim_text_highlights(output, rendered, first_line_idx)
   end
   if context and context.interactive then
-    add_file_reference_targets(output, rendered, rendered_reference_ranges, first_line_idx)
+    add_file_reference_targets(output, rendered, rendered_mention_ranges, first_line_idx)
   end
   add_file_reference_highlights(output, rendered, rendered_reference_ranges, first_line_idx)
   local targeted_tokens =
