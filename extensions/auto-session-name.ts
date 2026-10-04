@@ -6,7 +6,6 @@ async function generateTitle(conversation: string, ctx: ExtensionContext): Promi
 	if (!ctx.model) throw new Error("No model selected");
 	const auth = await ctx.modelRegistry.getApiKeyAndHeaders(ctx.model);
 	if (!auth.ok) throw new Error(auth.error);
-	if (!auth.apiKey) throw new Error(`No API key for ${ctx.model.provider}/${ctx.model.id}`);
 
 	const response = await complete(
 		{ ...ctx.model, maxTokens: 256 },

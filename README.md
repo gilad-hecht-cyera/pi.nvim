@@ -122,6 +122,10 @@ Useful slash commands in the input window:
 New unnamed sessions are automatically given a concise display name after their first `agent_settled` event. Existing
 and manually assigned names are never overwritten automatically.
 
+Session naming uses the selected model's resolved authentication, including AWS profiles and the credential chain
+for Amazon Bedrock; an API key is not required for those auth methods. After updating the bundled extension, run
+`/reload` in the Pi input window to restart Pi RPC, then retry `/rename` in a session with conversation history.
+
 ## Pi backend
 
 The plugin spawns Pi RPC with its bundled session-naming extension:
@@ -189,7 +193,7 @@ easier to scan:
 
 ## Development
 
-Run tests:
+Run tests (Node.js 24+ is required for the TypeScript extension tests):
 
 ```bash
 ./run_tests.sh

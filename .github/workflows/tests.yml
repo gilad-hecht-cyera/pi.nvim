@@ -44,6 +44,10 @@ jobs:
       - name: Add nvim to PATH
         run: echo "${{ steps.setup_nvim.outputs.executable }}" >> $GITHUB_PATH
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
       - name: Run tests
         run: ./run_tests.sh
 
