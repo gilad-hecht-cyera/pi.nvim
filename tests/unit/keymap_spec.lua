@@ -315,4 +315,77 @@ describe('pi.keymap', function()
       assert.equal(0, #feedkeys_calls)
     end)
   end)
+
+  describe('exit_visual', function()
+    local bufnr
+
+    before_each(function()
+      vim.keymap.set = original_keymap_set
+      vim.api.nvim_feedkeys = original_nvim_feedkeys
+      bufnr = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { 'first line', 'second line' })
+      vim.api.nvim_set_current_buf(bufnr)
+    end)
+
+    after_each(function()
+      original_nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'nx', false)
+      vim.api.nvim_buf_delete(bufnr, { force = true })
+    end)
+
+    it('leaves visual mode before running the callback', function()
+      local mode_in_callback
+      keymap.setup_window_keymaps({
+        ['i'] = {
+          function()
+            mode_in_callback = vim.fn.mode()
+          end,
+          mode = { 'n', 'x' },
+          exit_visual = true,
+        },
+      }, bufnr)
+
+      vim.api.nvim_feedkeys('vji', 'x', false)
+
+      assert.equal('n', mode_in_callback)
+      assert.equal('n', vim.fn.mode())
+    end)
+
+    it('stays in visual mode when exit_visual is not set', function()
+      local mode_in_callback
+      keymap.setup_window_keymaps({
+        ['i'] = {
+          function()
+            mode_in_callback = vim.fn.mode()
+          end,
+          mode = { 'n', 'x' },
+        },
+      }, bufnr)
+
+      vim.api.nvim_feedkeys('vji', 'x', false)
+
+      assert.equal('v', mode_in_callback)
+    end)
+
+    it('does not feed escape when already in normal mode', function()
+      local feeds = 0
+      vim.api.nvim_feedkeys = function()
+        feeds = feeds + 1
+      end
+      local callback_called = false
+      keymap.setup_window_keymaps({
+        ['i'] = {
+          function()
+            callback_called = true
+          end,
+          exit_visual = true,
+        },
+      }, bufnr)
+
+      local mapping = vim.fn.maparg('i', 'n', false, true)
+      mapping.callback()
+
+      assert.is_true(callback_called)
+      assert.equal(0, feeds)
+    end)
+  end)
 end)

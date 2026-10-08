@@ -151,6 +151,7 @@
 ---@field mode? string|string[] # Mode(s) for the keymap
 ---@field desc? string # Keymap description
 ---@field defer_to_completion? boolean # Whether to defer the keymap when completion menu is open
+---@field exit_visual? boolean # Whether to leave visual mode before running the keymap
 
 ---@class PiKeymapEditor : table<string, PiKeymapEntry>
 ---@class PiKeymapInputWindow : table<string, PiKeymapEntry>

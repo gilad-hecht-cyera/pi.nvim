@@ -20,6 +20,17 @@ local function wrap_with_completion_check(key_binding, callback)
   end
 end
 
+---@param callback function
+---@return function
+local function wrap_with_visual_exit(callback)
+  return function(...)
+    if vim.fn.mode():match('[vV\022]') then
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'nx', false)
+    end
+    return callback(...)
+  end
+end
+
 ---@param func_name string|function
 ---@param func_args any
 ---@return function|nil
@@ -83,6 +94,9 @@ local function process_keymap_entry(keymap_config, default_modes, base_opts, pre
       if callback and #modes > 0 then
         if config_entry.defer_to_completion then
           callback = wrap_with_completion_check(key_binding, callback)
+        end
+        if config_entry.exit_visual then
+          callback = wrap_with_visual_exit(callback)
         end
         vim.keymap.set(modes, key_binding, callback, opts)
       elseif type(func_name) ~= 'string' then
