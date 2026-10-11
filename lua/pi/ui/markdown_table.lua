@@ -12,6 +12,7 @@ local M = {}
 local MIN_TOTAL_WIDTH = 24
 local SHRINK_ITERATION_CAP = 10000
 local ELLIPSIS = '…'
+local RULE = '─'
 
 ---@class PiTableSegment
 ---@field orig integer 1-based byte offset in the original text
@@ -546,13 +547,18 @@ local function render_delimiter(widths, alignments, prefix)
 end
 
 ---A rule between body rows. It is still a normal table row (so the table stays
----valid GFM and column borders keep lining up) whose cells are all dashes.
+---valid GFM and column borders keep lining up) whose cells are box-drawing
+---lines. ASCII dashes cannot be used: parsers such as tree-sitter treat a
+---dash-only row as the delimiter row of a new table.
 ---@param widths integer[]
 ---@param prefix string
 local function render_row_separator(widths, prefix)
+  local rule_width = math.max(1, display_width(RULE))
   local parts = { prefix, '|' }
   for _, width in ipairs(widths) do
-    parts[#parts + 1] = ' ' .. string.rep('-', math.max(1, width)) .. ' |'
+    local count = math.max(1, math.floor(width / rule_width))
+    local pad = math.max(0, width - count * rule_width)
+    parts[#parts + 1] = ' ' .. string.rep(RULE, count) .. string.rep(' ', pad) .. ' |'
   end
   return table.concat(parts)
 end

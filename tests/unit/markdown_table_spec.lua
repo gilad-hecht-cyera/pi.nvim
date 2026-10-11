@@ -196,7 +196,7 @@ describe('pi.ui.markdown_table', function()
       local count = 0
       -- Skip the header delimiter at index 2.
       for index = 3, #out_lines do
-        if out_lines[index]:match('^[|%s%-]+$') then
+        if out_lines[index]:match('^[|%s─]+$') then
           count = count + 1
         end
       end
@@ -236,6 +236,43 @@ describe('pi.ui.markdown_table', function()
       }, '\n')
 
       assert.equals(0, separator_count(lines_of(markdown_table.reflow(text))))
+    end)
+
+    it('never emits dash-only body rows that parsers read as a new delimiter row', function()
+      setup(60, { row_separator = 'always' })
+      local text = '| a | b |\n| --- | --- |\n| 1 | 2 |\n| 3 | 4 |\n| 5 | 6 |'
+
+      local out_lines = lines_of(markdown_table.reflow(text))
+      for index = 3, #out_lines do
+        assert.is_nil(out_lines[index]:match('^[|%s:%-]+$'))
+      end
+    end)
+
+    it('keeps a reflowed table with rules as a single tree-sitter table', function()
+      setup(60, { row_separator = 'always' })
+      local text = '| a | b |\n| --- | --- |\n| 1 | 2 |\n| 3 | 4 |\n| 5 | 6 |'
+
+      local buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines_of(markdown_table.reflow(text)))
+      local ok, parser = pcall(vim.treesitter.get_parser, buf, 'markdown')
+      if not ok or not parser then
+        vim.api.nvim_buf_delete(buf, { force = true })
+        return
+      end
+
+      local tables = 0
+      local function count(node)
+        if node:type() == 'pipe_table' then
+          tables = tables + 1
+        end
+        for child in node:iter_children() do
+          count(child)
+        end
+      end
+      count(parser:parse()[1]:root())
+      vim.api.nvim_buf_delete(buf, { force = true })
+
+      assert.equals(1, tables)
     end)
 
     it('keeps separator rules the same width as the rows', function()
