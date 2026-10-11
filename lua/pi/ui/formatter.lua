@@ -940,7 +940,7 @@ function M._format_assistant_message(output, text, part, message, context, opts)
   local rendered, rendered_reference_ranges, rendered_mention_ranges =
     rendered_text_with_reference_ranges(text, references, available_file_set(context))
 
-  local reflowed, table_segments = markdown_table.reflow(rendered)
+  local reflowed, table_segments, table_highlights = markdown_table.reflow(rendered)
   if table_segments then
     rendered = reflowed
     rendered_reference_ranges = markdown_table.map_ranges(rendered_reference_ranges, table_segments)
@@ -952,6 +952,14 @@ function M._format_assistant_message(output, text, part, message, context, opts)
   output:add_lines(vim.split(rendered, '\n'))
   if opts and opts.interim then
     add_interim_text_highlights(output, rendered, first_line_idx)
+  end
+  for _, highlight in ipairs(table_segments and table_highlights or {}) do
+    output:add_extmark(first_line_idx + highlight.line - 1, {
+      start_col = highlight.start_col,
+      end_col = highlight.end_col,
+      hl_group = highlight.hl_group,
+      priority = 700,
+    })
   end
   if context and context.interactive then
     add_file_reference_targets(output, rendered, rendered_mention_ranges, first_line_idx)

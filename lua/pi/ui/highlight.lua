@@ -44,6 +44,8 @@ function M.setup()
     vim.api.nvim_set_hl(0, 'PiReference', { fg = '#5F7896', default = true })
     vim.api.nvim_set_hl(0, 'PiSymbolReference', { link = 'Identifier', default = true })
     vim.api.nvim_set_hl(0, 'PiReasoningText', { link = 'Comment', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableHeader', { link = 'Title', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableFirstColumn', { link = '@label', default = true })
     vim.api.nvim_set_hl(
       0,
       'PiAssistantInterimText',
@@ -98,6 +100,8 @@ function M.setup()
     vim.api.nvim_set_hl(0, 'PiReference', { fg = '#8AA6C8', default = true })
     vim.api.nvim_set_hl(0, 'PiSymbolReference', { link = 'Identifier', default = true })
     vim.api.nvim_set_hl(0, 'PiReasoningText', { link = 'Comment', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableHeader', { link = 'Title', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableFirstColumn', { link = '@label', default = true })
     vim.api.nvim_set_hl(
       0,
       'PiAssistantInterimText',

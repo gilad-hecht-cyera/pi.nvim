@@ -268,6 +268,7 @@
 ---@field vertical_borders? { tool?: { fg?: string, bg?: string }, user?: { fg?: string, bg?: string }, assistant?: { fg?: string, bg?: string } }
 
 ---@class PiUIOutputTablesConfig
+---@field style 'box'|'markdown' # Box-drawn code block, or a reflowed GFM table
 ---@field reflow boolean # Wrap table cell content inside each column instead of one long line
 ---@field min_column_width integer # Narrowest width a column may shrink to
 ---@field max_width integer|nil # Fixed table width in cells; output window width when nil

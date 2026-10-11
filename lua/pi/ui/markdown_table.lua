@@ -13,11 +13,24 @@ local MIN_TOTAL_WIDTH = 24
 local SHRINK_ITERATION_CAP = 10000
 local ELLIPSIS = '…'
 local RULE = '─'
+local BR_PATTERN = '<[bB][rR]%s*/?>'
+local BOX = {
+  top = { '┌', '┬', '┐', '─' },
+  head = { '╞', '╪', '╡', '═' },
+  rule = { '├', '┼', '┤', '─' },
+  bottom = { '└', '┴', '┘', '─' },
+}
 
 ---@class PiTableSegment
 ---@field orig integer 1-based byte offset in the original text
 ---@field new integer 1-based byte offset in the reflowed text
 ---@field len integer byte length of the mapped chunk
+
+---@class PiTableHighlight
+---@field line integer 1-based line in the reflowed text
+---@field start_col integer 0-based byte column
+---@field end_col integer 0-based exclusive byte column
+---@field hl_group string
 
 local function tables_config()
   local rendering = config.ui and config.ui.output and config.ui.output.rendering
@@ -173,9 +186,73 @@ local function escape_pipes(text)
   return escaped, escaped ~= text
 end
 
+---Drop backslash escapes, which have no meaning outside markdown.
+---@param text string
+local function unescape(text)
+  return (text:gsub('\\(%p)', '%1'))
+end
+
+---Whether `**` markers pair up outside inline code, so stripping them only
+---removes emphasis instead of mangling text such as `**kwargs`.
+---@param text string
+local function has_balanced_bold(text)
+  local outside = text:gsub('(`+).-%1', '')
+  local _, count = outside:gsub('%*%*+', '')
+  return count > 0 and count % 2 == 0
+end
+
+---Turn a raw markdown token into plain text for box tables: inline code fences,
+---bold markers and backslash escapes are dropped. Only the code span, or the
+---text between bold markers, keeps a mapping to the original offsets.
+---@param raw string
+---@param offset integer 1-based byte offset of `raw` in the original text
+---@param strip_bold boolean
+local function plain_token(raw, offset, strip_bold)
+  local function clean(text)
+    if strip_bold then
+      text = text:gsub('%*%*+', '')
+    end
+    return unescape(text)
+  end
+
+  local open_start, open_end = raw:find('`+')
+  if open_start then
+    local fence = raw:sub(open_start, open_end)
+    local close_start, close_end = raw:find(fence, open_end + 1, true)
+    if close_start then
+      local prefix = clean(raw:sub(1, open_start - 1))
+      local inner = raw:sub(open_end + 1, close_start - 1)
+      local code = inner:gsub('\\|', '|')
+      local text = prefix .. code .. clean(raw:sub(close_end + 1))
+      if text ~= '' then
+        local mappable = code == inner and #inner > 0
+        return {
+          text = text,
+          map = mappable and { col = #prefix + 1, orig = offset + open_end, len = #inner } or nil,
+        }
+      end
+    end
+  end
+
+  local text = clean(raw)
+  if text == '' then
+    return { text = raw, map = { col = 1, orig = offset, len = #raw } }
+  end
+
+  local lead = strip_bold and raw:match('^%*%*+') or ''
+  local core = raw:sub(#lead + 1)
+  if strip_bold then
+    core = core:match('^(.-)%*%*+[^%w%s]*$') or core
+  end
+  local mappable = #core > 0 and text:sub(1, #core) == core
+  return { text = text, map = mappable and { col = 1, orig = offset + #lead, len = #core } or nil }
+end
+
 ---Split cell content into tokens, keeping inline code spans intact.
 ---@param cell {text: string, offset: integer}
-local function tokenize(cell)
+---@param style 'box'|'markdown'
+---@param strip_bold boolean
+local function tokenize(cell, style, strip_bold)
   local text = cell.text
   local tokens = {}
   local pos = 1
@@ -199,13 +276,17 @@ local function tokenize(cell)
     end
 
     local raw = text:sub(start, stop)
-    local escaped, changed = escape_pipes(raw)
-    tokens[#tokens + 1] = {
-      text = escaped,
-      offset = cell.offset + start - 1,
-      -- Escaping shifts byte offsets, so these tokens cannot carry range mappings.
-      unmappable = changed or nil,
-    }
+    local raw_offset = cell.offset + start - 1
+    if style == 'box' then
+      tokens[#tokens + 1] = plain_token(raw, raw_offset, strip_bold)
+    else
+      local escaped, changed = escape_pipes(raw)
+      tokens[#tokens + 1] = {
+        text = escaped,
+        -- Escaping shifts byte offsets, so these tokens cannot carry range mappings.
+        map = (not changed) and { col = 1, orig = raw_offset, len = #raw } or nil,
+      }
+    end
     pos = stop + 1
   end
 
@@ -216,19 +297,38 @@ end
 ---separator reads far better than a hard mid-word cut.
 local BREAK_AFTER = { ['_'] = true, ['-'] = true, ['.'] = true, ['/'] = true, [','] = true, [':'] = true, [')'] = true }
 
+---Restrict a piece mapping to bytes `from..to` of the piece text, for a chunk
+---that places byte `from` at column `col`.
+---@param map {col: integer, orig: integer, len: integer}|nil
+---@param from integer
+---@param to integer
+---@param col integer
+local function slice_map(map, from, to, col)
+  if not map then
+    return nil
+  end
+  local first = math.max(from, map.col)
+  local last = math.min(to, map.col + map.len - 1)
+  if last < first then
+    return nil
+  end
+  return { col = col + first - from, orig = map.orig + first - map.col, len = last - first + 1 }
+end
+
 ---Split a token that is wider than the column into chunks. Inline code spans are
 ---re-fenced on every chunk so the markdown stays valid after wrapping.
----@param token {text: string, offset: integer}
+---@param token {text: string, map?: {col: integer, orig: integer, len: integer}}
 ---@param width integer
-local function break_token(token, width)
-  local fence = token.text:match('^`+')
+---@param refence boolean
+local function break_token(token, width, refence)
+  local fence = refence and token.text:match('^`+') or nil
   local inner = token.text
-  local inner_offset = token.offset
+  local inner_start = 1
   local chunk_width = width
 
   if fence and token.text:sub(-#fence) == fence and #token.text > 2 * #fence and width > 2 * #fence then
     inner = token.text:sub(#fence + 1, -#fence - 1)
-    inner_offset = token.offset + #fence
+    inner_start = #fence + 1
     chunk_width = width - 2 * #fence
   else
     fence = nil
@@ -267,12 +367,10 @@ local function break_token(token, width)
     end
 
     local body = table.concat(units, '', index, last)
+    local from = inner_start + byte_offset
     chunks[#chunks + 1] = {
       text = fence and (fence .. body .. fence) or body,
-      offset = inner_offset + byte_offset,
-      truncated_len = #body,
-      col_offset = fence and #fence or 0,
-      unmappable = token.unmappable,
+      map = slice_map(token.map, from, from + #body - 1, 1 + (fence and #fence or 0)),
     }
 
     byte_offset = byte_offset + bytes
@@ -282,12 +380,14 @@ local function break_token(token, width)
   return chunks
 end
 
----Wrap tokens into lines of at most `width` display cells.
----@return {text: string, offset: integer}[][]
-local function wrap_tokens(tokens, width)
+---Wrap tokens into lines of at most `width` display cells. `hard_break` tokens
+---(from `<br>`) always start a new line.
+---@return {text: string, map?: table}[][]
+local function wrap_tokens(tokens, width, refence)
   local lines = {}
   local current = {}
   local current_width = 0
+  local after_break = false
 
   local function flush()
     if #current > 0 then
@@ -298,10 +398,16 @@ local function wrap_tokens(tokens, width)
   end
 
   for _, token in ipairs(tokens) do
-    local token_width = display_width(token.text)
-    if token_width > width then
+    local token_width = token.hard_break and 0 or display_width(token.text)
+    if token.hard_break then
+      if #current > 0 then
+        flush()
+      elseif after_break then
+        lines[#lines + 1] = {}
+      end
+    elseif token_width > width then
       flush()
-      for _, chunk in ipairs(break_token(token, width)) do
+      for _, chunk in ipairs(break_token(token, width, refence)) do
         lines[#lines + 1] = { chunk }
       end
     elseif current_width == 0 then
@@ -315,6 +421,7 @@ local function wrap_tokens(tokens, width)
       current = { token }
       current_width = token_width
     end
+    after_break = token.hard_break == true
   end
   flush()
 
@@ -337,10 +444,14 @@ local function compute_widths(rows_tokens, column_count, total_width, min_width)
   for _, row in ipairs(rows_tokens) do
     for column = 1, column_count do
       local width = 0
-      for index, token in ipairs(row[column] or {}) do
-        width = width + display_width(token.text) + (index > 1 and 1 or 0)
+      for _, token in ipairs(row[column] or {}) do
+        if token.hard_break then
+          width = 0
+        else
+          width = width + display_width(token.text) + (width > 0 and 1 or 0)
+          natural[column] = math.max(natural[column], width)
+        end
       end
-      natural[column] = math.max(natural[column], width)
     end
   end
 
@@ -394,6 +505,10 @@ local function truncate_pieces(pieces, width)
   local kept = {}
   local used = 0
 
+  pieces = vim.tbl_filter(function(piece)
+    return not piece.hard_break
+  end, pieces)
+
   for index, piece in ipairs(pieces) do
     local separator = index > 1 and 1 or 0
     local piece_width = display_width(piece.text)
@@ -418,14 +533,12 @@ local function truncate_pieces(pieces, width)
       if byte_len > 0 then
         kept[#kept + 1] = {
           text = table.concat(text) .. ELLIPSIS,
-          offset = piece.offset,
-          truncated_len = byte_len,
-          unmappable = piece.unmappable,
+          map = slice_map(piece.map, 1, byte_len, 1),
         }
       elseif used + separator + 1 <= width then
         kept[#kept + 1] = { text = ELLIPSIS }
       elseif #kept > 0 then
-        kept[#kept] = { text = ELLIPSIS, offset = kept[#kept].offset, truncated_len = 0 }
+        kept[#kept] = { text = ELLIPSIS }
       end
       break
     end
@@ -449,9 +562,8 @@ local function render_cell(pieces, width, alignment)
       col = col + 1
     end
     parts[#parts + 1] = piece.text
-    local mapped_len = piece.truncated_len or #piece.text
-    if piece.offset and not piece.unmappable and mapped_len > 0 then
-      mapped[#mapped + 1] = { col = col + (piece.col_offset or 0), orig = piece.offset, len = mapped_len }
+    if piece.map then
+      mapped[#mapped + 1] = { col = col + piece.map.col - 1, orig = piece.map.orig, len = piece.map.len }
     end
     col = col + #piece.text
   end
@@ -486,7 +598,10 @@ end
 ---@param prefix string
 ---@param single_line? boolean Truncate instead of wrapping (required for header rows,
 ---which must stay adjacent to the delimiter row to remain a valid GFM table)
-local function render_row(row_cells, widths, alignments, prefix, single_line)
+---@param bar? string Column border, `|` unless given
+local function render_row(row_cells, widths, alignments, prefix, single_line, bar)
+  bar = bar or '|'
+  local refence = bar == '|'
   local column_count = #widths
   local wrapped = {}
   local height = 1
@@ -495,16 +610,17 @@ local function render_row(row_cells, widths, alignments, prefix, single_line)
     if single_line then
       wrapped[column] = { truncate_pieces(row_cells[column] or {}, widths[column]) }
     else
-      wrapped[column] = wrap_tokens(row_cells[column] or {}, widths[column])
+      wrapped[column] = wrap_tokens(row_cells[column] or {}, widths[column], refence)
       height = math.max(height, #wrapped[column])
     end
   end
 
   local lines = {}
   for line_index = 1, height do
-    local parts = { prefix, '|' }
-    local col = #prefix + 2
+    local parts = { prefix, bar }
+    local col = #prefix + #bar + 1
     local mapped = {}
+    local cells = {}
 
     for column = 1, column_count do
       local pieces = wrapped[column][line_index] or {}
@@ -514,13 +630,18 @@ local function render_row(row_cells, widths, alignments, prefix, single_line)
       for _, entry in ipairs(cell_mapped) do
         mapped[#mapped + 1] = { col = col + entry.col - 1, orig = entry.orig, len = entry.len }
       end
+      local first = content:find('%S')
+      if first then
+        local last = #content - #content:match('%s*$')
+        cells[column] = { col = col + first - 1, len = last - first + 1 }
+      end
       parts[#parts + 1] = content
       col = col + #content
-      parts[#parts + 1] = ' |'
-      col = col + 2
+      parts[#parts + 1] = ' ' .. bar
+      col = col + 1 + #bar
     end
 
-    lines[#lines + 1] = { text = table.concat(parts), mapped = mapped }
+    lines[#lines + 1] = { text = table.concat(parts), mapped = mapped, cells = cells }
   end
 
   return lines
@@ -563,7 +684,38 @@ local function render_row_separator(widths, prefix)
   return table.concat(parts)
 end
 
-local function row_tokens(cells, column_count)
+---@param widths integer[]
+---@param prefix string
+---@param chars string[] left, junction, right and fill characters
+local function render_box_border(widths, prefix, chars)
+  local parts = { prefix, chars[1] }
+  for column, width in ipairs(widths) do
+    parts[#parts + 1] = string.rep(chars[4], width + 2)
+    parts[#parts + 1] = column < #widths and chars[2] or chars[3]
+  end
+  return table.concat(parts)
+end
+
+---Split a cell at `<br>` tags into consecutive sub-cells.
+---@param cell {text: string, offset: integer}
+---@return {text: string, offset: integer}[]
+local function split_breaks(cell)
+  local parts = {}
+  local pos = 1
+  while true do
+    local from, to = cell.text:find(BR_PATTERN, pos)
+    if not from then
+      break
+    end
+    parts[#parts + 1] = { text = cell.text:sub(pos, from - 1), offset = cell.offset + pos - 1 }
+    pos = to + 1
+  end
+  parts[#parts + 1] = { text = cell.text:sub(pos), offset = cell.offset + pos - 1 }
+  return parts
+end
+
+---@param style 'box'|'markdown'
+local function row_tokens(cells, column_count, style)
   local columns = {}
   for column = 1, column_count do
     columns[column] = {}
@@ -571,13 +723,30 @@ local function row_tokens(cells, column_count)
 
   for index, cell in ipairs(cells) do
     local column = math.min(index, column_count)
-    local tokens = tokenize(cell)
-    for _, token in ipairs(tokens) do
-      table.insert(columns[column], token)
+    local strip_bold = style == 'box' and has_balanced_bold(cell.text)
+    for part_index, part in ipairs(split_breaks(cell)) do
+      if part_index > 1 then
+        table.insert(columns[column], { hard_break = true })
+      end
+      for _, token in ipairs(tokenize(part, style, strip_bold)) do
+        table.insert(columns[column], token)
+      end
     end
   end
 
   return columns
+end
+
+---Fence long enough that no backtick run inside the table can close it.
+---@param lines {text: string}[]
+local function code_fence(lines)
+  local longest = 0
+  for _, line in ipairs(lines) do
+    for run in line.text:gmatch('`+') do
+      longest = math.max(longest, #run)
+    end
+  end
+  return string.rep('`', math.max(3, longest + 1))
 end
 
 local function block_prefix(line)
@@ -592,10 +761,13 @@ local function is_fence(line)
   return line:match('^%s*```') ~= nil or line:match('^%s*~~~') ~= nil
 end
 
----Reflow every GFM table found in `text`.
+---Reflow every GFM table found in `text`. With the default `box` style each
+---table becomes a ```box code block drawn with box characters; the `markdown`
+---style keeps a GFM table.
 ---@param text string
 ---@return string reflowed
 ---@return PiTableSegment[]|nil segments nil when the text was left untouched
+---@return PiTableHighlight[]|nil highlights header and first-column cells of box tables
 function M.reflow(text)
   if type(text) ~= 'string' or text == '' then
     return text, nil
@@ -619,17 +791,28 @@ function M.reflow(text)
 
   local total_width = M.available_width()
   local min_width = math.max(1, math.floor(settings.min_column_width or 8))
+  local style = settings.style == 'markdown' and 'markdown' or 'box'
 
   local out_lines = {}
   local segments = {}
+  local highlights = {}
   local new_offset = 1
 
   ---@param line string
   ---@param mapped {col: integer, orig: integer, len: integer}[]|nil
-  local function emit(line, mapped)
+  ---@param cells? {col: integer, len: integer}[]
+  ---@param header? boolean
+  local function emit(line, mapped, cells, header)
     out_lines[#out_lines + 1] = line
     for _, entry in ipairs(mapped or {}) do
       segments[#segments + 1] = { orig = entry.orig, new = new_offset + entry.col - 1, len = entry.len }
+    end
+    for column, cell in pairs(cells or {}) do
+      local group = header and 'PiTableHeader' or (column == 1 and 'PiTableFirstColumn' or nil)
+      if group then
+        highlights[#highlights + 1] =
+          { line = #out_lines, start_col = cell.col - 1, end_col = cell.col - 1 + cell.len, hl_group = group }
+      end
     end
     new_offset = new_offset + #line + 1
   end
@@ -664,7 +847,7 @@ function M.reflow(text)
         index = index + 1
       else
         local column_count = #alignments
-        local rows = { row_tokens(split_cells(line, line_offsets[index]), column_count) }
+        local rows = { row_tokens(split_cells(line, line_offsets[index]), column_count, style) }
         local last = index + 1
 
         local cursor = index + 2
@@ -673,17 +856,19 @@ function M.reflow(text)
           if not body:find('|', 1, true) or block_prefix(body) ~= prefix or is_fence(body) then
             break
           end
-          rows[#rows + 1] = row_tokens(split_cells(body, line_offsets[cursor]), column_count)
+          rows[#rows + 1] = row_tokens(split_cells(body, line_offsets[cursor]), column_count, style)
           last = cursor
           cursor = cursor + 1
         end
 
         local widths = compute_widths(rows, column_count, total_width - #prefix, min_width)
+        local box = style == 'box'
 
         local rendered_rows = {}
         local any_multiline = false
         for row_index, row in ipairs(rows) do
-          rendered_rows[row_index] = render_row(row, widths, alignments, prefix, row_index == 1)
+          rendered_rows[row_index] =
+            render_row(row, widths, alignments, prefix, not box and row_index == 1, box and '│' or '|')
           if row_index > 1 and #rendered_rows[row_index] > 1 then
             any_multiline = true
           end
@@ -692,16 +877,41 @@ function M.reflow(text)
         local separator_mode = settings.row_separator or 'auto'
         local separate_rows = separator_mode == 'always' or (separator_mode == 'auto' and any_multiline)
 
+        local table_lines = {}
+        local function push(text_line, mapped, cells, header)
+          table_lines[#table_lines + 1] = { text = text_line, mapped = mapped, cells = cells, header = header }
+        end
+
+        if box then
+          push(render_box_border(widths, prefix, BOX.top))
+        end
         for row_index, rendered in ipairs(rendered_rows) do
           if separate_rows and row_index > 2 then
-            emit(render_row_separator(widths, prefix), nil)
+            push(box and render_box_border(widths, prefix, BOX.rule) or render_row_separator(widths, prefix))
           end
-          for _, line in ipairs(rendered) do
-            emit(line.text, line.mapped)
+          for _, rendered_line in ipairs(rendered) do
+            push(
+              rendered_line.text,
+              rendered_line.mapped,
+              box and (row_index == 1 or column_count > 1) and rendered_line.cells or nil,
+              box and row_index == 1
+            )
           end
-          if row_index == 1 then
-            emit(render_delimiter(widths, alignments, prefix), nil)
+          if row_index == 1 and not box then
+            push(render_delimiter(widths, alignments, prefix))
+          elseif row_index == 1 and #rendered_rows > 1 then
+            push(render_box_border(widths, prefix, BOX.head))
           end
+        end
+
+        if box then
+          local fence = code_fence(table_lines)
+          emit(prefix .. fence .. 'box', nil)
+          push(render_box_border(widths, prefix, BOX.bottom))
+          push(prefix .. fence)
+        end
+        for _, table_line in ipairs(table_lines) do
+          emit(table_line.text, table_line.mapped, table_line.cells, table_line.header)
         end
 
         index = last + 1
@@ -713,7 +923,7 @@ function M.reflow(text)
   if reflowed == text then
     return text, nil
   end
-  return reflowed, segments
+  return reflowed, segments, highlights
 end
 
 ---Translate offset ranges from the original text into the reflowed text.

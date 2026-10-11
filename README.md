@@ -158,14 +158,35 @@ as its user message enters the conversation stream.
 
 ## Markdown table rendering
 
-Wide markdown tables are reflowed so each cell wraps inside its own column
-instead of producing one very long line that soft-wraps into an unreadable
-blob. Column widths are fitted to the output window using display width (so
-emoji and CJK text keep the borders aligned); the widest columns give up space
-first, and header rows are truncated with `…` so the table stays valid GFM.
+Markdown tables are reflowed so each cell wraps inside its own column instead
+of producing one very long line that soft-wraps into an unreadable blob.
+Column widths are fitted to the output window using display width (so emoji
+and CJK text keep the borders aligned), and the widest columns give up space
+first.
 
-Long unbreakable tokens are split at `_ - . / , : )` boundaries where possible,
-and inline code spans are re-fenced on each line so backticks stay balanced.
+By default (`style = "box"`) each table is drawn as plain text with box
+characters inside a ```` ```box ```` code block, so no markdown renderer
+re-parses it:
+
+```
+┌─────────┬──────────────────────┬───────────────────────┐
+│         │ Logs                 │ Metrics               │
+╞═════════╪══════════════════════╪═══════════════════════╡
+│ Shape   │ Append-only stream   │ Cumulative state,     │
+│         │                      │ rendered on demand    │
+└─────────┴──────────────────────┴───────────────────────┘
+```
+
+Box tables are plain text: inline code backticks, paired `**` bold markers and
+backslash escapes are dropped, and `<br>` starts a new line inside the cell.
+Header cells use the `PiTableHeader` highlight (linked to `Title`) and the
+first column uses `PiTableFirstColumn` (linked to `@label`); override either
+with `vim.api.nvim_set_hl`.
+
+With `style = "markdown"` the output stays a GFM table. Header rows are then
+truncated with `…` so the table stays valid GFM, long unbreakable tokens are
+split at `_ - . / , : )` boundaries where possible, and inline code spans are
+re-fenced on each line so backticks stay balanced.
 
 ```lua
 require("pi").setup({
@@ -173,6 +194,7 @@ require("pi").setup({
     output = {
       rendering = {
         tables = {
+          style = "box", -- 'box' | 'markdown'
           reflow = true, -- set false to keep the raw table text
           min_column_width = 8, -- narrowest a column may shrink to
           max_width = nil, -- fixed width in cells; output window width when nil

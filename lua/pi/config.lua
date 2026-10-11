@@ -196,6 +196,8 @@ M.defaults = {
         event_throttle_ms = 40,
         event_collapsing = true,
         tables = {
+          -- 'box' renders tables as box-drawn ```box code blocks; 'markdown' keeps GFM tables.
+          style = 'box',
           -- Reflow markdown tables so each cell wraps inside its own column
           -- instead of emitting one very long soft-wrapped line.
           reflow = true,

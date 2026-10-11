@@ -578,6 +578,24 @@ describe('formatter', function()
     })
   end)
 
+  it('highlights box table headers and first column cells', function()
+    config.setup({ ui = { output = { rendering = { tables = { style = 'box', max_width = 60 } } } } })
+
+    local output = Output.new()
+    formatter._format_assistant_message(output, '| key | value |\n| --- | --- |\n| a | 1 |', { id = 'part_table' })
+
+    local highlighted = {}
+    for line_idx, marks in pairs(output.extmarks) do
+      for _, mark in ipairs(marks) do
+        local text = output.lines[line_idx + 1]:sub(mark.start_col + 1, mark.end_col)
+        highlighted[#highlighted + 1] = mark.hl_group .. ':' .. text
+      end
+    end
+    table.sort(highlighted)
+
+    assert.are.same({ 'PiTableFirstColumn:a', 'PiTableHeader:key', 'PiTableHeader:value' }, highlighted)
+  end)
+
   it('does not create symbol targets without local candidate files', function()
     local original_symbol_snapshot = package.loaded['pi.ui.symbol_snapshot']
 
