@@ -46,6 +46,10 @@ function M.setup()
     vim.api.nvim_set_hl(0, 'PiReasoningText', { link = 'Comment', default = true })
     vim.api.nvim_set_hl(0, 'PiTableHeader', { link = 'Title', default = true })
     vim.api.nvim_set_hl(0, 'PiTableFirstColumn', { link = '@label', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableBold', { link = '@markup.strong', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableItalic', { link = '@markup.italic', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableCode', { link = '@markup.raw.markdown_inline', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableStrikethrough', { link = '@markup.strikethrough', default = true })
     vim.api.nvim_set_hl(
       0,
       'PiAssistantInterimText',
@@ -102,6 +106,10 @@ function M.setup()
     vim.api.nvim_set_hl(0, 'PiReasoningText', { link = 'Comment', default = true })
     vim.api.nvim_set_hl(0, 'PiTableHeader', { link = 'Title', default = true })
     vim.api.nvim_set_hl(0, 'PiTableFirstColumn', { link = '@label', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableBold', { link = '@markup.strong', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableItalic', { link = '@markup.italic', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableCode', { link = '@markup.raw.markdown_inline', default = true })
+    vim.api.nvim_set_hl(0, 'PiTableStrikethrough', { link = '@markup.strikethrough', default = true })
     vim.api.nvim_set_hl(
       0,
       'PiAssistantInterimText',

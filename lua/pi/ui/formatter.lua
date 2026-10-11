@@ -958,7 +958,7 @@ function M._format_assistant_message(output, text, part, message, context, opts)
       start_col = highlight.start_col,
       end_col = highlight.end_col,
       hl_group = highlight.hl_group,
-      priority = 700,
+      priority = highlight.priority,
     })
   end
   if context and context.interactive then

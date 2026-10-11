@@ -177,11 +177,20 @@ re-parses it:
 └─────────┴──────────────────────┴───────────────────────┘
 ```
 
-Box tables are plain text: inline code backticks, paired `**` bold markers and
-backslash escapes are dropped, and `<br>` starts a new line inside the cell.
+Box tables are plain text: markdown markers and backslash escapes are dropped,
+and `<br>` starts a new line inside the cell. Inline formatting is restored as
+highlights instead:
+
+- `**bold**` / `__bold__` → `PiTableBold` (linked to `@markup.strong`)
+- `*italic*` / `_italic_` → `PiTableItalic` (linked to `@markup.italic`)
+- `` `code` `` → `PiTableCode` (linked to `@markup.raw.markdown_inline`)
+- `~~struck~~` → `PiTableStrikethrough` (linked to `@markup.strikethrough`)
+
+Emphasis follows the CommonMark delimiter rules, so `snake_case`, `**kwargs`
+and `a * b` stay literal, and markers inside code spans are kept as written.
 Header cells use the `PiTableHeader` highlight (linked to `Title`) and the
-first column uses `PiTableFirstColumn` (linked to `@label`); override either
-with `vim.api.nvim_set_hl`.
+first column uses `PiTableFirstColumn` (linked to `@label`); override any of
+these with `vim.api.nvim_set_hl`.
 
 With `style = "markdown"` the output stays a GFM table. Header rows are then
 truncated with `…` so the table stays valid GFM, long unbreakable tokens are

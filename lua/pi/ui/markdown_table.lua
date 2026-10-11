@@ -31,6 +31,7 @@ local BOX = {
 ---@field start_col integer 0-based byte column
 ---@field end_col integer 0-based exclusive byte column
 ---@field hl_group string
+---@field priority integer
 
 local function tables_config()
   local rendering = config.ui and config.ui.output and config.ui.output.rendering
@@ -186,73 +187,247 @@ local function escape_pipes(text)
   return escaped, escaped ~= text
 end
 
----Drop backslash escapes, which have no meaning outside markdown.
----@param text string
-local function unescape(text)
-  return (text:gsub('\\(%p)', '%1'))
+local STYLES = {
+  { key = 'bold', group = 'PiTableBold' },
+  { key = 'italic', group = 'PiTableItalic' },
+  { key = 'code', group = 'PiTableCode' },
+  { key = 'strike', group = 'PiTableStrikethrough' },
+}
+
+---@param char string|nil
+local function is_space(char)
+  return char == nil or char:match('^%s$') ~= nil
 end
 
----Whether `**` markers pair up outside inline code, so stripping them only
----removes emphasis instead of mangling text such as `**kwargs`.
----@param text string
-local function has_balanced_bold(text)
-  local outside = text:gsub('(`+).-%1', '')
-  local _, count = outside:gsub('%*%*+', '')
-  return count > 0 and count % 2 == 0
+---@param char string|nil
+local function is_punct(char)
+  return char ~= nil and char:match('^[!-/:-@%[-`{-~]$') ~= nil
 end
 
----Turn a raw markdown token into plain text for box tables: inline code fences,
----bold markers and backslash escapes are dropped. Only the code span, or the
----text between bold markers, keeps a mapping to the original offsets.
----@param raw string
----@param offset integer 1-based byte offset of `raw` in the original text
----@param strip_bold boolean
-local function plain_token(raw, offset, strip_bold)
-  local function clean(text)
-    if strip_bold then
-      text = text:gsub('%*%*+', '')
+---Collect the backtick run starting at `index`.
+---@return integer last index of the run's last backtick
+local function backtick_run(chars, index)
+  local last = index
+  while chars[last + 1] and chars[last + 1].text == '`' do
+    last = last + 1
+  end
+  return last
+end
+
+---Turn a code span into literal units. GFM keeps `\|` as a pipe escape inside
+---table code spans; everything else is taken verbatim.
+local function push_code_span(units, chars, from, to)
+  local all_space = true
+  for index = from, to do
+    if chars[index].text ~= ' ' then
+      all_space = false
+      break
     end
-    return unescape(text)
+  end
+  if not all_space and to > from and chars[from].text == ' ' and chars[to].text == ' ' then
+    from, to = from + 1, to - 1
   end
 
-  local open_start, open_end = raw:find('`+')
-  if open_start then
-    local fence = raw:sub(open_start, open_end)
-    local close_start, close_end = raw:find(fence, open_end + 1, true)
-    if close_start then
-      local prefix = clean(raw:sub(1, open_start - 1))
-      local inner = raw:sub(open_end + 1, close_start - 1)
-      local code = inner:gsub('\\|', '|')
-      local text = prefix .. code .. clean(raw:sub(close_end + 1))
-      if text ~= '' then
-        local mappable = code == inner and #inner > 0
-        return {
-          text = text,
-          map = mappable and { col = #prefix + 1, orig = offset + open_end, len = #inner } or nil,
-        }
+  local index = from
+  while index <= to do
+    local char = chars[index]
+    if char.text == '\\' and index < to and chars[index + 1].text == '|' then
+      char = chars[index + 1]
+      index = index + 1
+    end
+    units[#units + 1] = { text = char.text, orig = char.orig, code = true }
+    index = index + 1
+  end
+end
+
+---Split text into units, resolving backslash escapes and code spans. Emphasis
+---delimiters are kept as units tagged with `delim` for the matching pass.
+---@param part {text: string, offset: integer}
+local function inline_units(part)
+  local chars = {}
+  for pos, char in part.text:gmatch('()([%z\1-\127\194-\244][\128-\191]*)') do
+    chars[#chars + 1] = { text = char, orig = part.offset + pos - 1 }
+  end
+
+  local units = {}
+  local index = 1
+  while index <= #chars do
+    local char = chars[index]
+    local next_char = chars[index + 1]
+
+    if char.text == '\\' and next_char and is_punct(next_char.text) then
+      units[#units + 1] = { text = next_char.text, orig = next_char.orig }
+      index = index + 2
+    elseif char.text == '`' then
+      local open_last = backtick_run(chars, index)
+      local length = open_last - index + 1
+      local close_first = nil
+      local cursor = open_last + 1
+      while cursor <= #chars do
+        if chars[cursor].text == '`' then
+          local run_last = backtick_run(chars, cursor)
+          if run_last - cursor + 1 == length then
+            close_first = cursor
+            break
+          end
+          cursor = run_last + 1
+        else
+          cursor = cursor + 1
+        end
+      end
+
+      if close_first then
+        push_code_span(units, chars, open_last + 1, close_first - 1)
+        index = close_first + length
+      else
+        for literal = index, open_last do
+          units[#units + 1] = { text = '`', orig = chars[literal].orig }
+        end
+        index = open_last + 1
+      end
+    else
+      local delim = (char.text == '*' or char.text == '_' or char.text == '~') and char.text or nil
+      units[#units + 1] = { text = char.text, orig = char.orig, delim = delim }
+      index = index + 1
+    end
+  end
+
+  return units
+end
+
+---Group delimiter units into runs and decide whether each run can open or
+---close emphasis, following the CommonMark flanking rules. `_` inside a word
+---(as in snake_case) can do neither; `~` only counts as a pair (`~~`).
+local function delimiter_runs(units)
+  local runs = {}
+  local index = 1
+  while index <= #units do
+    local delim = units[index].delim
+    if delim then
+      local last = index
+      while units[last + 1] and units[last + 1].delim == delim do
+        last = last + 1
+      end
+
+      local before = units[index - 1] and units[index - 1].text
+      local after = units[last + 1] and units[last + 1].text
+      local left = not is_space(after) and (not is_punct(after) or is_space(before) or is_punct(before))
+      local right = not is_space(before) and (not is_punct(before) or is_space(after) or is_punct(after))
+
+      local can_open, can_close = left, right
+      if delim == '_' then
+        can_open = left and (not right or is_punct(before))
+        can_close = right and (not left or is_punct(after))
+      elseif delim == '~' and last - index ~= 1 then
+        can_open, can_close = false, false
+      end
+
+      runs[#runs + 1] = { char = delim, first = index, last = last, can_open = can_open, can_close = can_close }
+      index = last + 1
+    else
+      index = index + 1
+    end
+  end
+  return runs
+end
+
+---Match emphasis delimiters, mark the markers as removed and tag the units in
+---between with `bold`, `italic` or `strike`.
+local function apply_emphasis(units)
+  local runs = delimiter_runs(units)
+
+  for closer_index, closer in ipairs(runs) do
+    local opener_index = closer_index - 1
+    while closer.can_close and closer.first <= closer.last and opener_index >= 1 do
+      local opener = runs[opener_index]
+      if opener.char == closer.char and opener.can_open and opener.first <= opener.last then
+        local use = (opener.last > opener.first and closer.last > closer.first) and 2 or 1
+        local key = closer.char == '~' and 'strike' or (use == 2 and 'bold' or 'italic')
+
+        for unit = opener.last - use + 1, opener.last do
+          units[unit].removed = true
+        end
+        for unit = closer.first, closer.first + use - 1 do
+          units[unit].removed = true
+        end
+        for unit = opener.last + 1, closer.first - 1 do
+          units[unit][key] = true
+        end
+
+        opener.last = opener.last - use
+        closer.first = closer.first + use
+        for between = opener_index + 1, closer_index - 1 do
+          runs[between].can_open = false
+          runs[between].can_close = false
+        end
+      else
+        opener_index = opener_index - 1
+      end
+    end
+  end
+end
+
+---Extend the last range of `ranges` when `col` continues it, else append.
+local function extend_range(ranges, col, len, fields)
+  for index = #ranges, 1, -1 do
+    local range = ranges[index]
+    if range.group == fields.group then
+      local contiguous = range.col + range.len == col and (not fields.orig or range.orig + range.len == fields.orig)
+      if contiguous then
+        range.len = range.len + len
+        return
+      end
+      break
+    end
+  end
+  ranges[#ranges + 1] = vim.tbl_extend('force', { col = col, len = len }, fields)
+end
+
+---Parse a cell (or a `<br>`-separated part of one) into plain-text tokens for
+---box tables. Markdown markers are dropped; `maps` keeps the original offsets
+---and `styles` records which bytes were bold, italic, code or struck through.
+---`joins` lists styles that continue over the whitespace after a token.
+---@param part {text: string, offset: integer}
+local function box_tokens(part)
+  local units = inline_units(part)
+  apply_emphasis(units)
+
+  local tokens = {}
+  local current = nil
+  for _, unit in ipairs(units) do
+    if is_space(unit.text) and not unit.removed then
+      if current then
+        for _, style in ipairs(STYLES) do
+          if unit[style.key] then
+            current.joins = current.joins or {}
+            current.joins[style.group] = true
+          end
+        end
+      end
+      current = nil
+    elseif not unit.removed then
+      if not current then
+        current = { text = '', maps = {}, styles = {} }
+        tokens[#tokens + 1] = current
+      end
+
+      local col = #current.text + 1
+      current.text = current.text .. unit.text
+      extend_range(current.maps, col, #unit.text, { orig = unit.orig })
+      for _, style in ipairs(STYLES) do
+        if unit[style.key] then
+          extend_range(current.styles, col, #unit.text, { group = style.group })
+        end
       end
     end
   end
 
-  local text = clean(raw)
-  if text == '' then
-    return { text = raw, map = { col = 1, orig = offset, len = #raw } }
-  end
-
-  local lead = strip_bold and raw:match('^%*%*+') or ''
-  local core = raw:sub(#lead + 1)
-  if strip_bold then
-    core = core:match('^(.-)%*%*+[^%w%s]*$') or core
-  end
-  local mappable = #core > 0 and text:sub(1, #core) == core
-  return { text = text, map = mappable and { col = 1, orig = offset + #lead, len = #core } or nil }
+  return tokens
 end
 
 ---Split cell content into tokens, keeping inline code spans intact.
 ---@param cell {text: string, offset: integer}
----@param style 'box'|'markdown'
----@param strip_bold boolean
-local function tokenize(cell, style, strip_bold)
+local function tokenize(cell)
   local text = cell.text
   local tokens = {}
   local pos = 1
@@ -276,17 +451,12 @@ local function tokenize(cell, style, strip_bold)
     end
 
     local raw = text:sub(start, stop)
-    local raw_offset = cell.offset + start - 1
-    if style == 'box' then
-      tokens[#tokens + 1] = plain_token(raw, raw_offset, strip_bold)
-    else
-      local escaped, changed = escape_pipes(raw)
-      tokens[#tokens + 1] = {
-        text = escaped,
-        -- Escaping shifts byte offsets, so these tokens cannot carry range mappings.
-        map = (not changed) and { col = 1, orig = raw_offset, len = #raw } or nil,
-      }
-    end
+    local escaped, changed = escape_pipes(raw)
+    tokens[#tokens + 1] = {
+      text = escaped,
+      -- Escaping shifts byte offsets, so these tokens cannot carry range mappings.
+      maps = changed and {} or { { col = 1, orig = cell.offset + start - 1, len = #raw } },
+    }
     pos = stop + 1
   end
 
@@ -297,27 +467,32 @@ end
 ---separator reads far better than a hard mid-word cut.
 local BREAK_AFTER = { ['_'] = true, ['-'] = true, ['.'] = true, ['/'] = true, [','] = true, [':'] = true, [')'] = true }
 
----Restrict a piece mapping to bytes `from..to` of the piece text, for a chunk
----that places byte `from` at column `col`.
----@param map {col: integer, orig: integer, len: integer}|nil
+---Restrict ranges to bytes `from..to` of the piece text, for a chunk that
+---places byte `from` at column `col`. Works for offset maps and style ranges.
+---@param ranges {col: integer, len: integer, orig?: integer, group?: string}[]|nil
 ---@param from integer
 ---@param to integer
 ---@param col integer
-local function slice_map(map, from, to, col)
-  if not map then
-    return nil
+local function slice_ranges(ranges, from, to, col)
+  local sliced = {}
+  for _, range in ipairs(ranges or {}) do
+    local first = math.max(from, range.col)
+    local last = math.min(to, range.col + range.len - 1)
+    if first <= last then
+      sliced[#sliced + 1] = {
+        col = col + first - from,
+        len = last - first + 1,
+        orig = range.orig and (range.orig + first - range.col) or nil,
+        group = range.group,
+      }
+    end
   end
-  local first = math.max(from, map.col)
-  local last = math.min(to, map.col + map.len - 1)
-  if last < first then
-    return nil
-  end
-  return { col = col + first - from, orig = map.orig + first - map.col, len = last - first + 1 }
+  return sliced
 end
 
 ---Split a token that is wider than the column into chunks. Inline code spans are
 ---re-fenced on every chunk so the markdown stays valid after wrapping.
----@param token {text: string, map?: {col: integer, orig: integer, len: integer}}
+---@param token {text: string, maps?: table[], styles?: table[]}
 ---@param width integer
 ---@param refence boolean
 local function break_token(token, width, refence)
@@ -368,9 +543,11 @@ local function break_token(token, width, refence)
 
     local body = table.concat(units, '', index, last)
     local from = inner_start + byte_offset
+    local chunk_col = 1 + (fence and #fence or 0)
     chunks[#chunks + 1] = {
       text = fence and (fence .. body .. fence) or body,
-      map = slice_map(token.map, from, from + #body - 1, 1 + (fence and #fence or 0)),
+      maps = slice_ranges(token.maps, from, from + #body - 1, chunk_col),
+      styles = slice_ranges(token.styles, from, from + #body - 1, chunk_col),
     }
 
     byte_offset = byte_offset + bytes
@@ -533,7 +710,8 @@ local function truncate_pieces(pieces, width)
       if byte_len > 0 then
         kept[#kept + 1] = {
           text = table.concat(text) .. ELLIPSIS,
-          map = slice_map(piece.map, 1, byte_len, 1),
+          maps = slice_ranges(piece.maps, 1, byte_len, 1),
+          styles = slice_ranges(piece.styles, 1, byte_len, 1),
         }
       elseif used + separator + 1 <= width then
         kept[#kept + 1] = { text = ELLIPSIS }
@@ -547,14 +725,21 @@ local function truncate_pieces(pieces, width)
   return kept
 end
 
----@param pieces {text: string, offset: integer}[]
+---Join pieces into a padded cell. A style that ends one piece, continues over
+---the joining space (`joins`) and starts the next is merged into one range, so
+---`**two words**` is highlighted as a whole.
+---@param pieces {text: string, maps?: table[], styles?: table[]}[]
 ---@param width integer
 ---@param alignment string
----@return string content, {col: integer, orig: integer, len: integer}[] mapped
+---@return string content
+---@return {col: integer, orig: integer, len: integer}[] mapped
+---@return {col: integer, len: integer, group: string}[] styled
 local function render_cell(pieces, width, alignment)
   local parts = {}
   local mapped = {}
+  local styled = {}
   local col = 1
+  local tails = {}
 
   for index, piece in ipairs(pieces) do
     if index > 1 then
@@ -562,9 +747,26 @@ local function render_cell(pieces, width, alignment)
       col = col + 1
     end
     parts[#parts + 1] = piece.text
-    if piece.map then
-      mapped[#mapped + 1] = { col = col + piece.map.col - 1, orig = piece.map.orig, len = piece.map.len }
+    for _, map in ipairs(piece.maps or {}) do
+      mapped[#mapped + 1] = { col = col + map.col - 1, orig = map.orig, len = map.len }
     end
+
+    local piece_tails = {}
+    for _, style in ipairs(piece.styles or {}) do
+      local start = col + style.col - 1
+      local entry = style.col == 1 and tails[style.group] or nil
+      if entry then
+        entry.len = start + style.len - entry.col
+      else
+        entry = { col = start, len = style.len, group = style.group }
+        styled[#styled + 1] = entry
+      end
+      if style.col + style.len - 1 == #piece.text and piece.joins and piece.joins[style.group] then
+        piece_tails[style.group] = entry
+      end
+    end
+    tails = piece_tails
+
     col = col + #piece.text
   end
 
@@ -586,10 +788,13 @@ local function render_cell(pieces, width, alignment)
     for _, entry in ipairs(mapped) do
       entry.col = entry.col + left_pad
     end
+    for _, entry in ipairs(styled) do
+      entry.col = entry.col + left_pad
+    end
   end
   content = content .. string.rep(' ', pad - left_pad)
 
-  return content, mapped
+  return content, mapped, styled
 end
 
 ---@param row_cells {text: string, offset: integer}[][] tokens per column
@@ -620,15 +825,19 @@ local function render_row(row_cells, widths, alignments, prefix, single_line, ba
     local parts = { prefix, bar }
     local col = #prefix + #bar + 1
     local mapped = {}
+    local styled = {}
     local cells = {}
 
     for column = 1, column_count do
       local pieces = wrapped[column][line_index] or {}
-      local content, cell_mapped = render_cell(pieces, widths[column], alignments[column] or 'left')
+      local content, cell_mapped, cell_styled = render_cell(pieces, widths[column], alignments[column] or 'left')
       parts[#parts + 1] = ' '
       col = col + 1
       for _, entry in ipairs(cell_mapped) do
         mapped[#mapped + 1] = { col = col + entry.col - 1, orig = entry.orig, len = entry.len }
+      end
+      for _, entry in ipairs(cell_styled) do
+        styled[#styled + 1] = { col = col + entry.col - 1, len = entry.len, group = entry.group }
       end
       local first = content:find('%S')
       if first then
@@ -641,7 +850,7 @@ local function render_row(row_cells, widths, alignments, prefix, single_line, ba
       col = col + 1 + #bar
     end
 
-    lines[#lines + 1] = { text = table.concat(parts), mapped = mapped, cells = cells }
+    lines[#lines + 1] = { text = table.concat(parts), mapped = mapped, cells = cells, styled = styled }
   end
 
   return lines
@@ -723,12 +932,11 @@ local function row_tokens(cells, column_count, style)
 
   for index, cell in ipairs(cells) do
     local column = math.min(index, column_count)
-    local strip_bold = style == 'box' and has_balanced_bold(cell.text)
     for part_index, part in ipairs(split_breaks(cell)) do
       if part_index > 1 then
         table.insert(columns[column], { hard_break = true })
       end
-      for _, token in ipairs(tokenize(part, style, strip_bold)) do
+      for _, token in ipairs(style == 'box' and box_tokens(part) or tokenize(part)) do
         table.insert(columns[column], token)
       end
     end
@@ -767,7 +975,7 @@ end
 ---@param text string
 ---@return string reflowed
 ---@return PiTableSegment[]|nil segments nil when the text was left untouched
----@return PiTableHighlight[]|nil highlights header and first-column cells of box tables
+---@return PiTableHighlight[]|nil highlights header, first-column and inline styles of box tables
 function M.reflow(text)
   if type(text) ~= 'string' or text == '' then
     return text, nil
@@ -800,19 +1008,26 @@ function M.reflow(text)
 
   ---@param line string
   ---@param mapped {col: integer, orig: integer, len: integer}[]|nil
-  ---@param cells? {col: integer, len: integer}[]
-  ---@param header? boolean
-  local function emit(line, mapped, cells, header)
+  ---@param extra? {cells?: table[], header?: boolean, styled?: table[]}
+  local function emit(line, mapped, extra)
+    extra = extra or {}
     out_lines[#out_lines + 1] = line
     for _, entry in ipairs(mapped or {}) do
       segments[#segments + 1] = { orig = entry.orig, new = new_offset + entry.col - 1, len = entry.len }
     end
-    for column, cell in pairs(cells or {}) do
-      local group = header and 'PiTableHeader' or (column == 1 and 'PiTableFirstColumn' or nil)
+
+    local function highlight(col, len, group, priority)
+      highlights[#highlights + 1] =
+        { line = #out_lines, start_col = col - 1, end_col = col - 1 + len, hl_group = group, priority = priority }
+    end
+    for column, cell in pairs(extra.cells or {}) do
+      local group = extra.header and 'PiTableHeader' or (column == 1 and 'PiTableFirstColumn' or nil)
       if group then
-        highlights[#highlights + 1] =
-          { line = #out_lines, start_col = cell.col - 1, end_col = cell.col - 1 + cell.len, hl_group = group }
+        highlight(cell.col, cell.len, group, 700)
       end
+    end
+    for _, entry in ipairs(extra.styled or {}) do
+      highlight(entry.col, entry.len, entry.group, 710)
     end
     new_offset = new_offset + #line + 1
   end
@@ -878,8 +1093,8 @@ function M.reflow(text)
         local separate_rows = separator_mode == 'always' or (separator_mode == 'auto' and any_multiline)
 
         local table_lines = {}
-        local function push(text_line, mapped, cells, header)
-          table_lines[#table_lines + 1] = { text = text_line, mapped = mapped, cells = cells, header = header }
+        local function push(text_line, mapped, extra)
+          table_lines[#table_lines + 1] = { text = text_line, mapped = mapped, extra = extra }
         end
 
         if box then
@@ -890,12 +1105,11 @@ function M.reflow(text)
             push(box and render_box_border(widths, prefix, BOX.rule) or render_row_separator(widths, prefix))
           end
           for _, rendered_line in ipairs(rendered) do
-            push(
-              rendered_line.text,
-              rendered_line.mapped,
-              box and (row_index == 1 or column_count > 1) and rendered_line.cells or nil,
-              box and row_index == 1
-            )
+            push(rendered_line.text, rendered_line.mapped, {
+              cells = box and (row_index == 1 or column_count > 1) and rendered_line.cells or nil,
+              header = box and row_index == 1,
+              styled = rendered_line.styled,
+            })
           end
           if row_index == 1 and not box then
             push(render_delimiter(widths, alignments, prefix))
@@ -911,7 +1125,7 @@ function M.reflow(text)
           push(prefix .. fence)
         end
         for _, table_line in ipairs(table_lines) do
-          emit(table_line.text, table_line.mapped, table_line.cells, table_line.header)
+          emit(table_line.text, table_line.mapped, table_line.extra)
         end
 
         index = last + 1

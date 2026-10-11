@@ -506,6 +506,121 @@ describe('pi.ui.markdown_table', function()
       assert.same({}, highlights)
     end)
 
+    describe('inline styles', function()
+      local function styles_of(text)
+        local out, _, highlights = markdown_table.reflow(text)
+        local out_lines = lines_of(out)
+        local seen = {}
+        for _, highlight in ipairs(highlights) do
+          if highlight.priority == 710 then
+            local styled_text = out_lines[highlight.line]:sub(highlight.start_col + 1, highlight.end_col)
+            seen[#seen + 1] = highlight.hl_group .. ':' .. styled_text
+          end
+        end
+        return seen, out_lines
+      end
+
+      local function cell(content)
+        return '| a |\n| --- |\n| ' .. content .. ' |'
+      end
+
+      it('highlights bold, italic, code and strikethrough', function()
+        local seen = styles_of(cell('**b** *i* _u_ `c` ~~s~~'))
+        assert.same({
+          'PiTableBold:b',
+          'PiTableItalic:i',
+          'PiTableItalic:u',
+          'PiTableCode:c',
+          'PiTableStrikethrough:s',
+        }, seen)
+      end)
+
+      it('keeps one range for emphasis spanning several words', function()
+        assert.same({ 'PiTableBold:two bold words' }, styles_of(cell('x **two bold words** y')))
+      end)
+
+      it('keeps separate ranges for adjacent emphasis spans', function()
+        assert.same({ 'PiTableBold:a', 'PiTableBold:b' }, styles_of(cell('**a** **b**')))
+      end)
+
+      it('nests bold and italic for triple stars', function()
+        local seen = styles_of(cell('***both***'))
+        table.sort(seen)
+        assert.same({ 'PiTableBold:both', 'PiTableItalic:both' }, seen)
+      end)
+
+      it('handles emphasis inside a word', function()
+        local seen, out_lines = styles_of(cell('foo**bar**baz'))
+        assert.same({ 'PiTableBold:bar' }, seen)
+        assert.is_not_nil(out_lines[5]:find('foobarbaz', 1, true))
+      end)
+
+      it('leaves markers inside code spans literal', function()
+        local seen, out_lines = styles_of(cell('`**not bold**`'))
+        assert.same({ 'PiTableCode:**not bold**' }, seen)
+        assert.is_not_nil(out_lines[5]:find('**not bold**', 1, true))
+      end)
+
+      it('leaves intraword underscores and unmatched markers alone', function()
+        local seen, out_lines = styles_of(cell('snake_case_name **kwargs a * b ~single~'))
+        assert.same({}, seen)
+        assert.is_not_nil(out_lines[5]:find('snake_case_name **kwargs a * b ~single~', 1, true))
+      end)
+
+      it('treats escaped markers as literal text', function()
+        local seen, out_lines = styles_of(cell('\\*not italic\\*'))
+        assert.same({}, seen)
+        assert.is_not_nil(out_lines[5]:find('*not italic*', 1, true))
+      end)
+
+      it('keeps a style on every line when it wraps', function()
+        setup(30, { style = 'box' })
+        local seen = styles_of(cell('**a long bold phrase that has to wrap**'))
+        assert.is_true(#seen > 1)
+        local joined = {}
+        for _, entry in ipairs(seen) do
+          assert.matches('^PiTableBold:', entry)
+          joined[#joined + 1] = entry:gsub('^PiTableBold:', '')
+        end
+        assert.equals('a long bold phrase that has to wrap', table.concat(joined, ' '))
+      end)
+
+      it('keeps a style on every chunk of a broken token', function()
+        setup(30, { style = 'box' })
+        local token = 'averyveryverylongidentifier_without_spaces'
+        local seen = styles_of(cell('`' .. token .. '`'))
+        assert.is_true(#seen > 1)
+        local joined = {}
+        for _, entry in ipairs(seen) do
+          joined[#joined + 1] = entry:gsub('^PiTableCode:', '')
+        end
+        assert.equals(token, table.concat(joined))
+      end)
+
+      it('shifts styles with cell alignment', function()
+        local seen = styles_of('| a | b |\n| ---: | :---: |\n| **r** | *c* |\n| longer | longer |')
+        assert.same({ 'PiTableBold:r', 'PiTableItalic:c' }, seen)
+      end)
+
+      it('maps file references inside bold text', function()
+        local text = cell('**see lua/pi/init.lua**')
+        local needle = 'lua/pi/init.lua'
+        local start_offset = text:find(needle, 1, true)
+        local out, segments = markdown_table.reflow(text)
+        local range = { start_offset = start_offset, end_offset = start_offset + #needle - 1 }
+        local mapped = markdown_table.map_ranges({ range }, segments)
+
+        assert.equals(1, #mapped)
+        assert.equals(needle, out:sub(mapped[1].start_offset, mapped[1].end_offset))
+      end)
+
+      it('adds no inline styles in markdown style', function()
+        setup(60, { style = 'markdown' })
+        local _, _, highlights = markdown_table.reflow(cell('**b** `c`'))
+        assert.same({}, highlights)
+      end)
+    end)
+
     it('parses as a single code block', function()
       local text = '| a | b |\n| --- | --- |\n| 1 | 2 |\n| 3 | 4 |'
       local buf = vim.api.nvim_create_buf(false, true)
