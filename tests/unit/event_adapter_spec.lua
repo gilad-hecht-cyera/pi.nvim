@@ -97,4 +97,104 @@ describe('event_adapter', function()
     })
     assert.are.equal(1, vim.tbl_count(part_ids))
   end)
+  local function reasoning_parts()
+    local parts = {}
+    for _, event in ipairs(events) do
+      if event.type == 'message.part.updated' and event.properties.part.type == 'reasoning' then
+        table.insert(parts, event.properties.part)
+      end
+    end
+    return parts
+  end
+
+  it('emits streamed thinking as reasoning parts with one stable id', function()
+    event_adapter.handle_event({
+      type = 'message_start',
+      message = { role = 'assistant', content = {}, responseId = 'assistant_think', timestamp = 1 },
+    })
+    event_adapter.handle_event({
+      type = 'message_update',
+      assistantMessageEvent = { type = 'thinking_start', contentIndex = 0 },
+    })
+    event_adapter.handle_event({
+      type = 'message_update',
+      assistantMessageEvent = { type = 'thinking_delta', contentIndex = 0, delta = 'pondering' },
+    })
+    event_adapter.handle_event({
+      type = 'message_update',
+      assistantMessageEvent = { type = 'text_start', contentIndex = 1 },
+    })
+    event_adapter.handle_event({
+      type = 'message_update',
+      assistantMessageEvent = { type = 'text_delta', contentIndex = 1, delta = 'answer' },
+    })
+    event_adapter.handle_event({
+      type = 'message_end',
+      message = {
+        role = 'assistant',
+        content = {
+          { type = 'thinking', thinking = 'pondering deeply' },
+          { type = 'text', text = 'answer' },
+        },
+        responseId = 'assistant_think',
+        timestamp = 1,
+      },
+    })
+
+    local parts = reasoning_parts()
+    local ids = {}
+    for _, part in ipairs(parts) do
+      ids[part.id] = true
+      assert.is_nil(part.synthetic)
+    end
+    assert.are.equal(1, vim.tbl_count(ids))
+    assert.are.equal('pondering', parts[2].text)
+    assert.are.equal('pondering deeply', parts[#parts].text)
+
+    for _, event in ipairs(events) do
+      local part = event.properties and event.properties.part
+      if part and part.type == 'text' then
+        assert.is_falsy(part.text:find('pondering', 1, true))
+      end
+    end
+  end)
+
+  it('converts thinking from history into reasoning parts', function()
+    local messages = event_adapter.messages_from_pi({
+      {
+        role = 'assistant',
+        responseId = 'assistant_hist',
+        timestamp = 1,
+        content = {
+          { type = 'thinking', thinking = 'hidden thoughts' },
+          { type = 'text', text = 'visible answer' },
+        },
+      },
+    })
+
+    local parts = messages[1].parts
+    assert.are.equal('reasoning', parts[1].type)
+    assert.are.equal('hidden thoughts', parts[1].text)
+    assert.is_nil(parts[1].synthetic)
+    assert.are.equal('text', parts[2].type)
+    assert.are.equal('visible answer', parts[2].text)
+  end)
+
+  it('emits thinking from full messages as reasoning parts', function()
+    event_adapter.emit_messages({
+      {
+        role = 'assistant',
+        responseId = 'assistant_full',
+        timestamp = 1,
+        content = {
+          { type = 'thinking', thinking = 'full thoughts' },
+          { type = 'text', text = 'full answer' },
+        },
+      },
+    })
+
+    local parts = reasoning_parts()
+    assert.are.equal(1, #parts)
+    assert.are.equal('full thoughts', parts[1].text)
+  end)
 end)

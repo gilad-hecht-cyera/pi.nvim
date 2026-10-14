@@ -421,6 +421,61 @@ describe('formatter', function()
     }, output.targets[1])
   end)
 
+  describe('reasoning parts', function()
+    local function format_reasoning(part)
+      local message = {
+        info = { id = 'msg_reasoning', role = 'assistant' },
+        parts = { part },
+      }
+      return formatter.format_part(part, message, false, {})
+    end
+
+    it('renders an icon-only header without the Reasoning label', function()
+      local output = format_reasoning({ id = 'part_reasoning', type = 'reasoning', text = 'some thoughts' })
+
+      assert.are.equal('**󰧑**', output.lines[1])
+      assert.is_true(vim.tbl_contains(output.lines, 'some thoughts'))
+      assert.is_falsy(table.concat(output.lines, '\n'):find('Reasoning', 1, true))
+    end)
+
+    it('appends the duration after the icon', function()
+      local output = format_reasoning({
+        id = 'part_reasoning',
+        type = 'reasoning',
+        text = 'timed thoughts',
+        time = { start = 1000, ['end'] = 4000 },
+      })
+
+      assert.is_truthy(output.lines[1]:match('^%*%*󰧑%*%* %S'))
+    end)
+
+    it('falls back to the Reasoning label when the icon preset has no reasoning icon', function()
+      config.setup({ ui = { icons = { preset = 'text' } } })
+
+      local ok, output = pcall(format_reasoning, { id = 'part_reasoning', type = 'reasoning', text = 'plain thoughts' })
+      config.setup({ ui = { icons = { preset = 'nerdfonts' } } })
+
+      assert.is_true(ok, output)
+      assert.are.equal('**Reasoning**', output.lines[1])
+    end)
+
+    it('highlights the reasoning body with PiReasoningText', function()
+      local output = format_reasoning({ id = 'part_reasoning', type = 'reasoning', text = 'line one\nline two' })
+
+      local body_line = nil
+      for index, line in ipairs(output.lines) do
+        if line == 'line two' then
+          body_line = index - 1
+        end
+      end
+      assert.is_not_nil(body_line)
+      local hl_groups = vim.tbl_map(function(extmark)
+        return extmark.line_hl_group
+      end, output.extmarks[body_line] or {})
+      assert.is_true(vim.tbl_contains(hl_groups, 'PiReasoningText'))
+    end)
+  end)
+
   it('marks interim assistant text with elevated priority', function()
     local text = '**Planning heuristic search**'
     local part = { id = 'part_interim', type = 'text', text = text }

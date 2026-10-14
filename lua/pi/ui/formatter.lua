@@ -65,16 +65,17 @@ function M._format_reasoning(output, part)
 
   local start_line = output:get_line_count() + 1
 
-  local title = 'Reasoning'
+  local icon = vim.trim(icons.get('reasoning'))
+  local header = '**' .. (icon ~= '' and icon or 'Reasoning') .. '**'
   local time = part.time
   if time and type(time) == 'table' and time.start then
     local duration_text = util.format_duration_seconds(time.start, time['end'])
     if duration_text then
-      title = string.format('%s %s', title, duration_text)
+      header = string.format('%s %s', header, duration_text)
     end
   end
 
-  format_utils.format_action(output, icons.get('reasoning'), title, '')
+  output:add_line(header)
 
   local show = config.ui.output.tools.show_reasoning_output
   local use_folds = config.ui.output.tools.use_folds
