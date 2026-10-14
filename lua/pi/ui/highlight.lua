@@ -128,4 +128,15 @@ function M.setup()
   end
 end
 
+---Re-apply the plugin highlight groups whenever a colorscheme is loaded.
+---Colorschemes run `:highlight clear`, which wipes attribute-only groups such as `PiReasoningText`.
+function M.reapply_on_colorscheme()
+  vim.api.nvim_create_autocmd('ColorScheme', {
+    group = vim.api.nvim_create_augroup('PiHighlights', { clear = true }),
+    callback = function()
+      M.setup()
+    end,
+  })
+end
+
 return M

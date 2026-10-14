@@ -39,7 +39,9 @@ function M.setup(opts)
   local config = require('pi.config')
   config.setup(opts)
 
-  require('pi.ui.highlight').setup()
+  local highlight = require('pi.ui.highlight')
+  highlight.setup()
+  highlight.reapply_on_colorscheme()
 
   state = require('pi.state')
   state.store.subscribe('pi_server', on_pi_server)
