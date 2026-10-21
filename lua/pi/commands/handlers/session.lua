@@ -627,6 +627,56 @@ function M.actions.timeline()
   end)
 end
 
+local function fork_in_current_session(state_obj, message_to_fork)
+  state_obj.api_client
+    :fork_session(state_obj.active_session.id, {
+      messageID = message_to_fork,
+    })
+    :and_then(function(response)
+      vim.schedule(function()
+        if response and response.cancelled then
+          return
+        end
+
+        if response and response.id then
+          vim.notify('Session forked successfully. New session ID: ' .. response.id, vim.log.levels.INFO)
+          if response.session then
+            state_obj.session.set_active(response.session)
+            if state_obj.ui.is_visible() then
+              require('pi.ui.ui').render_output()
+            end
+          else
+            session_runtime.switch_session(response.id)
+          end
+          return
+        end
+
+        if response and response.text ~= nil then
+          require('pi.ui.input_window').set_content(response.text or '')
+        end
+        vim.notify('Forked to new session', vim.log.levels.INFO)
+      end)
+    end)
+    :catch(function(err)
+      notify_error('Failed to fork session: ', err)
+    end)
+end
+
+local function fork_into_tab(state_obj, message_to_fork)
+  local tabs = require('pi.services.tabs')
+  return state_obj.api_client
+    :resolve_fork_entry_id(message_to_fork)
+    :and_then(function(entry_id)
+      return tabs.fork_into_tab({ entry_id = entry_id })
+    end)
+    :and_then(function()
+      return session_runtime.open({ new_session = false, focus = 'input', start_insert = true })
+    end)
+    :catch(function(err)
+      notify_error('Failed to fork session: ', err)
+    end)
+end
+
 ---@param message_id? string
 function M.actions.fork_session(message_id)
   return with_active_session('No active session to fork', function(state_obj)
@@ -641,38 +691,14 @@ function M.actions.fork_session(message_id)
       return
     end
 
-    state_obj.api_client
-      :fork_session(state_obj.active_session.id, {
-        messageID = message_to_fork,
-      })
-      :and_then(function(response)
-        vim.schedule(function()
-          if response and response.cancelled then
-            return
-          end
-
-          if response and response.id then
-            vim.notify('Session forked successfully. New session ID: ' .. response.id, vim.log.levels.INFO)
-            if response.session then
-              state_obj.session.set_active(response.session)
-              if state_obj.ui.is_visible() then
-                require('pi.ui.ui').render_output()
-              end
-            else
-              session_runtime.switch_session(response.id)
-            end
-            return
-          end
-
-          if response and response.text ~= nil then
-            require('pi.ui.input_window').set_content(response.text or '')
-          end
-          vim.notify('Forked to new session', vim.log.levels.INFO)
-        end)
-      end)
-      :catch(function(err)
-        notify_error('Failed to fork session: ', err)
-      end)
+    require('pi.services.tabs').choose_fork_target({
+      tab = function()
+        fork_into_tab(state_obj, message_to_fork)
+      end,
+      current = function()
+        fork_in_current_session(state_obj, message_to_fork)
+      end,
+    })
   end)
 end
 

@@ -317,7 +317,36 @@ function M.pick(sessions, callback, opts)
       fn = Promise.async(function(selected, opts)
         local state = require('pi.state')
         local session_runtime = require('pi.services.session_runtime')
-        local new_session = state.api_client:fork_session(selected.id):await()
+        local tabs = require('pi.services.tabs')
+        local forked = Promise.new()
+        tabs.choose_fork_target({
+          tab = function()
+            local path = selected.sessionFile or selected.path or selected.id
+            tabs
+              .fork_into_tab({ source_path = path })
+              :and_then(function()
+                forked:resolve(nil)
+              end)
+              :catch(function(err)
+                vim.notify('[pi.nvim] ' .. tostring(err), vim.log.levels.ERROR)
+                forked:resolve(nil)
+              end)
+          end,
+          current = function()
+            state.api_client
+              :fork_session(selected.id)
+              :and_then(function(new_session)
+                forked:resolve(new_session)
+              end)
+              :catch(function(err)
+                forked:reject(err)
+              end)
+          end,
+          cancel = function()
+            forked:resolve(nil)
+          end,
+        })
+        local new_session = forked:await()
         if new_session then
           session_runtime.switch_session(new_session.id):await()
           table.insert(opts.items, 1, new_session)

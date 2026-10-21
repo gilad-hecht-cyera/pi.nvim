@@ -270,20 +270,115 @@ function M.new(opts)
   end)
 end
 
----Open a new tab holding a fork of the active tab's session at its current position.
----The fork happens in the new tab's process (`pi --fork`), so the source tab keeps running.
+---@class PiForkIntoTabOpts
+---@field source_path? string Session file to fork; defaults to the active tab's session
+---@field entry_id? string Fork from this earlier user entry instead of the current position
+
+local function source_session_file(opts)
+  if opts.source_path then
+    return Promise.new():resolve(opts.source_path)
+  end
+  return tab_runtimes.active().rpc_client:get_state():and_then(function(pi_state)
+    return pi_state and pi_state.sessionFile
+  end)
+end
+
+---The new tab's process starts from `pi --fork <source>`, a full copy. An entry fork then
+---branches that copy in-process, and the copy is deleted because nothing else uses it.
+---@return Promise<{ path: string, text: string|nil }>
+local function fork_in_new_process(entry_id)
+  local rpc = require('pi.rpc_client').get()
+  return rpc:get_state():and_then(function(copy)
+    if not entry_id then
+      return { path = copy.sessionFile }
+    end
+    return rpc
+      :fork(entry_id)
+      :and_then(function(response)
+        if response and response.cancelled then
+          return { path = copy.sessionFile }
+        end
+        return rpc:get_state():and_then(function(forked)
+          if forked.sessionFile and forked.sessionFile ~= copy.sessionFile then
+            os.remove(copy.sessionFile)
+          end
+          return { path = forked.sessionFile, text = response and response.text }
+        end)
+      end)
+      :catch(function(err)
+        vim.notify(
+          '[pi.nvim] Fork from message failed, the new tab forks at the current position: ' .. tostring(err),
+          vim.log.levels.WARN
+        )
+        return { path = copy.sessionFile }
+      end)
+  end)
+end
+
+---Open a new tab holding a fork of a session. The fork happens in the new tab's process,
+---so the source tab keeps running untouched.
+---@param opts? PiForkIntoTabOpts
+---@return Promise<PiTabRuntime>
+function M.fork_into_tab(opts)
+  opts = opts or {}
+  local source_title = session_title(state.active_session)
+  return source_session_file(opts):and_then(function(path)
+    if not path or not vim.uv.fs_stat(path) then
+      return Promise.new():reject('Nothing to fork yet: the session has no saved messages')
+    end
+    if opts.source_path then
+      local source = require('pi.pi_sessions').get_by_path(path)
+      source_title = source and source.title
+    end
+    local name = require('pi.api_client').next_fork_title(source_title)
+    local prompt_text
+    return open_tab({ extra_args = { '--fork', path } }, function()
+      return fork_in_new_process(opts.entry_id):and_then(function(result)
+        prompt_text = result.text
+        local rpc = require('pi.rpc_client').get()
+        return rpc
+          :set_session_name(name)
+          :catch(function() end)
+          :and_then(function()
+            return require('pi.session').get_by_id(result.path)
+          end)
+      end)
+    end):and_then(function(runtime)
+      if prompt_text and prompt_text ~= '' and tab_runtimes.is_active(runtime.id) then
+        state.ui.set_input_content(vim.split(prompt_text, '\n'))
+        sync_input_buffer()
+      end
+      return runtime
+    end)
+  end)
+end
+
+---Fork the active tab's session at its current position into a new tab.
 ---@return Promise<PiTabRuntime>
 function M.fork_current()
-  return tab_runtimes.active().rpc_client:get_state():and_then(function(pi_state)
-    local path = pi_state and pi_state.sessionFile
-    if not path or not vim.uv.fs_stat(path) then
-      return Promise.new():reject('Nothing to fork yet: the current session has no saved messages')
+  return M.fork_into_tab()
+end
+
+local FORK_CHOICES = { 'New tab', 'Replace current session' }
+
+---Run `handlers.tab` or `handlers.current` according to `ui.tabs.fork_target`, asking when it is `ask`.
+---`handlers.cancel` runs when the question is dismissed.
+---@param handlers { tab: fun(), current: fun(), cancel?: fun() }
+function M.choose_fork_target(handlers)
+  local target = require('pi.config').ui.tabs.fork_target
+  if target == 'tab' then
+    return handlers.tab()
+  elseif target == 'current' then
+    return handlers.current()
+  end
+  vim.ui.select(FORK_CHOICES, { prompt = 'Fork into:' }, function(choice)
+    if choice == FORK_CHOICES[1] then
+      handlers.tab()
+    elseif choice == FORK_CHOICES[2] then
+      handlers.current()
+    elseif handlers.cancel then
+      handlers.cancel()
     end
-    return open_tab({ extra_args = { '--fork', path } }, function()
-      return require('pi.rpc_client').get():get_state():and_then(function(forked)
-        return require('pi.session').get_by_id(forked.sessionFile)
-      end)
-    end)
   end)
 end
 

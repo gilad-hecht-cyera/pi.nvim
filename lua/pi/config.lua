@@ -178,6 +178,9 @@ M.defaults = {
       },
     },
     picker_width = 100,
+    tabs = {
+      fork_target = 'ask',
+    },
     display_model = true,
     display_context_size = true,
     display_cost = true,

@@ -60,7 +60,12 @@ M.command_defs = {
   name = forwarded('name', 'Set Pi session display name'),
   changelog = forwarded('changelog', 'Show Pi changelog entries'),
   hotkeys = forwarded('hotkeys', 'Show Pi keyboard shortcuts'),
-  fork = forwarded('fork', 'Create a new fork from a previous user message'),
+  fork = {
+    desc = 'Create a new fork from a previous user message',
+    execute = function(args)
+      return require('pi.commands.handlers.tab').actions.fork_routed(args)
+    end,
+  },
   clone = forwarded('clone', 'Duplicate current Pi session at the current position'),
   trust = forwarded('trust', 'Save project trust decision for future sessions'),
   login = forwarded('login', 'Configure Pi provider authentication'),

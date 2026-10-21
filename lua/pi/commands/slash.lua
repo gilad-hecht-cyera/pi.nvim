@@ -108,7 +108,9 @@ local function builtin_commands()
     end),
     pi_command('/name', 'Set Pi session display name', 'name', true),
     pi_command('/tree', 'Open Pi session tree in Pi', 'tree', false),
-    pi_command('/fork', 'Fork current Pi session in Pi', 'fork', true),
+    local_command('/fork', 'Fork from a previous user message', function(args)
+      return require('pi.commands.handlers.tab').actions.fork_routed(args)
+    end, true),
     pi_command('/clone', 'Clone current Pi branch in Pi', 'clone', false),
     pi_command('/copy', 'Copy last assistant message in Pi', 'copy', false),
     pi_command('/export', 'Export Pi session in Pi', 'export', true),

@@ -76,6 +76,8 @@ The sidebar can hold several Pi sessions at once. Each tab runs its own `pi --mo
 - `:Pi tab goto <n>` jumps to a tab by number
 - `:Pi tab close` / `<leader>pw` closes the active tab, aborting it first if it is running
 
+Fork actions (`[F]ork` on a message, the timeline and session pickers' `<C-f>`, `:Pi fork`, `/fork`) ask whether to fork into a new tab or replace the current session. Set `ui.tabs.fork_target` to `'tab'` or `'current'` to skip the question.
+
 With more than one tab, the output window's top bar shows a clickable tab strip; `●` marks tabs that are running. Selecting a session that is already open in another tab switches to that tab instead of opening it twice.
 
 In the Pi output window:

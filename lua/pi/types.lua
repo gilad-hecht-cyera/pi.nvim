@@ -240,6 +240,10 @@
 ---@field completion PiCompletionConfig
 ---@field highlights? PiHighlightConfig
 ---@field picker PiUIPickerConfig
+---@field tabs PiUITabsConfig
+
+---@class PiUITabsConfig
+---@field fork_target 'ask'|'tab'|'current' # Where fork actions put the fork: ask, always a new tab, or replace the current session
 
 ---Window-local options applied to the input window.
 ---Any valid Neovim window-local option (`:h window-variable`) can be set here.

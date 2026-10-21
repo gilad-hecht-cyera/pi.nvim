@@ -108,7 +108,7 @@ Findings:
 - A mid-stream fork copies only what has been persisted. It can end on an assistant tool call with no result; prompting it still worked.
 - Pi writes a new session file lazily, on the first persisted entry. `get_state.sessionFile` may point to a file that does not exist yet.
 - Loading a session runs extension hooks that append entries (e.g. `plannotator` custom entries). So a second process must never open a session owned by another tab, even read-only. `--fork` is the only safe way to branch from a live session.
-- After an entry fork, the new session's header has `parentSession` pointing to the intermediate copy. Deleting the intermediate leaves that link dangling. Pi's docs describe it only as lineage metadata; verify nothing breaks (e.g. `/resume`, session tree) when implementing step 5.
+- After an entry fork, the new session's header has `parentSession` pointing to the intermediate copy. Deleting the intermediate leaves that link dangling. Verified in step 5: pi.nvim never reads `parentSession`; Pi loads the session, and `get_messages` / `get_tree` work. Pi's `/resume` tree shows a session with a missing parent as a root, so the fork no longer appears nested under the original.
 - `PiProcess:start()` registered its `VimLeavePre` cleanup in a shared augroup with `clear = true`, so with several processes only the last one would be stopped on exit. Fixed in step 2: the registry owns a single `VimLeavePre` that stops every tab.
 - **Startup cost**: each tab spawns a `pi` process.
 
@@ -124,6 +124,6 @@ Each step is a separate jj change.
 2. ~~Per-tab runtime registry~~ (done): `lua/pi/tab_runtimes.lua` owns a process and RPC client per tab. `PiProcess.get()` / `RpcClient.get()` return the active tab's. Events from background tabs are not rendered; responses and `streaming` tracking still work.
 3. ~~Per-tab state on switch~~ (done): `services/tabs.lua` (`switch`, `new`, `close`), `state/tab_scope.lua`, per-tab output view and input draft, mid-stream replay.
 4. ~~Tab commands and the tab bar~~ (done): `:Pi tab new|fork|next|prev|close|goto`, keymaps, clickable strip in the output winbar (`ui/tabbar.lua`), and switching to the owning tab when a session is already open elsewhere.
-5. Route fork entry points through `fork_target`.
+5. ~~Route fork entry points through `fork_target`~~ (done): `[F]ork`, the timeline picker, `:Pi fork`, `/fork`, and the session picker `<C-f>` ask "New tab" / "Replace current session". Forks into a tab are named `FORK <n> <title>` like in-place forks, and an entry fork prefills the input with the forked prompt. Undo/revert still forks in place.
 6. Background status and notifications.
 7. Persist and restore tabs per cwd.

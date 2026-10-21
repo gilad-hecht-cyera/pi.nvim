@@ -5,6 +5,10 @@ local event_adapter = require('pi.event_adapter')
 local tab_runtimes = require('pi.tab_runtimes')
 local RpcClient = require('pi.rpc_client')
 
+local function match_fork_name(title)
+  return require('luassert.match').matches('^FORK %d+ ' .. vim.pesc(title) .. '$')
+end
+
 describe('services.tabs', function()
   local tabs
   local renderer
@@ -381,42 +385,148 @@ describe('services.tabs', function()
     end)
   end)
 
-  describe('fork_current', function()
+  describe('fork_into_tab', function()
     local session_module
-    local tmp
+    local source_file
+    local new_tab_rpc
+
+    local function stub_new_tab(rpc_overrides)
+      stub(tab_runtimes, 'create').invokes(function(opts)
+        tab_runtimes.create:revert()
+        local runtime = fake_runtime(tab_runtimes.create(opts))
+        for name, value in pairs(rpc_overrides) do
+          runtime.rpc_client[name] = value
+        end
+        new_tab_rpc = runtime.rpc_client
+        return runtime
+      end)
+    end
+
+    local function resolved(value)
+      return function()
+        return Promise.new():resolve(value)
+      end
+    end
+
+    local function sequence(...)
+      local values = { ... }
+      local i = 0
+      return function()
+        i = i + 1
+        return Promise.new():resolve(values[math.min(i, #values)])
+      end
+    end
 
     before_each(function()
-      tmp = vim.fn.tempname() .. '.jsonl'
-      vim.fn.writefile({ '{}' }, tmp)
+      source_file = vim.fn.tempname() .. '.jsonl'
+      vim.fn.writefile({ '{}' }, source_file)
       session_module = package.loaded['pi.session']
       package.loaded['pi.session'] = {
         get_by_id = function(id)
           return Promise.new():resolve({ id = id, title = 'Forked' })
         end,
       }
+      new_tab_rpc = nil
     end)
 
     after_each(function()
       package.loaded['pi.session'] = session_module
-      vim.fn.delete(tmp)
+      vim.fn.delete(source_file)
     end)
 
-    it('starts the new tab with --fork of the source session file', function()
+    it('forks the active session at its current position via --fork', function()
       local source = new_runtime()
-      stub(source.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = tmp }))
-      stub(tab_runtimes, 'create').invokes(function(opts)
-        tab_runtimes.create:revert()
-        local runtime = fake_runtime(tab_runtimes.create(opts))
-        stub(runtime.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = '/forked.jsonl' }))
-        return runtime
-      end)
+      state.session.set_active({ id = source_file, title = 'Long task' })
+      stub(source.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = source_file }))
+      stub_new_tab({
+        get_state = resolved({ sessionFile = '/forked.jsonl' }),
+        set_session_name = stub.new().returns(Promise.new():resolve(true)),
+        fork = stub.new(),
+      })
 
       local runtime = tabs.fork_current():wait(1000)
 
-      assert.same({ '--fork', tmp }, runtime.process.extra_args)
+      assert.same({ '--fork', source_file }, runtime.process.extra_args)
       assert.equal(runtime.id, tabs.active_id())
       assert.equal('/forked.jsonl', state.active_session.id)
+      assert.stub(new_tab_rpc.fork).was_not_called()
+      assert.stub(new_tab_rpc.set_session_name).was_called_with(new_tab_rpc, match_fork_name('Long task'))
       assert.equal(0, created_sessions)
+    end)
+
+    it('forks from an earlier entry in the new process and deletes the intermediate copy', function()
+      local copy = vim.fn.tempname() .. '.jsonl'
+      vim.fn.writefile({ '{}' }, copy)
+      local source = new_runtime()
+      stub(source.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = source_file }))
+      stub(source.rpc_client, 'fork')
+      stub_new_tab({
+        get_state = sequence({ sessionFile = copy }, { sessionFile = '/entry-fork.jsonl' }),
+        fork = stub.new().returns(Promise.new():resolve({ text = 'first prompt\nsecond line', cancelled = false })),
+        set_session_name = stub.new().returns(Promise.new():resolve(true)),
+      })
+
+      tabs.fork_into_tab({ entry_id = 'entry_42' }):wait(1000)
+
+      assert.stub(new_tab_rpc.fork).was_called_with(new_tab_rpc, 'entry_42')
+      assert.stub(source.rpc_client.fork).was_not_called()
+      assert.equal(0, vim.fn.filereadable(copy))
+      assert.equal(1, vim.fn.filereadable(source_file))
+      assert.equal('/entry-fork.jsonl', state.active_session.id)
+      assert.same({ 'first prompt', 'second line' }, state.input_content)
+    end)
+
+    it('keeps the intermediate copy when the entry fork is cancelled', function()
+      local copy = vim.fn.tempname() .. '.jsonl'
+      vim.fn.writefile({ '{}' }, copy)
+      local source = new_runtime()
+      stub(source.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = source_file }))
+      stub_new_tab({
+        get_state = resolved({ sessionFile = copy }),
+        fork = stub.new().returns(Promise.new():resolve({ cancelled = true })),
+        set_session_name = stub.new().returns(Promise.new():resolve(true)),
+      })
+
+      tabs.fork_into_tab({ entry_id = 'entry_42' }):wait(1000)
+
+      assert.equal(1, vim.fn.filereadable(copy))
+      assert.equal(copy, state.active_session.id)
+      vim.fn.delete(copy)
+    end)
+
+    it('falls back to the current-position fork when the entry fork fails', function()
+      local copy = vim.fn.tempname() .. '.jsonl'
+      vim.fn.writefile({ '{}' }, copy)
+      local source = new_runtime()
+      stub(source.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = source_file }))
+      stub_new_tab({
+        get_state = resolved({ sessionFile = copy }),
+        fork = stub.new().returns(Promise.new():reject('bad entry')),
+        set_session_name = stub.new().returns(Promise.new():resolve(true)),
+      })
+      local notify = stub(vim, 'notify')
+
+      tabs.fork_into_tab({ entry_id = 'entry_42' }):wait(1000)
+      notify:revert()
+
+      assert.equal(copy, state.active_session.id)
+      assert.equal(1, vim.fn.filereadable(copy))
+      assert.stub(notify).was_called()
+      vim.fn.delete(copy)
+    end)
+
+    it('forks a given session file instead of the active one', function()
+      local source = new_runtime()
+      stub(source.rpc_client, 'get_state')
+      stub_new_tab({
+        get_state = resolved({ sessionFile = '/forked.jsonl' }),
+        set_session_name = stub.new().returns(Promise.new():resolve(true)),
+      })
+
+      local runtime = tabs.fork_into_tab({ source_path = source_file }):wait(1000)
+
+      assert.same({ '--fork', source_file }, runtime.process.extra_args)
+      assert.stub(source.rpc_client.get_state).was_not_called()
     end)
 
     it('refuses when the source session has not been written yet', function()
@@ -432,5 +542,72 @@ describe('services.tabs', function()
       assert.equal(1, #tabs.list())
       assert.equal(source.id, tabs.active_id())
     end)
+  end)
+
+  describe('choose_fork_target', function()
+    local config = require('pi.config')
+    local original_target
+    local calls
+
+    local function handlers()
+      return {
+        tab = function()
+          table.insert(calls, 'tab')
+        end,
+        current = function()
+          table.insert(calls, 'current')
+        end,
+        cancel = function()
+          table.insert(calls, 'cancel')
+        end,
+      }
+    end
+
+    before_each(function()
+      original_target = config.ui.tabs.fork_target
+      calls = {}
+    end)
+
+    after_each(function()
+      config.ui.tabs.fork_target = original_target
+    end)
+
+    it('defaults to asking', function()
+      assert.equal('ask', config.defaults.ui.tabs.fork_target)
+    end)
+
+    it('goes straight to the configured target without asking', function()
+      local select = stub(vim.ui, 'select')
+
+      config.ui.tabs.fork_target = 'tab'
+      tabs.choose_fork_target(handlers())
+      config.ui.tabs.fork_target = 'current'
+      tabs.choose_fork_target(handlers())
+      select:revert()
+
+      assert.same({ 'tab', 'current' }, calls)
+      assert.stub(select).was_not_called()
+    end)
+
+    for _, case in ipairs({
+      { choice = 'New tab', expected = 'tab' },
+      { choice = 'Replace current session', expected = 'current' },
+      { choice = nil, expected = 'cancel' },
+    }) do
+      it('asks and follows the answer: ' .. tostring(case.choice), function()
+        config.ui.tabs.fork_target = 'ask'
+        local offered
+        local select = stub(vim.ui, 'select').invokes(function(items, _, on_choice)
+          offered = items
+          on_choice(case.choice)
+        end)
+
+        tabs.choose_fork_target(handlers())
+        select:revert()
+
+        assert.same({ 'New tab', 'Replace current session' }, offered)
+        assert.same({ case.expected }, calls)
+      end)
+    end
   end)
 end)

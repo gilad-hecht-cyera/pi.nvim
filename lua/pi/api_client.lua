@@ -524,6 +524,14 @@ local function enrich_pi_fork_response(rpc, id, response)
   end)
 end
 
+---Resolve a rendered user message id to the Pi session entry id to fork from.
+---Entry ids are preserved by `pi --fork`, so the result is valid in a forked copy too.
+---@param message_id string
+---@return Promise<string>
+function PiApiClient:resolve_fork_entry_id(message_id)
+  return resolve_pi_fork_entry_id(message_id)
+end
+
 --- Fork an existing session at a specific message
 --- @param id string Session ID (required)
 --- @param fork_data {messageID?: string}|nil Fork data
@@ -995,4 +1003,6 @@ end
 return {
   new = PiApiClient.new,
   create = create_client,
+  ---Next unused `FORK <n> <title>` name for a fork of a session titled `previous_title`.
+  next_fork_title = next_fork_title,
 }
