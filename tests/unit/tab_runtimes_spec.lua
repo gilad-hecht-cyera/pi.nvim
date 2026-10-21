@@ -230,4 +230,53 @@ describe('tab_runtimes', function()
       assert.same({ ok = true }, promise:wait(100))
     end)
   end)
+
+  describe('stream tracking', function()
+    local handle_event
+
+    before_each(function()
+      handle_event = stub(event_adapter, 'handle_event')
+    end)
+
+    after_each(function()
+      handle_event:revert()
+    end)
+
+    local function assistant_start()
+      return { type = 'message_start', message = { role = 'assistant', timestamp = 1 } }
+    end
+
+    it('keeps events of the in-progress assistant message, active or not', function()
+      local active = tab_runtimes.create()
+      local background = tab_runtimes.create()
+
+      for _, runtime in ipairs({ active, background }) do
+        runtime.process:_emit(assistant_start())
+        runtime.process:_emit({ type = 'message_update', assistantMessageEvent = { type = 'text_delta', delta = 'a' } })
+        runtime.process:_emit({ type = 'message_update', assistantMessageEvent = { type = 'text_delta', delta = 'b' } })
+        assert.equal(3, #runtime.rpc_client.stream_events)
+      end
+    end)
+
+    it('clears the buffer when the message ends or the run stops', function()
+      local runtime = tab_runtimes.create()
+
+      for _, ending in ipairs({ 'message_end', 'agent_end', 'agent_settled' }) do
+        runtime.process:_emit(assistant_start())
+        runtime.process:_emit({ type = ending })
+        assert.is_nil(runtime.rpc_client.stream_events, ending)
+      end
+    end)
+
+    it('does not buffer user messages or updates without a start', function()
+      local runtime = tab_runtimes.create()
+
+      runtime.process:_emit({ type = 'message_update', assistantMessageEvent = { type = 'text_delta' } })
+      assert.is_nil(runtime.rpc_client.stream_events)
+
+      runtime.process:_emit(assistant_start())
+      runtime.process:_emit({ type = 'message_start', message = { role = 'user' } })
+      assert.is_nil(runtime.rpc_client.stream_events)
+    end)
+  end)
 end)

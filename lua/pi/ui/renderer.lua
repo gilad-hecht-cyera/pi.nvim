@@ -4,6 +4,7 @@ local output_window = require('pi.ui.output_window')
 local permission_window = require('pi.ui.permission_window')
 local reference_facts = require('pi.ui.reference_facts')
 local Promise = require('pi.promise')
+local log = require('pi.log')
 local ctx = require('pi.ui.renderer.ctx')
 local events = require('pi.ui.renderer.events')
 local event_scope = require('pi.ui.event_scope')
@@ -498,6 +499,28 @@ end
 
 ---Fetch the active session from the server and render it
 ---@return Promise<PiMessage[]>
+---@type table<string, fun()[]>
+local after_render_callbacks = {}
+
+---Run `callback` once, after the next full render of `session_id`.
+---@param session_id string
+---@param callback fun()
+function M.after_session_render(session_id, callback)
+  after_render_callbacks[session_id] = after_render_callbacks[session_id] or {}
+  table.insert(after_render_callbacks[session_id], callback)
+end
+
+local function run_after_render_callbacks(session_id)
+  local callbacks = after_render_callbacks[session_id]
+  after_render_callbacks[session_id] = nil
+  for _, callback in ipairs(callbacks or {}) do
+    local ok, err = pcall(callback)
+    if not ok then
+      log.warn('after_session_render callback failed: %s', tostring(err))
+    end
+  end
+end
+
 function M.render_full_session()
   if not output_window.mounted() or not state.api_client then
     return Promise.new():resolve(nil)
@@ -510,6 +533,7 @@ function M.render_full_session()
     if active_session and active_session.id then
       require('pi.ui.question_window').restore_pending_question(active_session.id)
       permission_window.restore_pending_permissions(active_session.id)
+      run_after_render_callbacks(active_session.id)
     end
     return session_data
   end)

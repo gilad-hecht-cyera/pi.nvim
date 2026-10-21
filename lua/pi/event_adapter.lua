@@ -3,7 +3,7 @@ local state = require('pi.state')
 local M = {}
 
 local counters = { message = 0, part = 0, session = 0 }
-local live = { assistant_message_id = nil, text_parts = {}, thinking_parts = {}, tool_parts = {} }
+local live = { assistant_message_id = nil, text_parts = {}, thinking_parts = {}, tool_parts = {}, detached = false }
 
 local function next_id(prefix, key)
   counters[key] = (counters[key] or 0) + 1
@@ -375,6 +375,7 @@ function M.handle_event(event)
       live.text_parts = {}
       live.thinking_parts = {}
       live.tool_parts = {}
+      live.detached = false
       update_message('assistant', live.assistant_message_id, event.message)
     elseif event.message.role == 'user' then
       local message_id = message_id_from_message('user', event.message)
@@ -467,6 +468,9 @@ function M.handle_event(event)
   end
 
   if event.type == 'tool_execution_start' then
+    if live.detached then
+      return
+    end
     local message_id = ensure_live_assistant()
     local cached = ensure_tool_part(event.toolCallId, nil, event.toolName, event.args or {})
     cached.time = cached.time or {}
@@ -484,6 +488,9 @@ function M.handle_event(event)
   end
 
   if event.type == 'tool_execution_update' or event.type == 'tool_execution_end' then
+    if live.detached then
+      return
+    end
     local message_id = ensure_live_assistant()
     local cached = ensure_tool_part(event.toolCallId, nil, event.toolName, event.args or {})
     local result = event.partialResult or event.result or {}
@@ -518,7 +525,19 @@ function M.handle_event(event)
     live.text_parts = {}
     live.thinking_parts = {}
     live.tool_parts = {}
+    live.detached = false
   end
+end
+
+---Forget the in-progress message, e.g. when the active tab changes.
+---Tool events are ignored until the next assistant message starts, since they
+---would otherwise attach to a message this adapter never saw.
+function M.reset_live()
+  live.assistant_message_id = nil
+  live.text_parts = {}
+  live.thinking_parts = {}
+  live.tool_parts = {}
+  live.detached = true
 end
 
 return M

@@ -92,6 +92,7 @@ local _state = {
 }
 
 local _listeners = {}
+local _defaults = vim.deepcopy(_state)
 local _batch_depth = 0
 local _batched_changes = {}
 local _batched_order = {}
@@ -199,6 +200,35 @@ function M.batch(callback)
   end
 
   return result
+end
+
+---Default (initial) values for the given keys, deep-copied.
+---@param keys string[]
+---@return table
+function M.defaults(keys)
+  local values = {}
+  for _, key in ipairs(keys) do
+    values[key] = vim.deepcopy(_defaults[key])
+  end
+  return values
+end
+
+---Replace `keys` with values from `incoming` in one batch and return the replaced values.
+---Missing keys in `incoming` are set to nil.
+---@param keys string[]
+---@param incoming table
+---@return table outgoing
+function M.swap(keys, incoming)
+  local outgoing = {}
+  for _, key in ipairs(keys) do
+    outgoing[key] = _state[key]
+  end
+  M.batch(function()
+    for _, key in ipairs(keys) do
+      M.set(key, incoming[key])
+    end
+  end)
+  return outgoing
 end
 
 ---@generic K extends keyof PiStateData

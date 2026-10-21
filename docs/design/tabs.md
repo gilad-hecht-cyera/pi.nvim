@@ -74,8 +74,9 @@ ui = {
 ## Architecture
 
 - **Runtime registry**: replace the process/RPC/event-manager singletons with a registry keyed by tab id. `.get()` returns the active tab's instance so existing call sites keep working.
-- **Per-tab store**: the global `state` delegates to the active tab's store. On tab switch, notify all subscribers so the topbar, footer, and other subscribed UI re-render without changes.
-- **Background tabs**: events update only their own tab's store. Only the active tab renders; switching triggers a re-render. `renderer/flush.lua` already defers rendering while the output window is in another Neovim tab, which is a starting point.
+- **Per-tab state slice**: the store stays global. `state/tab_scope.lua` lists the keys a tab owns (session, messages, stats, model, queued messages, input draft, ...). Switching swaps that slice in one batch, so subscribed UI (topbar, footer, context bar) updates without changes. Window handles, focus, cwd, mode, and the event manager stay shared.
+- **Pi is the source of truth**: a background tab's conversation lives in its Pi process. Switching re-renders the session from `get_messages` of the new active process, then replays the in-progress assistant message, which `get_messages` does not include yet (`RpcClient.stream_events`). A tab switched into mid-run is re-rendered once more when it settles, so tool results and status end up exact.
+- **Background tabs**: only the active tab feeds the event adapter and renderer; background events are not rendered.
 - **Tab bar**: rendered in the output window `winbar`, next to the existing session title from `ui/topbar.lua`. Clickable via `%N@Func@label%X`. Shows per-tab status: running, idle, or waiting for permission/question.
 - **Notifications**: a background tab notifies when it finishes or needs input.
 - **Closing a tab**: if the tab is running, send `abort`, then stop its process. Idle tabs just stop their process. The session file is kept and can be reopened later.
@@ -120,8 +121,8 @@ Each step is a separate jj change.
    - `--fork` on a session that is still streaming
    - entry IDs are preserved across `--fork`
    - measure process startup time
-2. ~~Per-tab runtime registry~~ (done): `lua/pi/tab_runtimes.lua` owns a process and RPC client per tab. `PiProcess.get()` / `RpcClient.get()` return the active tab's. Events from background tabs are dropped (except responses and `streaming` tracking) until step 3. The event manager stays global and moves per-tab with the store in step 3.
-3. Per-tab store with notify-all on switch.
+2. ~~Per-tab runtime registry~~ (done): `lua/pi/tab_runtimes.lua` owns a process and RPC client per tab. `PiProcess.get()` / `RpcClient.get()` return the active tab's. Events from background tabs are not rendered; responses and `streaming` tracking still work.
+3. ~~Per-tab state on switch~~ (done): `services/tabs.lua` (`switch`, `new`, `close`), `state/tab_scope.lua`, per-tab output view and input draft, mid-stream replay.
 4. Tab commands (`new`, `fork`, `next`, `prev`, `close`) and the tab bar.
 5. Route fork entry points through `fork_target`.
 6. Background status and notifications.

@@ -197,4 +197,77 @@ describe('event_adapter', function()
     assert.are.equal(1, #parts)
     assert.are.equal('full thoughts', parts[1].text)
   end)
+
+  describe('reset_live', function()
+    local function tool_events()
+      return vim.tbl_filter(function(event)
+        return event.type == 'message.part.updated' and event.properties.part.type == 'tool'
+      end, events)
+    end
+
+    local function run_tool(id)
+      event_adapter.handle_event({ type = 'tool_execution_start', toolCallId = id, toolName = 'bash', args = {} })
+      event_adapter.handle_event({
+        type = 'tool_execution_end',
+        toolCallId = id,
+        toolName = 'bash',
+        args = {},
+        result = { content = 'out' },
+      })
+    end
+
+    it('ignores tool events for a message started before the reset', function()
+      event_adapter.handle_event({
+        type = 'message_start',
+        message = { role = 'assistant', content = {}, responseId = 'before_reset', timestamp = 1 },
+      })
+      event_adapter.reset_live()
+      events = {}
+
+      run_tool('call_after_reset')
+
+      assert.are.equal(0, #tool_events())
+      assert.are.equal(0, #vim.tbl_filter(function(event)
+        return event.type == 'message.updated'
+      end, events))
+    end)
+
+    it('handles tool events again once a new assistant message starts', function()
+      event_adapter.reset_live()
+      event_adapter.handle_event({
+        type = 'message_start',
+        message = { role = 'assistant', content = {}, responseId = 'after_reset', timestamp = 2 },
+      })
+
+      run_tool('call_new_message')
+
+      local parts = tool_events()
+      assert.is_true(#parts > 0)
+      assert.are.equal('pi_msg_after_reset', parts[1].properties.part.messageID)
+    end)
+
+    it('streams text into a fresh part after the reset', function()
+      event_adapter.handle_event({
+        type = 'message_start',
+        message = { role = 'assistant', content = {}, responseId = 'old', timestamp = 3 },
+      })
+      event_adapter.handle_event({
+        type = 'message_update',
+        assistantMessageEvent = { type = 'text_delta', contentIndex = 0, delta = 'old text ' },
+      })
+      event_adapter.reset_live()
+      event_adapter.handle_event({
+        type = 'message_start',
+        message = { role = 'assistant', content = {}, responseId = 'new', timestamp = 4 },
+      })
+      event_adapter.handle_event({
+        type = 'message_update',
+        assistantMessageEvent = { type = 'text_delta', contentIndex = 0, delta = 'new' },
+      })
+
+      local last = events[#events].properties.part
+      assert.are.equal('pi_msg_new', last.messageID)
+      assert.are.equal('new', last.text)
+    end)
+  end)
 end)

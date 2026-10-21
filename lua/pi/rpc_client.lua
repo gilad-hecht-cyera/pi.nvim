@@ -21,6 +21,7 @@ function RpcClient.new(process, opts)
     tab_id = opts.tab_id,
     pending = {},
     streaming = false,
+    stream_events = nil,
   }, RpcClient)
 
   self.process:on_event(function(event)
@@ -123,6 +124,19 @@ function RpcClient:_handle_extension_ui_request(event)
   end
 end
 
+---Keep the events of the in-progress assistant message, which `get_messages` does not include yet.
+function RpcClient:_track_stream(event)
+  if event.type == 'message_start' then
+    self.stream_events = event.message and event.message.role == 'assistant' and { event } or nil
+  elseif event.type == 'message_update' then
+    if self.stream_events then
+      table.insert(self.stream_events, event)
+    end
+  elseif event.type == 'message_end' or event.type == 'agent_end' or event.type == 'agent_settled' then
+    self.stream_events = nil
+  end
+end
+
 function RpcClient:_handle_event(event)
   if event.type == 'response' and event.id and self.pending[event.id] then
     local promise = self.pending[event.id]
@@ -140,6 +154,7 @@ function RpcClient:_handle_event(event)
   elseif event.type == 'agent_settled' then
     self.streaming = false
   end
+  self:_track_stream(event)
 
   if not self:is_active() then
     return

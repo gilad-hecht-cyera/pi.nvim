@@ -5,6 +5,7 @@ local ui = require('pi.state.ui')
 local model = require('pi.state.model')
 local renderer = require('pi.state.renderer')
 local context = require('pi.state.context')
+local tab_scope = require('pi.state.tab_scope')
 
 ---@class PiState : PiStateData
 ---@field store PiStateStore
@@ -14,6 +15,7 @@ local context = require('pi.state.context')
 ---@field model PiModelStateMutations
 ---@field renderer PiRendererStateMutations
 ---@field context PiContextStateMutations
+---@field tab_scope PiTabScopeStateMutations
 ---@field active_session Session|nil
 ---@field current_model string|nil
 ---@field api_client PiApiClient|nil
@@ -27,6 +29,7 @@ local M = {
   model = model,
   renderer = renderer,
   context = context,
+  tab_scope = tab_scope,
 }
 
 return setmetatable(M, {
