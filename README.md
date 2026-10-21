@@ -78,7 +78,7 @@ The sidebar can hold several Pi sessions at once. Each tab runs its own `pi --mo
 
 Fork actions (`[F]ork` on a message, the timeline and session pickers' `<C-f>`, `:Pi fork`, `/fork`) ask whether to fork into a new tab or replace the current session. Set `ui.tabs.fork_target` to `'tab'` or `'current'` to skip the question.
 
-With more than one tab, the output window's top bar shows a clickable tab strip; `●` marks tabs that are running. Selecting a session that is already open in another tab switches to that tab instead of opening it twice.
+With more than one tab, the output window's top bar shows a clickable tab strip; `●` marks a running tab, `?` a tab waiting for your input (for example an extension confirmation), and `✓` a tab that finished while you were elsewhere. You get a notification when a background tab finishes or needs input (`ui.tabs.notify = false` turns these off); its pending question is shown when you switch to it. Selecting a session that is already open in another tab switches to that tab instead of opening it twice.
 
 In the Pi output window:
 

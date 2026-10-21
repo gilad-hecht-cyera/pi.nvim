@@ -129,6 +129,7 @@ function M.setup()
 
   vim.api.nvim_set_hl(0, 'PiTabActive', { link = 'TabLineSel', default = true })
   vim.api.nvim_set_hl(0, 'PiTabInactive', { link = 'PiSessionDescription', default = true })
+  vim.api.nvim_set_hl(0, 'PiTabWaiting', { link = 'DiagnosticWarn', default = true })
 end
 
 ---Re-apply the plugin highlight groups whenever a colorscheme is loaded.

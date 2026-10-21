@@ -327,8 +327,8 @@ describe('services.tabs', function()
       local views = tabs.list_view()
 
       assert.same({
-        { id = a.id, index = 1, title = 'Long task', running = true, active = false },
-        { id = b.id, index = 2, title = 'New session', running = false, active = true },
+        { id = a.id, index = 1, title = 'Long task', status = 'running', active = false },
+        { id = b.id, index = 2, title = 'New session', status = 'idle', active = true },
       }, views)
     end)
 
@@ -349,10 +349,12 @@ describe('services.tabs', function()
       tabs.switch(b.id)
 
       a.process:_emit({ type = 'agent_start' })
-      assert.is_true(state.tabs[1].running)
+      assert.equal('running', state.tabs[1].status)
 
+      local notify = stub(vim, 'notify')
       a.process:_emit({ type = 'agent_settled' })
-      assert.is_false(state.tabs[1].running)
+      notify:revert()
+      assert.equal('done', state.tabs[1].status)
     end)
 
     it('keeps background session renames', function()
@@ -609,5 +611,130 @@ describe('services.tabs', function()
         assert.same({ case.expected }, calls)
       end)
     end
+  end)
+
+  describe('background activity', function()
+    local notify
+    local config = require('pi.config')
+
+    before_each(function()
+      notify = stub(vim, 'notify')
+    end)
+
+    after_each(function()
+      notify:revert()
+      config.ui.tabs.notify = true
+    end)
+
+    local function background_pair()
+      local a = new_runtime()
+      local b = new_runtime()
+      state.session.set_active({ id = 'ses_a', title = 'Long task' })
+      tabs.publish()
+      tabs.switch(b.id)
+      return a, b
+    end
+
+    local function dialog(id)
+      return { type = 'extension_ui_request', id = id, method = 'confirm', title = 'Allow?' }
+    end
+
+    it('notifies when a background tab finishes and marks it done until visited', function()
+      local a = background_pair()
+
+      a.process:_emit({ type = 'agent_start' })
+      a.process:_emit({ type = 'agent_settled' })
+
+      assert.stub(notify).was_called_with('Pi tab 1 "Long task" finished', vim.log.levels.INFO)
+      assert.equal('done', state.tabs[1].status)
+
+      tabs.switch(a.id)
+      assert.equal('idle', state.tabs[1].status)
+    end)
+
+    it('does not report a settle without a run, or runs of the active tab', function()
+      local a, b = background_pair()
+
+      a.process:_emit({ type = 'agent_settled' })
+      b.process:_emit({ type = 'agent_start' })
+      b.process:_emit({ type = 'agent_settled' })
+
+      assert.stub(notify).was_not_called()
+      assert.equal('idle', state.tabs[1].status)
+      assert.equal('idle', state.tabs[2].status)
+    end)
+
+    it('can be silenced with ui.tabs.notify = false', function()
+      local a = background_pair()
+      config.ui.tabs.notify = false
+
+      a.process:_emit({ type = 'agent_start' })
+      a.process:_emit({ type = 'agent_settled' })
+
+      assert.stub(notify).was_not_called()
+      assert.equal('done', state.tabs[1].status)
+    end)
+
+    it('queues background dialogs and shows them when the tab becomes active', function()
+      local a = background_pair()
+      local replay = stub(a.rpc_client, 'replay_ui_request')
+      a.process:_emit({ type = 'agent_start' })
+
+      a.process:_emit(dialog('ui_1'))
+
+      assert.equal('waiting', state.tabs[1].status)
+      assert.stub(notify).was_called_with('Pi tab 1 "Long task" needs input', vim.log.levels.WARN)
+      assert.stub(replay).was_not_called()
+
+      tabs.switch(a.id)
+      vim.wait(100, function()
+        return #replay.calls > 0
+      end)
+
+      assert.stub(replay).was_called(1)
+      assert.equal('ui_1', replay.calls[1].refs[2].id)
+      assert.equal('running', state.tabs[1].status)
+    end)
+
+    it('drops queued dialogs once the background run settles', function()
+      local a = background_pair()
+      local replay = stub(a.rpc_client, 'replay_ui_request')
+      a.process:_emit({ type = 'agent_start' })
+      a.process:_emit(dialog('ui_1'))
+
+      a.process:_emit({ type = 'agent_settled' })
+      tabs.switch(a.id)
+      vim.wait(50)
+
+      assert.stub(replay).was_not_called()
+    end)
+
+    it('leaves dialogs of the active tab to the RPC client', function()
+      local _, b = background_pair()
+      local select = stub(vim.ui, 'select')
+
+      b.process:_emit(dialog('ui_active'))
+      select:revert()
+
+      assert.stub(select).was_called(1)
+      assert.equal('idle', state.tabs[2].status)
+    end)
+
+    it('forwards background notify requests with the tab name', function()
+      local a = background_pair()
+
+      a.process:_emit({ type = 'extension_ui_request', method = 'notify', message = 'plan saved' })
+
+      assert.stub(notify).was_called_with('Pi tab 1 "Long task" plan saved', vim.log.levels.INFO)
+    end)
+
+    it('keeps background status updates for when the tab is shown', function()
+      local a = background_pair()
+
+      a.process:_emit({ type = 'extension_ui_request', method = 'setStatus', statusKey = 'plan', statusText = 'phase 2' })
+      tabs.switch(a.id)
+
+      assert.same({ plan = 'phase 2' }, state.extension_statuses)
+    end)
   end)
 end)

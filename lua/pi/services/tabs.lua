@@ -7,11 +7,13 @@ local Promise = require('pi.promise')
 ---@field scope table Saved tab-scoped state values
 ---@field output_view table|nil
 
+---@alias PiTabStatus 'idle'|'running'|'waiting'|'done'
+
 ---@class PiTabView
 ---@field id integer
 ---@field index integer
 ---@field title string
----@field running boolean
+---@field status PiTabStatus
 ---@field active boolean
 
 local M = {}
@@ -24,6 +26,16 @@ local snapshots = {}
 local settle_watchers = {}
 ---@type table<integer, fun()>
 local status_watchers = {}
+---Dialog requests (`extension_ui_request`) a background tab is blocked on, shown when it becomes active.
+---@type table<integer, table[]>
+local pending_dialogs = {}
+---Background tabs that finished a run the user has not looked at yet.
+---@type table<integer, boolean>
+local unseen_done = {}
+---@type table<integer, boolean>
+local ran = {}
+
+local DIALOG_METHODS = { select = true, confirm = true, input = true, editor = true }
 
 local function output_win()
   local win = state.windows and state.windows.output_win
@@ -115,17 +127,77 @@ local function rename_background_session(id, name)
   session.description = name
 end
 
+local function tab_label(id)
+  for index, runtime in ipairs(tab_runtimes.list()) do
+    if runtime.id == id then
+      return string.format('Pi tab %d "%s"', index, session_title(session_of(id)))
+    end
+  end
+  return 'Pi tab'
+end
+
+local function notify_background(id, message, level)
+  if require('pi.config').ui.tabs.notify ~= false then
+    vim.notify(tab_label(id) .. ' ' .. message, level or vim.log.levels.INFO)
+  end
+end
+
+local function set_background_status(id, key, value)
+  local snapshot = snapshots[id]
+  if not snapshot or not key or key == '' then
+    return
+  end
+  snapshot.scope = snapshot.scope or {}
+  local statuses = vim.deepcopy(snapshot.scope.extension_statuses or {})
+  statuses[key] = (value ~= nil and value ~= '') and value or nil
+  snapshot.scope.extension_statuses = statuses
+end
+
+---Background tabs do not render, so their extension UI requests are handled here instead.
+local function on_background_ui_request(id, event)
+  if DIALOG_METHODS[event.method] then
+    pending_dialogs[id] = pending_dialogs[id] or {}
+    table.insert(pending_dialogs[id], event)
+    notify_background(id, 'needs input', vim.log.levels.WARN)
+  elseif event.method == 'notify' then
+    notify_background(id, event.message or '', vim.log.levels.INFO)
+  elseif event.method == 'setStatus' then
+    set_background_status(id, event.statusKey, event.statusText)
+  end
+end
+
+local function on_runtime_event(runtime, event)
+  local id = runtime.id
+  local background = not tab_runtimes.is_active(id)
+  if event.type == 'session_info_changed' then
+    rename_background_session(id, event.name)
+  elseif event.type == 'extension_ui_request' then
+    if not background then
+      return
+    end
+    on_background_ui_request(id, event)
+  elseif event.type == 'agent_start' then
+    ran[id] = true
+    unseen_done[id] = nil
+  elseif event.type == 'agent_settled' or event.type == 'process_exit' then
+    pending_dialogs[id] = nil
+    if background and ran[id] and event.type == 'agent_settled' then
+      unseen_done[id] = true
+      notify_background(id, 'finished')
+    end
+    ran[id] = nil
+  else
+    return
+  end
+  M.publish()
+end
+
 local function track(runtime)
   if status_watchers[runtime.id] then
     return
   end
   status_watchers[runtime.id] = runtime.process:on_event(function(event)
-    if event.type == 'session_info_changed' then
-      rename_background_session(runtime.id, event.name)
-      M.publish()
-    elseif event.type == 'agent_start' or event.type == 'agent_settled' or event.type == 'process_exit' then
-      M.publish()
-    end
+    on_runtime_event(runtime, event)
   end)
 end
 
@@ -134,6 +206,30 @@ local function untrack(id)
     status_watchers[id]()
     status_watchers[id] = nil
   end
+  pending_dialogs[id] = nil
+  unseen_done[id] = nil
+  ran[id] = nil
+end
+
+local function show_pending_dialogs(runtime)
+  local dialogs = pending_dialogs[runtime.id]
+  pending_dialogs[runtime.id] = nil
+  for _, event in ipairs(dialogs or {}) do
+    runtime.rpc_client:replay_ui_request(event)
+  end
+end
+
+---@param runtime PiTabRuntime
+---@return PiTabStatus
+local function status_of(runtime)
+  if pending_dialogs[runtime.id] and #pending_dialogs[runtime.id] > 0 then
+    return 'waiting'
+  elseif runtime.rpc_client.streaming then
+    return 'running'
+  elseif unseen_done[runtime.id] then
+    return 'done'
+  end
+  return 'idle'
 end
 
 ---@return PiTabView[]
@@ -145,7 +241,7 @@ function M.list_view()
       id = runtime.id,
       index = index,
       title = session_title(session_of(runtime.id)),
-      running = runtime.rpc_client.streaming == true,
+      status = status_of(runtime),
       active = tab_runtimes.is_active(runtime.id),
     })
   end
@@ -217,6 +313,16 @@ function M.switch(id)
 
   if target.rpc_client.streaming then
     resync_when_settled(target)
+  end
+
+  unseen_done[id] = nil
+  if pending_dialogs[id] then
+    vim.schedule(function()
+      if tab_runtimes.is_active(id) then
+        show_pending_dialogs(target)
+        M.publish()
+      end
+    end)
   end
 
   M.publish()

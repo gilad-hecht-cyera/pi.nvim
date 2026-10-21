@@ -137,6 +137,13 @@ function RpcClient:_track_stream(event)
   end
 end
 
+---Show a UI request that arrived while this client's tab was in the background.
+---@param event table
+function RpcClient:replay_ui_request(event)
+  self:_handle_extension_ui_request(event)
+  event_adapter.handle_event(event)
+end
+
 function RpcClient:_handle_event(event)
   if event.type == 'response' and event.id and self.pending[event.id] then
     local promise = self.pending[event.id]

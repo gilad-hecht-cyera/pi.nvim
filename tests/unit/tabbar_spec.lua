@@ -3,7 +3,7 @@ local tabbar = require('pi.ui.tabbar')
 
 local function view(id, index, title, opts)
   opts = opts or {}
-  return { id = id, index = index, title = title, running = opts.running == true, active = opts.active == true }
+  return { id = id, index = index, title = title, status = opts.status or 'idle', active = opts.active == true }
 end
 
 local function visible_text(winbar)
@@ -38,10 +38,16 @@ describe('ui.tabbar', function()
     assert.equal(' 1 First  2 Second ', visible_text(winbar))
   end)
 
-  it('marks running tabs', function()
-    local winbar = tabbar.format({ view(1, 1, 'Busy', { running = true }), view(2, 2, 'Idle', { active = true }) }, 80)
+  it('marks running, waiting, and finished tabs', function()
+    local winbar = tabbar.format({
+      view(1, 1, 'Busy', { status = 'running' }),
+      view(2, 2, 'Asks', { status = 'waiting' }),
+      view(3, 3, 'Done', { status = 'done' }),
+      view(4, 4, 'Idle', { active = true }),
+    }, 120)
 
-    assert.equal(' 1● Busy  2 Idle ', visible_text(winbar))
+    assert.equal(' 1● Busy  2? Asks  3✓ Done  4 Idle ', visible_text(winbar))
+    assert.matches('%%#PiTabWaiting# 2%? Asks', winbar)
   end)
 
   it('uses the live active session title for the active tab', function()
