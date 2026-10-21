@@ -7,12 +7,23 @@ local Promise = require('pi.promise')
 ---@field scope table Saved tab-scoped state values
 ---@field output_view table|nil
 
+---@class PiTabView
+---@field id integer
+---@field index integer
+---@field title string
+---@field running boolean
+---@field active boolean
+
 local M = {}
+
+local NEW_SESSION_TITLE = 'New session'
 
 ---@type table<integer, PiTabSnapshot>
 local snapshots = {}
 ---@type table<integer, fun()>
 local settle_watchers = {}
+---@type table<integer, fun()>
+local status_watchers = {}
 
 local function output_win()
   local win = state.windows and state.windows.output_win
@@ -79,6 +90,87 @@ function M.list()
   return tab_runtimes.list()
 end
 
+local function session_of(id)
+  if tab_runtimes.is_active(id) then
+    return state.active_session
+  end
+  local snapshot = snapshots[id]
+  return snapshot and snapshot.scope and snapshot.scope.active_session
+end
+
+local function session_title(session)
+  local title = session and session.title
+  if type(title) ~= 'string' or title == '' then
+    return NEW_SESSION_TITLE
+  end
+  return title
+end
+
+local function rename_background_session(id, name)
+  local session = session_of(id)
+  if tab_runtimes.is_active(id) or not session or not name or name == '' then
+    return
+  end
+  session.title = name
+  session.description = name
+end
+
+local function track(runtime)
+  if status_watchers[runtime.id] then
+    return
+  end
+  status_watchers[runtime.id] = runtime.process:on_event(function(event)
+    if event.type == 'session_info_changed' then
+      rename_background_session(runtime.id, event.name)
+      M.publish()
+    elseif event.type == 'agent_start' or event.type == 'agent_settled' or event.type == 'process_exit' then
+      M.publish()
+    end
+  end)
+end
+
+local function untrack(id)
+  if status_watchers[id] then
+    status_watchers[id]()
+    status_watchers[id] = nil
+  end
+end
+
+---@return PiTabView[]
+function M.list_view()
+  local views = {}
+  for index, runtime in ipairs(tab_runtimes.list()) do
+    track(runtime)
+    table.insert(views, {
+      id = runtime.id,
+      index = index,
+      title = session_title(session_of(runtime.id)),
+      running = runtime.rpc_client.streaming == true,
+      active = tab_runtimes.is_active(runtime.id),
+    })
+  end
+  return views
+end
+
+function M.publish()
+  state.ui.set_tabs(M.list_view())
+end
+
+---Find the tab that has `session_id` open.
+---@param session_id string|nil
+---@return integer|nil tab_id
+function M.find_by_session(session_id)
+  if not session_id then
+    return nil
+  end
+  for _, runtime in ipairs(tab_runtimes.list()) do
+    local session = session_of(runtime.id)
+    if session and session.id == session_id then
+      return runtime.id
+    end
+  end
+end
+
 ---@return integer|nil
 function M.active_id()
   return tab_runtimes.active_id()
@@ -127,21 +219,71 @@ function M.switch(id)
     resync_when_settled(target)
   end
 
+  M.publish()
   return true
+end
+
+---@param delta integer 1 for next, -1 for previous; wraps around
+---@return boolean switched
+function M.cycle(delta)
+  local list = tab_runtimes.list()
+  if #list < 2 then
+    return false
+  end
+  for i, runtime in ipairs(list) do
+    if tab_runtimes.is_active(runtime.id) then
+      return M.switch(list[((i - 1 + delta) % #list) + 1].id)
+    end
+  end
+  return false
+end
+
+---@param index integer 1-based position in the tab bar
+---@return boolean switched
+function M.go_to(index)
+  local runtime = tab_runtimes.list()[index]
+  return runtime ~= nil and M.switch(runtime.id)
+end
+
+---@param runtime_opts? PiTabRuntimeOpts
+---@param load_session fun(): Promise<Session|nil>
+---@return Promise<PiTabRuntime>
+local function open_tab(runtime_opts, load_session)
+  local runtime = tab_runtimes.create(runtime_opts)
+  track(runtime)
+  M.switch(runtime.id)
+  return load_session():and_then(function(session)
+    if session and tab_runtimes.is_active(runtime.id) then
+      state.session.set_active(session)
+    end
+    M.publish()
+    return runtime
+  end)
 end
 
 ---Open a new tab with a fresh session and switch to it.
 ---@param opts? PiTabRuntimeOpts
 ---@return Promise<PiTabRuntime>
 function M.new(opts)
-  local runtime = tab_runtimes.create(opts)
-  M.switch(runtime.id)
-  local session_runtime = require('pi.services.session_runtime')
-  return session_runtime.create_new_session():and_then(function(session)
-    if session and tab_runtimes.is_active(runtime.id) then
-      state.session.set_active(session)
+  return open_tab(opts, function()
+    return require('pi.services.session_runtime').create_new_session()
+  end)
+end
+
+---Open a new tab holding a fork of the active tab's session at its current position.
+---The fork happens in the new tab's process (`pi --fork`), so the source tab keeps running.
+---@return Promise<PiTabRuntime>
+function M.fork_current()
+  return tab_runtimes.active().rpc_client:get_state():and_then(function(pi_state)
+    local path = pi_state and pi_state.sessionFile
+    if not path or not vim.uv.fs_stat(path) then
+      return Promise.new():reject('Nothing to fork yet: the current session has no saved messages')
     end
-    return runtime
+    return open_tab({ extra_args = { '--fork', path } }, function()
+      return require('pi.rpc_client').get():get_state():and_then(function(forked)
+        return require('pi.session').get_by_id(forked.sessionFile)
+      end)
+    end)
   end)
 end
 
@@ -175,6 +317,7 @@ function M.close(id)
   end
 
   stop_settle_watch(id)
+  untrack(id)
   snapshots[id] = nil
   tab_runtimes.close(id)
 
@@ -185,12 +328,25 @@ function M.close(id)
       return true
     end)
   end
+  M.publish()
   return Promise.new():resolve(true)
+end
+
+---@return Promise<boolean>
+function M.close_active()
+  local id = tab_runtimes.active_id()
+  if not id then
+    return Promise.new():resolve(false)
+  end
+  return M.close(id)
 end
 
 function M._reset()
   for id in pairs(settle_watchers) do
     stop_settle_watch(id)
+  end
+  for id in pairs(status_watchers) do
+    untrack(id)
   end
   snapshots = {}
 end

@@ -277,4 +277,160 @@ describe('services.tabs', function()
       assert.is_false(tabs.close(42):wait(100))
     end)
   end)
+
+  describe('navigation', function()
+    it('cycles forward and backward with wrap-around', function()
+      local a = new_runtime()
+      local b = new_runtime()
+      local c = new_runtime()
+
+      tabs.cycle(1)
+      assert.equal(b.id, tabs.active_id())
+      tabs.cycle(1)
+      assert.equal(c.id, tabs.active_id())
+      tabs.cycle(1)
+      assert.equal(a.id, tabs.active_id())
+      tabs.cycle(-1)
+      assert.equal(c.id, tabs.active_id())
+    end)
+
+    it('does nothing with a single tab', function()
+      local a = new_runtime()
+
+      assert.is_false(tabs.cycle(1))
+      assert.equal(a.id, tabs.active_id())
+    end)
+
+    it('goes to a tab by its position', function()
+      new_runtime()
+      local b = new_runtime()
+
+      assert.is_true(tabs.go_to(2))
+      assert.equal(b.id, tabs.active_id())
+      assert.is_false(tabs.go_to(5))
+      assert.equal(b.id, tabs.active_id())
+    end)
+  end)
+
+  describe('list_view', function()
+    it('lists tabs in order with titles, activity, and running status', function()
+      local a = new_runtime()
+      local b = new_runtime()
+      state.session.set_active({ id = 'ses_a', title = 'Long task' })
+      tabs.switch(b.id)
+      a.rpc_client.streaming = true
+
+      local views = tabs.list_view()
+
+      assert.same({
+        { id = a.id, index = 1, title = 'Long task', running = true, active = false },
+        { id = b.id, index = 2, title = 'New session', running = false, active = true },
+      }, views)
+    end)
+
+    it('publishes the view to the store on switch', function()
+      new_runtime()
+      local b = new_runtime()
+
+      tabs.switch(b.id)
+
+      assert.equal(2, #state.tabs)
+      assert.is_true(state.tabs[2].active)
+    end)
+
+    it('republishes when a background tab starts or settles', function()
+      local a = new_runtime()
+      local b = new_runtime()
+      tabs.publish()
+      tabs.switch(b.id)
+
+      a.process:_emit({ type = 'agent_start' })
+      assert.is_true(state.tabs[1].running)
+
+      a.process:_emit({ type = 'agent_settled' })
+      assert.is_false(state.tabs[1].running)
+    end)
+
+    it('keeps background session renames', function()
+      local a = new_runtime()
+      local b = new_runtime()
+      state.session.set_active({ id = 'ses_a', title = 'Old' })
+      tabs.publish()
+      tabs.switch(b.id)
+
+      a.process:_emit({ type = 'session_info_changed', name = 'Renamed in background' })
+
+      assert.equal('Renamed in background', state.tabs[1].title)
+      tabs.switch(a.id)
+      assert.equal('Renamed in background', state.active_session.title)
+    end)
+  end)
+
+  describe('find_by_session', function()
+    it('finds active and background owners', function()
+      local a = new_runtime()
+      local b = new_runtime()
+      state.session.set_active({ id = '/s/a.jsonl' })
+      tabs.switch(b.id)
+      state.session.set_active({ id = '/s/b.jsonl' })
+
+      assert.equal(a.id, tabs.find_by_session('/s/a.jsonl'))
+      assert.equal(b.id, tabs.find_by_session('/s/b.jsonl'))
+      assert.is_nil(tabs.find_by_session('/s/other.jsonl'))
+      assert.is_nil(tabs.find_by_session(nil))
+    end)
+  end)
+
+  describe('fork_current', function()
+    local session_module
+    local tmp
+
+    before_each(function()
+      tmp = vim.fn.tempname() .. '.jsonl'
+      vim.fn.writefile({ '{}' }, tmp)
+      session_module = package.loaded['pi.session']
+      package.loaded['pi.session'] = {
+        get_by_id = function(id)
+          return Promise.new():resolve({ id = id, title = 'Forked' })
+        end,
+      }
+    end)
+
+    after_each(function()
+      package.loaded['pi.session'] = session_module
+      vim.fn.delete(tmp)
+    end)
+
+    it('starts the new tab with --fork of the source session file', function()
+      local source = new_runtime()
+      stub(source.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = tmp }))
+      stub(tab_runtimes, 'create').invokes(function(opts)
+        tab_runtimes.create:revert()
+        local runtime = fake_runtime(tab_runtimes.create(opts))
+        stub(runtime.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = '/forked.jsonl' }))
+        return runtime
+      end)
+
+      local runtime = tabs.fork_current():wait(1000)
+
+      assert.same({ '--fork', tmp }, runtime.process.extra_args)
+      assert.equal(runtime.id, tabs.active_id())
+      assert.equal('/forked.jsonl', state.active_session.id)
+      assert.equal(0, created_sessions)
+    end)
+
+    it('refuses when the source session has not been written yet', function()
+      local source = new_runtime()
+      stub(source.rpc_client, 'get_state').returns(Promise.new():resolve({ sessionFile = '/does/not/exist.jsonl' }))
+
+      local ok, err = pcall(function()
+        return tabs.fork_current():wait(1000)
+      end)
+
+      assert.is_false(ok)
+      assert.matches('Nothing to fork yet', tostring(err))
+      assert.equal(1, #tabs.list())
+      assert.equal(source.id, tabs.active_id())
+    end)
+  end)
 end)

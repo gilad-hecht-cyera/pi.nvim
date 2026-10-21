@@ -102,6 +102,13 @@ M.select_session = Promise.async(function(parent_id, scope)
 end)
 
 M.switch_session = Promise.async(function(session_id)
+  local tabs = require('pi.services.tabs')
+  local owner = tabs.find_by_session(session_id)
+  if owner and owner ~= tabs.active_id() then
+    tabs.switch(owner)
+    return
+  end
+
   local selected_session = session.get_by_id(session_id):await()
 
   state.model.clear()

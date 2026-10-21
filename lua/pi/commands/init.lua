@@ -16,6 +16,7 @@ local command_definitions = (function()
     'pi.commands.handlers.surface',
     'pi.commands.handlers.agent',
     'pi.commands.handlers.permission',
+    'pi.commands.handlers.tab',
   }
 
   local defs = {}

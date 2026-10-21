@@ -26,6 +26,7 @@ local M = {}
 ---@field current_model_info table|nil
 ---@field current_variant string|nil
 ---@field extension_statuses table<string, string>
+---@field tabs PiTabView[]
 ---@field messages PiMessage[]|nil
 ---@field current_message PiMessage|nil
 ---@field pending_permissions PiPermission[]
@@ -72,6 +73,7 @@ local _state = {
   current_model_info = nil,
   current_variant = nil,
   extension_statuses = {},
+  tabs = {},
   messages = nil,
   current_message = nil,
   pending_permissions = {},

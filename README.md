@@ -66,6 +66,18 @@ Default keymap prefix is `<leader>p`, mirroring the original opencode.nvim layou
 - `<leader>pV` select thinking level
 - `<leader>p/` quick chat
 
+### Tabs
+
+The sidebar can hold several Pi sessions at once. Each tab runs its own `pi --mode rpc` process, so a background tab keeps working while you use another one, like opening `pi` in a second shell tab.
+
+- `:Pi tab new` / `<leader>pn` opens an empty tab with a fresh session
+- `:Pi tab fork` / `<leader>pf` opens a new tab with a fork of the current session at its current position; the original tab keeps running
+- `:Pi tab next` / `:Pi tab prev`, `]t` / `[t` in the Pi windows, or `<leader>p>` / `<leader>p<`
+- `:Pi tab goto <n>` jumps to a tab by number
+- `:Pi tab close` / `<leader>pw` closes the active tab, aborting it first if it is running
+
+With more than one tab, the output window's top bar shows a clickable tab strip; `●` marks tabs that are running. Selecting a session that is already open in another tab switches to that tab instead of opening it twice.
+
 In the Pi output window:
 
 - `gf` opens an exact file reference under the cursor

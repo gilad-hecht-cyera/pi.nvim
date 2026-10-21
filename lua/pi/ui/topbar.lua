@@ -1,6 +1,7 @@
 local config = require('pi.config')
 local util = require('pi.util')
 local winbar = require('pi.ui.winbar')
+local tabbar = require('pi.ui.tabbar')
 
 local M = {}
 
@@ -107,9 +108,16 @@ function M.render()
 
     vim.wo[win].winbar = ' '
 
-    local desc = get_session_desc():gsub('%%', '%%%%')
     local token_info = format_token_info()
-    local winbar_str = create_winbar_text(desc, token_info, vim.api.nvim_win_get_width(win))
+    local width = vim.api.nvim_win_get_width(win)
+    local tab_strip = tabbar.format(state.tabs or {}, width - vim.fn.strdisplaywidth(token_info) - 2)
+    local winbar_str
+    if tab_strip then
+      winbar_str = tab_strip .. '%=' .. token_info
+    else
+      local desc = get_session_desc():gsub('%%', '%%%%')
+      winbar_str = create_winbar_text(desc, token_info, width)
+    end
     vim.wo[win].winbar = winbar_str
 
     winbar.update_highlights(win, 'PiSessionDescription')
@@ -130,6 +138,7 @@ function M.setup()
   state.store.subscribe('session_stats', on_change)
   state.store.subscribe('current_model_info', on_change)
   state.store.subscribe('is_opening', on_change)
+  state.store.subscribe('tabs', on_change)
   M.render()
 end
 
@@ -142,5 +151,6 @@ function M.close()
   state.store.unsubscribe('cost', on_change)
   state.store.unsubscribe('session_stats', on_change)
   state.store.unsubscribe('current_model_info', on_change)
+  state.store.unsubscribe('tabs', on_change)
 end
 return M

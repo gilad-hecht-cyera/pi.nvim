@@ -41,6 +41,11 @@ function M.clear_windows()
   return store.set('windows', nil)
 end
 
+---@param tabs PiTabView[]
+function M.set_tabs(tabs)
+  return store.set('tabs', tabs)
+end
+
 ---@param key string
 ---@param value string|nil
 function M.set_extension_status(key, value)

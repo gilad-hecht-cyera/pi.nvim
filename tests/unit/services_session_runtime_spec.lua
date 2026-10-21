@@ -340,6 +340,38 @@ describe('pi.services.session_runtime', function()
   describe('switch_session', function()
     local input_window = require('pi.ui.input_window')
 
+    it('switches to the tab that already has the session open instead of loading it again', function()
+      local tabs = require('pi.services.tabs')
+      stub(tabs, 'find_by_session').returns(7)
+      stub(tabs, 'active_id').returns(1)
+      stub(tabs, 'switch')
+
+      session_runtime.switch_session('/s/owned.jsonl'):wait()
+
+      assert.stub(tabs.switch).was_called_with(7)
+      assert.stub(session.get_by_id).was_not_called()
+
+      tabs.find_by_session:revert()
+      tabs.active_id:revert()
+      tabs.switch:revert()
+    end)
+
+    it('loads the session normally when the active tab owns it', function()
+      local tabs = require('pi.services.tabs')
+      stub(tabs, 'find_by_session').returns(1)
+      stub(tabs, 'active_id').returns(1)
+      stub(tabs, 'switch')
+
+      session_runtime.switch_session('root1'):wait()
+
+      assert.stub(tabs.switch).was_not_called()
+      assert.stub(session.get_by_id).was_called()
+
+      tabs.find_by_session:revert()
+      tabs.active_id:revert()
+      tabs.switch:revert()
+    end)
+
     it('hides input window when switching to a child session', function()
       state.ui.set_windows({ mock = 'windows', input_buf = 1, output_buf = 2, input_win = 3, output_win = 4 })
       local orig_is_visible = state.ui.is_visible

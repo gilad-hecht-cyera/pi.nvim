@@ -123,7 +123,7 @@ Each step is a separate jj change.
    - measure process startup time
 2. ~~Per-tab runtime registry~~ (done): `lua/pi/tab_runtimes.lua` owns a process and RPC client per tab. `PiProcess.get()` / `RpcClient.get()` return the active tab's. Events from background tabs are not rendered; responses and `streaming` tracking still work.
 3. ~~Per-tab state on switch~~ (done): `services/tabs.lua` (`switch`, `new`, `close`), `state/tab_scope.lua`, per-tab output view and input draft, mid-stream replay.
-4. Tab commands (`new`, `fork`, `next`, `prev`, `close`) and the tab bar.
+4. ~~Tab commands and the tab bar~~ (done): `:Pi tab new|fork|next|prev|close|goto`, keymaps, clickable strip in the output winbar (`ui/tabbar.lua`), and switching to the owning tab when a session is already open elsewhere.
 5. Route fork entry points through `fork_target`.
 6. Background status and notifications.
 7. Persist and restore tabs per cwd.

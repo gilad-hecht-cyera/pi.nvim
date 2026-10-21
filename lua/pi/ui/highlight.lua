@@ -126,6 +126,9 @@ function M.setup()
     vim.api.nvim_set_hl(0, 'PiQuestionKeyHint', { fg = '#61AFEF', bold = true, default = true })
     vim.api.nvim_set_hl(0, 'PiChangedLines', { bg = '#3D3520', default = true })
   end
+
+  vim.api.nvim_set_hl(0, 'PiTabActive', { link = 'TabLineSel', default = true })
+  vim.api.nvim_set_hl(0, 'PiTabInactive', { link = 'PiSessionDescription', default = true })
 end
 
 ---Re-apply the plugin highlight groups whenever a colorscheme is loaded.
