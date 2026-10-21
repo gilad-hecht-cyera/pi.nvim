@@ -305,4 +305,118 @@ describe('tab_runtimes', function()
       assert.is_nil(runtime.rpc_client.stream_events)
     end)
   end)
+
+  describe('queued prompts', function()
+    local state = require('pi.state')
+    local saved_scope
+
+    local function queued_prompts()
+      return vim.tbl_map(function(item)
+        return item.prompt
+      end, (state.queued_user_messages or {}).ses_a or {})
+    end
+
+    local function queue_update(steering, follow_up)
+      return { type = 'queue_update', steering = steering or {}, followUp = follow_up or {} }
+    end
+
+    before_each(function()
+      saved_scope = state.tab_scope.swap({ active_session = { id = 'ses_a' } })
+      state.session.clear_queued_user_messages()
+    end)
+
+    after_each(function()
+      state.session.clear_queued_user_messages()
+      state.tab_scope.swap(saved_scope)
+    end)
+
+    it('shows a prompt until Pi answers, and drops it when Pi starts a run with it', function()
+      local client = tab_runtimes.create().rpc_client
+
+      local id = client:queue_prompt('hello')
+      assert.same({ 'hello' }, queued_prompts())
+
+      client:settle_queued_prompt(id, true)
+      assert.same({}, queued_prompts())
+    end)
+
+    it('drops a rejected prompt', function()
+      local client = tab_runtimes.create().rpc_client
+      local id = client:queue_prompt('rejected')
+
+      client:settle_queued_prompt(id, false)
+
+      assert.same({}, queued_prompts())
+    end)
+
+    it('keeps accepted prompts while Pi reports them queued and drops them in delivery order', function()
+      local runtime = tab_runtimes.create()
+      local client = runtime.rpc_client
+      local first = client:queue_prompt('first')
+      local second = client:queue_prompt('second')
+
+      runtime.process:_emit(queue_update({ 'first' }))
+      client:settle_queued_prompt(first, true)
+      runtime.process:_emit(queue_update({ 'first', 'second' }))
+      client:settle_queued_prompt(second, true)
+      assert.same({ 'first', 'second' }, queued_prompts())
+
+      runtime.process:_emit(queue_update({ 'second' }))
+      assert.same({ 'second' }, queued_prompts())
+
+      runtime.process:_emit(queue_update({}, {}))
+      assert.same({}, queued_prompts())
+    end)
+
+    it('counts follow-up messages as queued', function()
+      local runtime = tab_runtimes.create()
+      local id = runtime.rpc_client:queue_prompt('later')
+
+      runtime.process:_emit(queue_update({}, { 'later' }))
+      runtime.rpc_client:settle_queued_prompt(id, true)
+
+      assert.same({ 'later' }, queued_prompts())
+    end)
+
+    it('does not drop a prompt Pi has not answered yet when the queue drains', function()
+      local runtime = tab_runtimes.create()
+      local client = runtime.rpc_client
+      local first = client:queue_prompt('first')
+      runtime.process:_emit(queue_update({ 'first' }))
+      client:settle_queued_prompt(first, true)
+      local second = client:queue_prompt('second')
+
+      runtime.process:_emit(queue_update({}))
+      assert.same({ 'second' }, queued_prompts())
+
+      runtime.process:_emit(queue_update({ 'second' }))
+      client:settle_queued_prompt(second, true)
+      assert.same({ 'second' }, queued_prompts())
+    end)
+
+    it('tracks a background tab queue without touching the active tab', function()
+      local active = tab_runtimes.create()
+      local background = tab_runtimes.create()
+      active.rpc_client:queue_prompt('active prompt')
+
+      local id = background.rpc_client:queue_prompt('background prompt')
+      background.process:_emit(queue_update({ 'background prompt' }))
+      background.rpc_client:settle_queued_prompt(id, true)
+      assert.same({ 'active prompt' }, queued_prompts())
+
+      background.process:_emit(queue_update({}))
+      assert.same(0, #background.rpc_client.queued_prompts)
+      assert.same({ 'active prompt' }, queued_prompts())
+    end)
+
+    it('clears the queue when the process exits', function()
+      local runtime = tab_runtimes.create()
+      runtime.rpc_client:queue_prompt('pending')
+
+      runtime.process:_emit({ type = 'process_exit', code = 1 })
+
+      assert.same({}, queued_prompts())
+      assert.same({}, runtime.rpc_client.queued_prompts)
+    end)
+  end)
 end)

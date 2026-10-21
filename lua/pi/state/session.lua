@@ -109,6 +109,11 @@ function M.clear_queued_user_messages()
   store.set('queued_user_messages', {})
 end
 
+---@param queued table<string, { id: string, prompt: string }[]>
+function M.set_queued_user_messages(queued)
+  store.set('queued_user_messages', queued)
+end
+
 ---Increment/decrement the message count for a session, clamped to >= 0
 ---@param session_id string
 ---@param delta integer

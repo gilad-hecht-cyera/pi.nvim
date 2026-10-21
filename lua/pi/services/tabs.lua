@@ -394,6 +394,7 @@ function M.switch(id)
   end
 
   sync_input_buffer()
+  target.rpc_client:publish_queued_prompts()
 
   local session = state.active_session
   if session and session.id then
@@ -621,6 +622,7 @@ function M.close(id)
   if replacement then
     event_adapter.reset_live()
     state.tab_scope.swap(nil)
+    state.session.clear_queued_user_messages()
     return M.new():and_then(function()
       return true
     end)

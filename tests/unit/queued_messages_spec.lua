@@ -93,7 +93,10 @@ describe('queued messages', function()
     assert.is_nil(queued_messages._window())
   end)
 
-  it('removes the oldest prompt only after its text is rendered', function()
+  it('removes the oldest prompt only after its text is rendered on the server backend', function()
+    local config = require('pi.config')
+    local original_backend = config.backend
+    config.backend = 'config_file'
     state.renderer.set_messages({})
     state.session.queue_user_message('session-a', 'first')
     state.session.queue_user_message('session-a', 'second')
@@ -132,6 +135,24 @@ describe('queued messages', function()
 
     assert.equal(1, #state.queued_user_messages['session-a'])
     assert.equal('second', state.queued_user_messages['session-a'][1].prompt)
+    config.backend = original_backend
+  end)
+
+  it('leaves the queue to Pi on the pi backend', function()
+    state.renderer.set_messages({})
+    state.session.queue_user_message('session-a', 'first')
+
+    local events = require('pi.ui.renderer.events')
+    events.on_message_updated({
+      info = { id = 'message-2', sessionID = 'session-a', role = 'user' },
+      parts = {},
+    })
+    events.on_part_updated({
+      part = { id = 'part-2', messageID = 'message-2', sessionID = 'session-a', type = 'text', text = 'first' },
+    })
+    require('pi.ui.renderer.flush').flush()
+
+    assert.equal(1, #state.queued_user_messages['session-a'])
   end)
 
   it('limits the preview and reports hidden prompts', function()

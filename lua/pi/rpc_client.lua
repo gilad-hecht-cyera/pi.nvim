@@ -22,6 +22,9 @@ function RpcClient.new(process, opts)
     pending = {},
     streaming = false,
     stream_events = nil,
+    queued_prompts = {},
+    pi_queue_length = 0,
+    next_queued_prompt_id = 0,
   }, RpcClient)
 
   self.process:on_event(function(event)
@@ -160,6 +163,13 @@ function RpcClient:_handle_event(event)
     self.streaming = true
   elseif event.type == 'agent_settled' then
     self.streaming = false
+  elseif event.type == 'queue_update' then
+    self.pi_queue_length = #(event.steering or {}) + #(event.followUp or {})
+    self:_reconcile_queued_prompts()
+  elseif event.type == 'process_exit' then
+    self.pi_queue_length = 0
+    self.queued_prompts = {}
+    self:publish_queued_prompts()
   end
   self:_track_stream(event)
 
@@ -221,6 +231,75 @@ end
 
 function RpcClient:abort()
   return self:request({ type = 'abort' })
+end
+
+---Show `prompt` in the queue until Pi's own queue (`queue_update`) shows it was delivered.
+---@param prompt string
+---@return string id
+function RpcClient:queue_prompt(prompt)
+  self.next_queued_prompt_id = self.next_queued_prompt_id + 1
+  local id = tostring(self.next_queued_prompt_id)
+  table.insert(self.queued_prompts, { id = id, prompt = prompt, accepted = false })
+  self:publish_queued_prompts()
+  return id
+end
+
+---Record Pi's answer to a queued prompt. Rejected prompts leave the queue; accepted ones stay
+---only while Pi still reports them queued.
+---@param id string
+---@param accepted boolean
+function RpcClient:settle_queued_prompt(id, accepted)
+  for index, item in ipairs(self.queued_prompts) do
+    if item.id == id then
+      if accepted then
+        item.accepted = true
+      else
+        table.remove(self.queued_prompts, index)
+      end
+      break
+    end
+  end
+  self:_reconcile_queued_prompts()
+end
+
+---Pi delivers queued prompts in order, so drop the oldest accepted ones beyond Pi's queue length.
+---Prompts still awaiting Pi's answer are kept, since Pi's queue may not include them yet.
+function RpcClient:_reconcile_queued_prompts()
+  local excess = -self.pi_queue_length
+  for _, item in ipairs(self.queued_prompts) do
+    if item.accepted then
+      excess = excess + 1
+    end
+  end
+  local kept = {}
+  for _, item in ipairs(self.queued_prompts) do
+    if item.accepted and excess > 0 then
+      excess = excess - 1
+    else
+      table.insert(kept, item)
+    end
+  end
+  self.queued_prompts = kept
+  self:publish_queued_prompts()
+end
+
+---Mirror this client's queue into the store when its tab is active.
+function RpcClient:publish_queued_prompts()
+  if not self:is_active() then
+    return
+  end
+  local ok, state = pcall(require, 'pi.state')
+  if not ok then
+    return
+  end
+  local session_id = state.active_session and state.active_session.id
+  local queued = {}
+  if session_id and #self.queued_prompts > 0 then
+    queued[session_id] = vim.tbl_map(function(item)
+      return { id = item.id, prompt = item.prompt }
+    end, self.queued_prompts)
+  end
+  state.session.set_queued_user_messages(queued)
 end
 
 local function sync_state_from_pi(pi_state)

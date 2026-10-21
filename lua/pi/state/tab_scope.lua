@@ -11,7 +11,6 @@ M.KEYS = {
   'pending_permissions',
   'restore_points',
   'user_message_count',
-  'queued_user_messages',
   'last_sent_context',
   'cost',
   'tokens_count',

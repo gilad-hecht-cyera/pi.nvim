@@ -538,6 +538,9 @@ function M.end_bulk_mode()
 end
 
 local function acknowledge_rendered_user_messages(pending)
+  if config.backend == 'pi' then
+    return
+  end
   for _, message_id in ipairs(pending.rendered_user_message_order) do
     local candidate = pending.rendered_user_messages[message_id]
     local rendered_part = candidate and ctx.render_state:get_part(candidate.part_id)

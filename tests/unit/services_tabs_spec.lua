@@ -140,6 +140,23 @@ describe('services.tabs', function()
       assert.same({ 'draft for a' }, state.input_content)
     end)
 
+    it('shows the queued prompts of the tab switched to', function()
+      local a = new_runtime()
+      local b = new_runtime()
+      state.session.set_active({ id = 'ses_a' })
+      a.rpc_client:queue_prompt('for a')
+
+      tabs.switch(b.id)
+      assert.same({}, state.queued_user_messages)
+
+      state.session.set_active({ id = 'ses_b' })
+      b.rpc_client:queue_prompt('for b')
+      tabs.switch(a.id)
+
+      assert.equal('for a', state.queued_user_messages.ses_a[1].prompt)
+      assert.is_nil(state.queued_user_messages.ses_b)
+    end)
+
     it('replays the in-progress message after the session re-renders', function()
       local a = new_runtime()
       local b = new_runtime()
