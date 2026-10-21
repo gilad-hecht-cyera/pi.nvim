@@ -183,7 +183,7 @@ Suggested initial mappings:
 
 ```lua
 {
-  dir = "/Users/gilad.hecht/workspace/personal/pi.nvim",
+  dir = "~/path/to/pi.nvim",
   name = "pi.nvim",
   config = function()
     require("pi").setup({
@@ -329,7 +329,7 @@ Final desired config:
 ```lua
 return {
   {
-    "gilad/pi.nvim",
+    "<owner>/pi.nvim",
     config = function()
       require("pi").setup({
         ui = {
@@ -364,7 +364,7 @@ return {
 
 ## Immediate Next Steps
 
-1. Inspect the fork in `/Users/gilad.hecht/workspace/personal/pi.nvim`.
+1. Inspect the fork in `~/path/to/pi.nvim`.
 2. Check whether module namespace is still `opencode`.
 3. Add a minimal `pi_process.lua` and test spawning `pi --mode rpc --no-session`.
 4. Implement JSONL stdout parsing and command sending.

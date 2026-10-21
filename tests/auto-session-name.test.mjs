@@ -132,7 +132,7 @@ test("actual title generation completes after successful auth without an API key
 });
 
 test("actual title generation forwards resolved environment and headers without an API key", async () => {
-	const env = { AWS_PROFILE: "claude", AWS_REGION: "us-west-2" };
+	const env = { AWS_PROFILE: "test-profile", AWS_REGION: "us-west-2" };
 	const headers = { "x-session-naming": "test" };
 	const state = completionHarness({ ok: true, env, headers });
 
@@ -167,14 +167,14 @@ test("actual title generation still forwards API-key authentication", async () =
 });
 
 test("actual title generation reports auth failures without calling completion", async () => {
-	const state = completionHarness({ ok: false, error: "Unable to resolve credentials for profile claude" });
+	const state = completionHarness({ ok: false, error: "Unable to resolve credentials for profile test-profile" });
 
 	await runAutoname(state);
 
 	assert.equal(complete.mock.callCount(), 0);
 	assert.deepEqual(state.names, []);
 	assert.deepEqual(state.notifications, [
-		["Failed to name session: Error: Unable to resolve credentials for profile claude", "warning"],
+		["Failed to name session: Error: Unable to resolve credentials for profile test-profile", "warning"],
 	]);
 });
 

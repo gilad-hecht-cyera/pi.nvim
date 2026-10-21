@@ -12,7 +12,7 @@ Work in progress. Core Pi chat works, model switching is wired, Pi sessions are 
 
 ```lua
 return {
-  dir = "/Users/gilad.hecht/workspace/personal/pi.nvim",
+  dir = "~/path/to/pi.nvim",
   name = "pi.nvim",
   lazy = false,
   config = function()
