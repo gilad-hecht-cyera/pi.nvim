@@ -174,6 +174,32 @@ describe('tab_runtimes', function()
     end)
   end)
 
+  describe('set_order', function()
+    it('reorders tabs', function()
+      local a = tab_runtimes.create()
+      local b = tab_runtimes.create()
+      local c = tab_runtimes.create()
+
+      assert.is_true(tab_runtimes.set_order({ c.id, a.id, b.id }))
+
+      assert.same({ c.id, a.id, b.id }, vim.tbl_map(function(r)
+        return r.id
+      end, tab_runtimes.list()))
+    end)
+
+    it('rejects missing, unknown, or duplicate ids', function()
+      local a = tab_runtimes.create()
+      local b = tab_runtimes.create()
+
+      assert.is_false(tab_runtimes.set_order({ a.id }))
+      assert.is_false(tab_runtimes.set_order({ a.id, 99 }))
+      assert.is_false(tab_runtimes.set_order({ a.id, a.id }))
+      assert.same({ a.id, b.id }, vim.tbl_map(function(r)
+        return r.id
+      end, tab_runtimes.list()))
+    end)
+  end)
+
   it('stop_all stops every runtime', function()
     local a = tab_runtimes.create()
     local b = tab_runtimes.create()

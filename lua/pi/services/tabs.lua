@@ -248,8 +248,103 @@ function M.list_view()
   return views
 end
 
+local restoring = false
+local restored = false
+local last_saved = nil
+
+local function session_file(session)
+  local path = session and (session.sessionFile or session.path or session.id)
+  if type(path) == 'string' and vim.uv.fs_stat(path) then
+    return path
+  end
+end
+
+---Persist the open tabs for the current working directory. Tabs whose session has not been
+---written to disk yet are skipped, since there is nothing to reopen. Nothing is saved before
+---`restore` had its chance, so an early save cannot overwrite the tabs about to be restored.
+function M.save()
+  if restoring or not restored or not require('pi.config').ui.tabs.persist then
+    return
+  end
+  local sessions = {}
+  local active = 1
+  for _, runtime in ipairs(tab_runtimes.list()) do
+    local path = session_file(session_of(runtime.id))
+    if path then
+      table.insert(sessions, path)
+      if tab_runtimes.is_active(runtime.id) then
+        active = #sessions
+      end
+    end
+  end
+  local saved = #sessions > 0 and { sessions = sessions, active = active } or nil
+  local cwd = vim.fn.getcwd()
+  local encoded = cwd .. vim.json.encode(saved or vim.NIL)
+  if encoded == last_saved then
+    return
+  end
+  last_saved = encoded
+  require('pi.tab_persistence').write(cwd, saved)
+end
+
 function M.publish()
   state.ui.set_tabs(M.list_view())
+  M.save()
+end
+
+---Recreate the tabs saved for the current working directory. Background tabs get a runtime
+---started with `--session <file>`, whose process only spawns when the tab is first used.
+---The saved active tab reuses the existing first runtime; its session file is returned so the
+---caller can load it the usual way. Runs once, and only before any extra tab exists.
+---@return string|nil active_session_file
+function M.restore()
+  if restored then
+    return nil
+  end
+  restored = true
+  if not require('pi.config').ui.tabs.persist then
+    return nil
+  end
+  if #tab_runtimes.list() > 1 then
+    return nil
+  end
+
+  local saved = require('pi.tab_persistence').read(vim.fn.getcwd())
+  if not saved then
+    return nil
+  end
+  local sessions = {}
+  local active_path = saved.sessions[saved.active]
+  for _, path in ipairs(saved.sessions) do
+    if type(path) == 'string' and vim.uv.fs_stat(path) and not vim.tbl_contains(sessions, path) then
+      table.insert(sessions, path)
+    end
+  end
+  if #sessions == 0 then
+    return nil
+  end
+  if not vim.tbl_contains(sessions, active_path) then
+    active_path = sessions[1]
+  end
+
+  restoring = true
+  local first = tab_runtimes.active()
+  local ids = {}
+  for _, path in ipairs(sessions) do
+    if path == active_path then
+      table.insert(ids, first.id)
+    else
+      local runtime = tab_runtimes.create({ extra_args = { '--session', path } })
+      track(runtime)
+      local scope = state.tab_scope.defaults()
+      scope.active_session = require('pi.pi_sessions').get_by_path(path)
+      snapshots[runtime.id] = { scope = scope }
+      table.insert(ids, runtime.id)
+    end
+  end
+  tab_runtimes.set_order(ids)
+  restoring = false
+  return active_path
 end
 
 ---Find the tab that has `session_id` open.
@@ -355,6 +450,7 @@ end
 ---@param load_session fun(): Promise<Session|nil>
 ---@return Promise<PiTabRuntime>
 local function open_tab(runtime_opts, load_session)
+  restored = true
   local runtime = tab_runtimes.create(runtime_opts)
   track(runtime)
   M.switch(runtime.id)
@@ -550,6 +646,9 @@ function M._reset()
     untrack(id)
   end
   snapshots = {}
+  restoring = false
+  restored = false
+  last_saved = nil
 end
 
 return M

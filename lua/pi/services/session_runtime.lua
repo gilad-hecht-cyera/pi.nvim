@@ -206,7 +206,12 @@ M.open = Promise.async(function(opts)
     else
       agent_model.ensure_current_mode():await()
       if not state.active_session then
-        state.session.set_active(session.load_last_workspace_session():await())
+        local restored_path = require('pi.services.tabs').restore()
+        local restored_session = restored_path and session.get_by_id(restored_path):await()
+        state.session.set_active(restored_session or session.load_last_workspace_session():await())
+        if restored_path then
+          require('pi.services.tabs').publish()
+        end
         if not state.active_session then
           state.session.set_active(M.create_new_session():await())
         end

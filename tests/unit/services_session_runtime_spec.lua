@@ -118,6 +118,33 @@ describe('pi.services.session_runtime', function()
   end)
 
   describe('open', function()
+    it('opens the restored active tab session instead of the most recent one', function()
+      local tabs = require('pi.services.tabs')
+      state.ui.set_windows(nil)
+      state.session.clear_active()
+      stub(tabs, 'restore').returns('/s/restored.jsonl')
+      stub(tabs, 'publish')
+
+      session_runtime.open({ new_session = false, focus = 'input' }):wait()
+
+      assert.equal('/s/restored.jsonl', state.active_session.id)
+      assert.stub(session.get_last_workspace_session).was_not_called()
+      assert.stub(tabs.publish).was_called()
+      tabs.restore:revert()
+      tabs.publish:revert()
+    end)
+
+    it('falls back to the most recent session when nothing was restored', function()
+      local tabs = require('pi.services.tabs')
+      state.ui.set_windows(nil)
+      state.session.clear_active()
+      stub(tabs, 'restore').returns(nil)
+
+      session_runtime.open({ new_session = false, focus = 'input' }):wait()
+
+      assert.equal('test-session', state.active_session.id)
+      tabs.restore:revert()
+    end)
     it("creates windows if they don't exist", function()
       state.ui.set_windows(nil)
       session_runtime.open({ new_session = false, focus = 'input' }):wait()

@@ -1,6 +1,6 @@
 # Sidebar Tabs
 
-Status: planned
+Status: implemented (steps 1–7)
 
 ## Goal
 
@@ -126,4 +126,4 @@ Each step is a separate jj change.
 4. ~~Tab commands and the tab bar~~ (done): `:Pi tab new|fork|next|prev|close|goto`, keymaps, clickable strip in the output winbar (`ui/tabbar.lua`), and switching to the owning tab when a session is already open elsewhere.
 5. ~~Route fork entry points through `fork_target`~~ (done): `[F]ork`, the timeline picker, `:Pi fork`, `/fork`, and the session picker `<C-f>` ask "New tab" / "Replace current session". Forks into a tab are named `FORK <n> <title>` like in-place forks, and an entry fork prefills the input with the forked prompt. Undo/revert still forks in place.
 6. ~~Background status and notifications~~ (done): tab status `running` (●), `waiting` (?, blocked on a dialog), `done` (✓, finished while in the background, until visited). Background dialog requests (`select`/`confirm`/`input`/`editor`) are queued and shown when the tab becomes active; `notify` is forwarded with the tab name and `setStatus` is kept in the tab's state. `ui.tabs.notify` controls the "finished" / "needs input" notifications.
-7. Persist and restore tabs per cwd.
+7. ~~Persist and restore tabs per cwd~~ (done): open tabs are saved to `stdpath('data')/pi/tabs.json`, keyed by cwd, whenever the tab list changes (tabs without a written session file are skipped). The first open of the sidebar restores them: the saved active tab loads into the first runtime as usual; the others get a runtime started with `pi --session <file>` whose process only spawns when the tab is first used. `ui.tabs.persist = false` turns this off.

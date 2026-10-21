@@ -245,6 +245,7 @@
 ---@class PiUITabsConfig
 ---@field fork_target 'ask'|'tab'|'current' # Where fork actions put the fork: ask, always a new tab, or replace the current session
 ---@field notify boolean # Notify when a background tab finishes or needs input
+---@field persist boolean # Reopen the sidebar tabs of a working directory after a restart
 
 ---Window-local options applied to the input window.
 ---Any valid Neovim window-local option (`:h window-variable`) can be set here.

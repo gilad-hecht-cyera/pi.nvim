@@ -181,6 +181,7 @@ M.defaults = {
     tabs = {
       fork_target = 'ask',
       notify = true,
+      persist = true,
     },
     display_model = true,
     display_context_size = true,

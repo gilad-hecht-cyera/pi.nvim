@@ -737,4 +737,201 @@ describe('services.tabs', function()
       assert.same({ plan = 'phase 2' }, state.extension_statuses)
     end)
   end)
+
+  describe('persistence', function()
+    local config = require('pi.config')
+    local original_persistence
+    local original_pi_sessions
+    local saved
+    local writes
+    local files
+
+    local function make_file(name)
+      local path = vim.fn.tempname() .. '_' .. name .. '.jsonl'
+      vim.fn.writefile({ '{}' }, path)
+      table.insert(files, path)
+      return path
+    end
+
+    before_each(function()
+      files = {}
+      saved = {}
+      writes = 0
+      original_persistence = package.loaded['pi.tab_persistence']
+      original_pi_sessions = package.loaded['pi.pi_sessions']
+      package.loaded['pi.tab_persistence'] = {
+        read = function(cwd)
+          return saved[cwd]
+        end,
+        write = function(cwd, value)
+          writes = writes + 1
+          saved[cwd] = value
+        end,
+      }
+      package.loaded['pi.pi_sessions'] = {
+        get_by_path = function(path)
+          return { id = path, sessionFile = path, title = vim.fn.fnamemodify(path, ':t:r') }
+        end,
+      }
+    end)
+
+    after_each(function()
+      package.loaded['pi.tab_persistence'] = original_persistence
+      package.loaded['pi.pi_sessions'] = original_pi_sessions
+      config.ui.tabs.persist = true
+      for _, path in ipairs(files) do
+        vim.fn.delete(path)
+      end
+    end)
+
+    local cwd = vim.fn.getcwd()
+
+    describe('save', function()
+      it('saves session files in tab order with the active index', function()
+        local one, two = make_file('one'), make_file('two')
+        tabs.restore()
+        local a = new_runtime()
+        local b = new_runtime()
+        state.session.set_active({ id = one })
+        tabs.switch(b.id)
+        state.session.set_active({ id = two })
+        tabs.publish()
+
+        assert.same({ sessions = { one, two }, active = 2 }, saved[cwd])
+        assert.is_truthy(a)
+      end)
+
+      it('skips tabs whose session file does not exist yet', function()
+        local one = make_file('one')
+        tabs.restore()
+        new_runtime()
+        local b = new_runtime()
+        state.session.set_active({ id = one })
+        tabs.switch(b.id)
+        state.session.set_active({ id = '/not/written/yet.jsonl' })
+        tabs.publish()
+
+        assert.same({ sessions = { one }, active = 1 }, saved[cwd])
+      end)
+
+      it('does not save before restore had its chance', function()
+        local one = make_file('one')
+        saved[cwd] = { sessions = { one }, active = 1 }
+        new_runtime()
+        state.session.set_active({ id = make_file('other') })
+
+        tabs.publish()
+
+        assert.same({ sessions = { one }, active = 1 }, saved[cwd])
+        assert.equal(0, writes)
+      end)
+
+      it('does not rewrite unchanged tabs', function()
+        tabs.restore()
+        new_runtime()
+        state.session.set_active({ id = make_file('one') })
+
+        tabs.publish()
+        tabs.publish()
+
+        assert.equal(1, writes)
+      end)
+
+      it('saves nothing when ui.tabs.persist is off', function()
+        config.ui.tabs.persist = false
+        tabs.restore()
+        new_runtime()
+        state.session.set_active({ id = make_file('one') })
+
+        tabs.publish()
+
+        assert.equal(0, writes)
+      end)
+    end)
+
+    describe('restore', function()
+      local function ids()
+        return vim.tbl_map(function(r)
+          return r.id
+        end, tabs.list())
+      end
+
+      it('recreates saved tabs in order and returns the active session to load', function()
+        local one, two, three = make_file('one'), make_file('two'), make_file('three')
+        saved[cwd] = { sessions = { one, two, three }, active = 2 }
+        local first = new_runtime()
+
+        local active_path = tabs.restore()
+
+        assert.equal(two, active_path)
+        local list = tabs.list()
+        assert.equal(3, #list)
+        assert.equal(first.id, list[2].id)
+        assert.equal(first.id, tabs.active_id())
+        assert.same({ '--session', one }, list[1].process.extra_args)
+        assert.same({ '--session', three }, list[3].process.extra_args)
+        assert.is_false(list[1].process:is_running())
+      end)
+
+      it('loads a restored background session when switching to it', function()
+        local one, two = make_file('one'), make_file('two')
+        saved[cwd] = { sessions = { one, two }, active = 1 }
+        new_runtime()
+        tabs.restore()
+        state.session.set_active({ id = one })
+
+        tabs.switch(tabs.list()[2].id)
+
+        assert.equal(two, state.active_session.id)
+        assert.equal(vim.fn.fnamemodify(two, ':t:r'), tabs.list_view()[2].title)
+      end)
+
+      it('skips deleted sessions and falls back to the first remaining one', function()
+        local two = make_file('two')
+        saved[cwd] = { sessions = { '/gone/one.jsonl', two, '/gone/three.jsonl' }, active = 1 }
+        new_runtime()
+
+        assert.equal(two, tabs.restore())
+        assert.equal(1, #tabs.list())
+      end)
+
+      it('returns nil when nothing usable was saved', function()
+        saved[cwd] = { sessions = { '/gone/one.jsonl' }, active = 1 }
+        new_runtime()
+
+        assert.is_nil(tabs.restore())
+        assert.equal(1, #tabs.list())
+      end)
+
+      it('runs only once', function()
+        local one, two = make_file('one'), make_file('two')
+        saved[cwd] = { sessions = { one, two }, active = 1 }
+        new_runtime()
+
+        tabs.restore()
+        local before = ids()
+        assert.is_nil(tabs.restore())
+
+        assert.same(before, ids())
+      end)
+
+      it('does nothing once extra tabs were opened', function()
+        saved[cwd] = { sessions = { make_file('one'), make_file('two') }, active = 1 }
+        new_runtime()
+        new_runtime()
+
+        assert.is_nil(tabs.restore())
+        assert.equal(2, #tabs.list())
+      end)
+
+      it('does nothing when ui.tabs.persist is off', function()
+        config.ui.tabs.persist = false
+        saved[cwd] = { sessions = { make_file('one'), make_file('two') }, active = 1 }
+        new_runtime()
+
+        assert.is_nil(tabs.restore())
+        assert.equal(1, #tabs.list())
+      end)
+    end)
+  end)
 end)

@@ -99,6 +99,24 @@ function M.list()
   end, order)
 end
 
+---Reorder tabs. `ids` must contain exactly the current tab ids.
+---@param ids integer[]
+---@return boolean reordered
+function M.set_order(ids)
+  if #ids ~= #order then
+    return false
+  end
+  local seen = {}
+  for _, id in ipairs(ids) do
+    if not runtimes[id] or seen[id] then
+      return false
+    end
+    seen[id] = true
+  end
+  order = vim.list_extend({}, ids)
+  return true
+end
+
 local function remove(id)
   runtimes[id] = nil
   for i, value in ipairs(order) do
