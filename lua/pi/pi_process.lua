@@ -5,8 +5,6 @@ local log = require('pi.log')
 local PiProcess = {}
 PiProcess.__index = PiProcess
 
-local instance
-
 local function notify_error(message)
   log.notify('[pi.nvim] ' .. message, vim.log.levels.ERROR)
 end
@@ -19,16 +17,16 @@ function PiProcess.new(opts)
     stderr_buffer = '',
     listeners = {},
     cwd = opts.cwd or vim.fn.getcwd(),
+    pinned_cwd = opts.cwd,
+    extra_args = opts.extra_args or {},
     exited = false,
     stopping = false,
   }, PiProcess)
 end
 
+---Returns the active tab's process.
 function PiProcess.get()
-  if not instance then
-    instance = PiProcess.new()
-  end
-  return instance
+  return require('pi.tab_runtimes').active().process
 end
 
 function PiProcess:is_running()
@@ -88,13 +86,15 @@ function PiProcess:_handle_stdout_data(data)
   end
 end
 
-function PiProcess.build_args()
+---@param extra_args? string[]
+function PiProcess.build_args(extra_args)
   local args = { config.pi_executable, '--mode', 'rpc' }
   local extension_paths = vim.api.nvim_get_runtime_file('extensions/auto-session-name.ts', false)
   if extension_paths[1] then
     vim.list_extend(args, { '--extension', extension_paths[1] })
   end
   vim.list_extend(args, config.pi_args or {})
+  vim.list_extend(args, extra_args or {})
   return args
 end
 
@@ -108,11 +108,11 @@ function PiProcess:start()
   end
 
   local promise = Promise.new()
-  local args = PiProcess.build_args()
+  local args = PiProcess.build_args(self.extra_args)
 
   self.exited = false
   self.stopping = false
-  self.cwd = vim.fn.getcwd()
+  self.cwd = self.pinned_cwd or vim.fn.getcwd()
   self.job_id = vim.fn.jobstart(args, {
     cwd = self.cwd,
     stdin = 'pipe',
@@ -151,13 +151,6 @@ function PiProcess:start()
     promise:reject('failed to start pi RPC process')
     return promise
   end
-
-  vim.api.nvim_create_autocmd('VimLeavePre', {
-    group = vim.api.nvim_create_augroup('PiNvimRpcProcess', { clear = true }),
-    callback = function()
-      self:stop()
-    end,
-  })
 
   promise:resolve(self)
   return promise

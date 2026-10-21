@@ -5,7 +5,6 @@ local event_adapter = require('pi.event_adapter')
 local RpcClient = {}
 RpcClient.__index = RpcClient
 
-local instance
 local request_counter = 0
 
 local function next_request_id()
@@ -13,9 +12,13 @@ local function next_request_id()
   return 'nvim-' .. tostring(request_counter)
 end
 
-function RpcClient.new()
+---@param process? table Defaults to a new standalone process
+---@param opts? { tab_id?: integer }
+function RpcClient.new(process, opts)
+  opts = opts or {}
   local self = setmetatable({
-    process = PiProcess.get(),
+    process = process or PiProcess.new(),
+    tab_id = opts.tab_id,
     pending = {},
     streaming = false,
   }, RpcClient)
@@ -27,11 +30,15 @@ function RpcClient.new()
   return self
 end
 
+---Returns the active tab's RPC client.
 function RpcClient.get()
-  if not instance then
-    instance = RpcClient.new()
-  end
-  return instance
+  return require('pi.tab_runtimes').active().rpc_client
+end
+
+---Clients without a tab are standalone and always treated as active.
+---@return boolean
+function RpcClient:is_active()
+  return self.tab_id == nil or require('pi.tab_runtimes').is_active(self.tab_id)
 end
 
 local function notify_type(level)
@@ -128,16 +135,23 @@ function RpcClient:_handle_event(event)
     return
   end
 
+  if event.type == 'agent_start' then
+    self.streaming = true
+  elseif event.type == 'agent_settled' then
+    self.streaming = false
+  end
+
+  if not self:is_active() then
+    return
+  end
+
   if event.type == 'extension_ui_request' then
     self:_handle_extension_ui_request(event)
     event_adapter.handle_event(event)
     return
   end
 
-  if event.type == 'agent_start' then
-    self.streaming = true
-  elseif event.type == 'agent_settled' then
-    self.streaming = false
+  if event.type == 'agent_settled' then
     self:_refresh_session_stats()
   elseif event.type == 'message_end' and event.message and event.message.usage then
     local usage = event.message.usage

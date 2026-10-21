@@ -108,7 +108,7 @@ Findings:
 - Pi writes a new session file lazily, on the first persisted entry. `get_state.sessionFile` may point to a file that does not exist yet.
 - Loading a session runs extension hooks that append entries (e.g. `plannotator` custom entries). So a second process must never open a session owned by another tab, even read-only. `--fork` is the only safe way to branch from a live session.
 - After an entry fork, the new session's header has `parentSession` pointing to the intermediate copy. Deleting the intermediate leaves that link dangling. Pi's docs describe it only as lineage metadata; verify nothing breaks (e.g. `/resume`, session tree) when implementing step 5.
-- `PiProcess:start()` registers its `VimLeavePre` cleanup in a shared augroup with `clear = true`. With several processes only the last one would be stopped on exit. Fix this in step 2.
+- `PiProcess:start()` registered its `VimLeavePre` cleanup in a shared augroup with `clear = true`, so with several processes only the last one would be stopped on exit. Fixed in step 2: the registry owns a single `VimLeavePre` that stops every tab.
 - **Startup cost**: each tab spawns a `pi` process.
 
 ## Plan
@@ -120,7 +120,7 @@ Each step is a separate jj change.
    - `--fork` on a session that is still streaming
    - entry IDs are preserved across `--fork`
    - measure process startup time
-2. Per-tab runtime registry (process, RPC client, event manager). No UI changes.
+2. ~~Per-tab runtime registry~~ (done): `lua/pi/tab_runtimes.lua` owns a process and RPC client per tab. `PiProcess.get()` / `RpcClient.get()` return the active tab's. Events from background tabs are dropped (except responses and `streaming` tracking) until step 3. The event manager stays global and moves per-tab with the store in step 3.
 3. Per-tab store with notify-all on switch.
 4. Tab commands (`new`, `fork`, `next`, `prev`, `close`) and the tab bar.
 5. Route fork entry points through `fork_target`.
