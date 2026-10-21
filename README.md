@@ -72,7 +72,7 @@ The sidebar can hold several Pi sessions at once. Each tab runs its own `pi --mo
 
 - `:Pi tab new` / `<leader>pn` opens an empty tab with a fresh session
 - `:Pi tab fork` / `<leader>pf` opens a new tab with a fork of the current session at its current position; the original tab keeps running
-- `:Pi tab next` / `:Pi tab prev`, `]t` / `[t` in the Pi windows, or `<leader>p>` / `<leader>p<`
+- `:Pi tab next` / `:Pi tab prev`, `]]` / `[[` (or `]t` / `[t`) in the Pi windows, or `<leader>p>` / `<leader>p<`
 - `:Pi tab goto <n>` jumps to a tab by number
 - `:Pi tab close` / `<leader>pw` closes the active tab, aborting it first if it is running
 
@@ -84,6 +84,7 @@ With more than one tab, the output window's top bar shows a clickable tab strip;
 
 In the Pi output window:
 
+- `]m` / `[m` jump to the next / previous message, `]u` / `[u` to the next / previous user message
 - `gf` opens an exact file reference under the cursor
 - `g<Space>` opens the file picker filtered by the reference under the cursor, then jumps to its line and column
 - `gr` browses all file references from the conversation
