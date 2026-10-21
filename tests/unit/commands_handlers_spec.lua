@@ -98,7 +98,7 @@ describe('pi.commands.handlers', function()
       { 'new', 'select', 'navigate', 'compact', 'share', 'unshare', 'agents_init', 'rename', 'autoname', 'info', 'toggle_lock' },
       defs.session.completions
     )
-    assert.same({ allow_empty = false }, defs.session.nested_subcommand)
+    assert.same({ allow_empty = true }, defs.session.nested_subcommand)
 
     assert.same({ 'input', 'output' }, defs.open.completions)
     assert.equal('user_commands', defs.command.completion_provider_id)

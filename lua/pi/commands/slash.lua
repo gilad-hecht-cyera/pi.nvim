@@ -120,14 +120,13 @@ local function builtin_commands()
     pi_command('/settings', 'Open settings menu', 'settings', false),
     pi_command('/changelog', 'Show changelog entries', 'changelog', false),
     pi_command('/hotkeys', 'Show all keyboard shortcuts', 'hotkeys', false),
-    pi_command('/session', 'Show session info and stats', 'session', false),
     local_command('/quit', 'Close pi.nvim windows', function()
       return require('pi.commands.handlers.window').actions.close()
     end),
   }
 end
 
-local excluded_slash_commands = {}
+local excluded_slash_commands = { ['/session'] = true }
 
 local function add_unique(result, seen, command)
   if

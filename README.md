@@ -117,7 +117,6 @@ Useful slash commands in the input window:
 - `/sessions` select between sessions (`/resume` remains an alias)
 - `/rename <name>` rename the current session
 - `/rename` or `/autoname` ask Pi to suggest and apply a concise session name
-- `/session` show current session info
 
 New unnamed sessions are automatically given a concise display name after their first `agent_settled` event. Existing
 and manually assigned names are never overwritten automatically.
