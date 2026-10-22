@@ -2,11 +2,22 @@
 
 A Neovim/LazyVim sidebar frontend for the [Pi coding agent](https://pi.dev).
 
-This is a fork/migration of `sudo-tee/opencode.nvim`: the sidebar UI, input/output panes, markdown rendering, context workflows, and keymap shape are being preserved while the backend is replaced with Pi RPC (`pi --mode rpc`).
+This is a fork/migration of [`sudo-tee/opencode.nvim`](https://github.com/sudo-tee/opencode.nvim): the sidebar UI, input/output panes, markdown rendering, context workflows, and keymap shape are preserved while the backend is replaced with Pi RPC (`pi --mode rpc`).
+
+> [!WARNING]
+> **AI-generated project.** The conversion of opencode.nvim to Pi, and all further development of this fork, is entirely AI generated and maintained. Code, tests, and docs (including this README) are written by AI coding agents, with a human only steering and reviewing. Expect rough edges, and review the code before relying on it. Credit for the original plugin design goes to the opencode.nvim authors.
 
 ## Status
 
-Work in progress. Core Pi chat works, model switching is wired, Pi sessions are partially supported, and the Lua namespace is now `pi` so this can be installed separately from `opencode.nvim`.
+Work in progress. Core Pi chat, model and thinking-level switching, Pi sessions (select, rename, fork), and multi-session sidebar tabs work. The Lua namespace is `pi`, so this can be installed alongside `opencode.nvim`.
+
+### Requirements:
+
+- Neovim with the dependencies listed below
+- The [`pi`](https://pi.dev) CLI on your `$PATH` (or set `pi_executable`)
+- Node.js 24+ only for running the extension tests
+
+Run `:checkhealth pi` to verify the setup.
 
 ## Installation
 
@@ -50,47 +61,48 @@ Open Pi as the only Neovim UI in the current working directory:
 bin/pi-in-neovim
 ```
 
-Install or symlink `bin/pi-in-neovim` somewhere on your `$PATH` if you want to run it as `pi-in-neovim`.
+Install or symlink `bin/pi-in-neovim` (or its short alias `bin/pin`) somewhere on your `$PATH` if you want to run it as `pi-in-neovim`.
 This runs `nvim +"Pi pin"`, opens Pi in the current window, and closes other windows in the current tab (for example file explorer/main panes).
 
-Default keymap prefix is `<leader>p`, mirroring the original opencode.nvim layout with a Pi prefix:
+### Default keymap prefix is `<leader>p`, mirroring the original opencode.nvim layout with a Pi prefix:
 
 - `<leader>pg` toggle Pi sidebar
 - `<leader>pi` open input
 - `<leader>pI` open input in a new session
 - `<leader>po` open output
 - `<leader>pt` toggle focus
+- `<leader>pq` close the Pi windows
 - `<leader>ps` select session
+- `<leader>pT` session timeline (undo to / fork from a message)
+- `<leader>ph` select from prompt history
 - `<leader>pR` rename session
 - `<leader>pp` select provider/model
 - `<leader>pV` select thinking level
+- `<leader>py` add visual selection to context, `<leader>pY` insert it inline
+- `<leader>pz` toggle zoom, `<leader>px` swap sidebar position
+- `<leader>ptr` / `<leader>ptt` toggle reasoning / tool output
 - `<leader>p/` quick chat
+- `<leader>pn` new tab, `<leader>pf` fork session into a new tab, `<leader>pw` close tab
+- `<leader>p>` / `<leader>p<` next / previous tab
 
-### Tabs
+Set `keymap_prefix` to move all of these, or `default_global_keymaps = false` to disable the editor mappings.
 
-The sidebar can hold several Pi sessions at once. Each tab runs its own `pi --mode rpc` process, so a background tab keeps working while you use another one, like opening `pi` in a second shell tab.
+Each sidebar tab runs its own Pi process, so background tabs keep working. Open tabs are restored per
+directory. Tab options: `ui.tabs.persist`, `ui.tabs.notify`, and `ui.tabs.fork_target` (`'ask'`, `'tab'`, or `'current'`).
 
-- `:Pi tab new` / `<leader>pn` opens an empty tab with a fresh session
-- `:Pi tab fork` / `<leader>pf` opens a new tab with a fork of the current session at its current position; the original tab keeps running
-- `:Pi tab next` / `:Pi tab prev`, `]]` / `[[` (or `]t` / `[t`) in the Pi windows, or `<leader>p>` / `<leader>p<`
-- `:Pi tab goto <n>` jumps to a tab by number
-- `:Pi tab close` / `<leader>pw` closes the active tab, aborting it first if it is running
+### Moving around
 
-Open tabs are remembered per working directory and reopened the first time you open the sidebar after a restart (`ui.tabs.persist = false` turns this off). Restored background tabs only start their Pi process when you first switch to them.
+- `]]` / `[[` next / previous tab (also `]t` / `[t`, in both Pi windows)
+- `]m` / `[m` next / previous message
+- `]u` / `[u` next / previous user message
+- `gf` open the file reference under the cursor
+- `g<Space>` pick a file matching the reference under the cursor
+- `gr` browse all file references in the conversation
+- `<CR>` open whatever target is under the cursor
 
-Fork actions (`[F]ork` on a message, the timeline and session pickers' `<C-f>`, `:Pi fork`, `/fork`) ask whether to fork into a new tab or replace the current session. Set `ui.tabs.fork_target` to `'tab'` or `'current'` to skip the question.
+Except for tab switching, these work in the output window (filetype `pi_output`).
 
-With more than one tab, the output window's top bar shows a clickable tab strip; `●` marks a running tab, `?` a tab waiting for your input (for example an extension confirmation), and `✓` a tab that finished while you were elsewhere. You get a notification when a background tab finishes or needs input (`ui.tabs.notify = false` turns these off); its pending question is shown when you switch to it. Selecting a session that is already open in another tab switches to that tab instead of opening it twice.
-
-In the Pi output window:
-
-- `]m` / `[m` jump to the next / previous message, `]u` / `[u` to the next / previous user message
-- `gf` opens an exact file reference under the cursor
-- `g<Space>` opens the file picker filtered by the reference under the cursor, then jumps to its line and column
-- `gr` browses all file references from the conversation
-- `<CR>` opens any rendered navigation target under the cursor
-
-The output filetype is `pi_output`.
+### Pasteboard images 
 
 Pasteboard images can be pasted directly in the input window with `p`, `P`, `<C-r>+`, or `<M-v>`. The image is saved to a temporary file, attached to the prompt, and previewed in a small floating window when `snacks.nvim` image support is available. Text paste keeps its normal behavior.
 
@@ -129,11 +141,17 @@ require("pi").setup({
 })
 ```
 
-Useful slash commands in the input window:
+### Useful slash commands in the input window:
 
 - `/sessions` select between sessions (`/resume` remains an alias)
+- `/new` start a new session
+- `/model` and `/thinking` pick the model and thinking level
+- `/fork` fork from a previous user message
+- `/compact` compact the current session
+- `/reload` restart Pi RPC to reload Pi resources (extensions, settings)
 - `/rename <name>` rename the current session
 - `/rename` or `/autoname` ask Pi to suggest and apply a concise session name
+- `/help` list all commands, including those forwarded to Pi (`/login`, `/export`, `/share`, ...)
 
 New unnamed sessions are automatically given a concise display name after their first `agent_settled` event. Existing
 and manually assigned names are never overwritten automatically.
@@ -159,6 +177,10 @@ require("pi").setup({
   pi_executable = "pi",
   pi_args = {}, -- e.g. { "--no-session" } for ephemeral testing
   keymap_prefix = "<leader>p",
+  model_picker = {
+    -- Restrict the model picker to these "provider/model" ids; nil shows all models.
+    include = { "anthropic/claude-sonnet-4-5", "openai/gpt-5" },
+  },
   ui = {
     position = "right",
     output = { filetype = "pi_output" },
@@ -171,6 +193,11 @@ require("pi").setup({
 Prompts submitted while the agent is still responding appear in a compact
 `Queued` panel above the input. Each prompt is removed from the panel as soon
 as its user message enters the conversation stream.
+
+## Thinking output
+
+Model reasoning is rendered as a distinct italic block above the answer. Toggle it with `<leader>ptr`, or
+hide it by default with `ui.output.tools.show_reasoning_output = false`.
 
 ## Markdown table rendering
 
@@ -246,8 +273,14 @@ Run tests (Node.js 24+ is required for the TypeScript extension tests):
 ./run_tests.sh
 ```
 
-The plugin uses the `lua/pi` namespace and does not provide an `opencode` Lua module, so it can be installed alongside `opencode.nvim`.
+Run a single test file:
+
+```bash
+./run_tests.sh -t tests/unit/model_picker_spec.lua
+```
+
+Design notes live in `docs/design/` (for example `docs/design/tabs.md`), and the original migration plan is in `IMPLEMENTATION_PLAN.md`.
 
 ## License
 
-MIT. See `LICENSE`.
+Apache 2.0, inherited from opencode.nvim. See `LICENSE`.
