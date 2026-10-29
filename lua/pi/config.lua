@@ -248,7 +248,7 @@ M.defaults = {
       min_height = 0.10,
       max_height = 0.25,
       text = {
-        wrap = false,
+        wrap = true,
       },
       -- Auto-hide input window when prompt is submitted or focus switches to output window
       auto_hide = false,
