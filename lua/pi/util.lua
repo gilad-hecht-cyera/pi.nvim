@@ -257,6 +257,12 @@ function M.format_time(timestamp)
   return string.format('%s %s', date_part, locale_time)
 end
 
+---@return integer
+function M.now_ms()
+  local sec, usec = vim.uv.gettimeofday()
+  return sec * 1000 + math.floor(usec / 1000)
+end
+
 ---@param timestamp number
 ---@return number
 function M.normalize_timestamp(timestamp)

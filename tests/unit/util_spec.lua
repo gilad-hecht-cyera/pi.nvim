@@ -262,6 +262,14 @@ describe('util.format_time', function()
   end)
 end)
 
+describe('util.now_ms', function()
+  it('returns wall-clock epoch milliseconds', function()
+    local before = os.time() * 1000
+    local now = util.now_ms()
+    assert.is_true(now >= before - 1000 and now <= before + 2000)
+  end)
+end)
+
 describe('util.format_duration_seconds', function()
   it('returns nil without a start time', function()
     assert.is_nil(util.format_duration_seconds(nil, os.time()))

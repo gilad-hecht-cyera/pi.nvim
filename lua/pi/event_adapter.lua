@@ -1,4 +1,5 @@
 local state = require('pi.state')
+local util = require('pi.util')
 
 local M = {}
 
@@ -474,7 +475,7 @@ function M.handle_event(event)
     local message_id = ensure_live_assistant()
     local cached = ensure_tool_part(event.toolCallId, nil, event.toolName, event.args or {})
     cached.time = cached.time or {}
-    cached.time.start = cached.time.start or vim.uv.now()
+    cached.time.start = cached.time.start or util.now_ms()
     cached.status = 'running'
     update_tool_part(message_id, cached.id, event.toolName, cached.input or event.args or {}, {
       callID = event.toolCallId,
@@ -499,7 +500,7 @@ function M.handle_event(event)
       status = 'error'
     end
     cached.time = cached.time or {}
-    cached.time['end'] = event.type == 'tool_execution_end' and vim.uv.now() or cached.time['end']
+    cached.time['end'] = event.type == 'tool_execution_end' and util.now_ms() or cached.time['end']
     cached.status = status
     cached.output = content_to_text(result.content)
     cached.error = event.error or result.error

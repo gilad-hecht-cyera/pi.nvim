@@ -107,6 +107,44 @@ describe('event_adapter', function()
     return parts
   end
 
+  it('records tool start and end as epoch milliseconds', function()
+    local util = require('pi.util')
+    local original_now_ms = util.now_ms
+    local clock = { 1700000000000, 1700000000436 }
+    util.now_ms = function()
+      return table.remove(clock, 1)
+    end
+
+    event_adapter.handle_event({
+      type = 'message_start',
+      message = { role = 'assistant', content = {}, responseId = 'assistant_timing', timestamp = 1 },
+    })
+    event_adapter.handle_event({
+      type = 'tool_execution_start',
+      toolCallId = 'call_timing',
+      toolName = 'bash',
+      args = {},
+    })
+    event_adapter.handle_event({
+      type = 'tool_execution_end',
+      toolCallId = 'call_timing',
+      toolName = 'bash',
+      args = {},
+      result = { content = 'out' },
+    })
+    util.now_ms = original_now_ms
+
+    local time
+    for _, event in ipairs(events) do
+      if event.type == 'message.part.updated' and event.properties.part.type == 'tool' then
+        time = event.properties.part.state.time
+      end
+    end
+
+    assert.are.same({ start = 1700000000000, ['end'] = 1700000000436 }, time)
+    assert.is_nil(util.format_duration_seconds(time.start, time['end']))
+  end)
+
   it('emits streamed thinking as reasoning parts with one stable id', function()
     event_adapter.handle_event({
       type = 'message_start',
