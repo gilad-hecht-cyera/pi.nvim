@@ -115,4 +115,128 @@ function M.parts_to_prompt(parts)
   }, '\n')
 end
 
+---@class PiPromptContextItem
+---@field kind 'file'|'image'|'selection'|'cursor'|'diagnostics'|'buffer'|'git_diff'|'agent'
+---@field path? string
+---@field start_line? integer
+---@field end_line? integer
+---@field line? integer
+---@field column? integer
+---@field count? integer
+---@field name? string
+
+local image_extensions = { png = true, jpg = true, jpeg = true, gif = true, webp = true, bmp = true }
+
+local function referenced_file_item(path)
+  local extension = (path:match('%.([%w]+)$') or ''):lower()
+  return { kind = image_extensions[extension] and 'image' or 'file', path = path }
+end
+
+local function fence_opener(line)
+  return line:match('^%s*(```+)')
+end
+
+local function closes_fence(line, opener)
+  local ticks = line:match('^%s*(```+)%s*$')
+  return ticks ~= nil and #ticks >= #opener
+end
+
+---@param line string
+---@return PiPromptContextItem|nil item
+---@return 'files'|'diagnostics'|nil list_mode
+local function parse_header(line)
+  if line == 'Referenced files:' then
+    return nil, 'files'
+  end
+  if line == 'Diagnostics:' then
+    return { kind = 'diagnostics', count = 0 }, 'diagnostics'
+  end
+  if line == 'Current git diff:' then
+    return { kind = 'git_diff' }
+  end
+
+  local path, start_line, end_line = line:match('^Selected text from (.-) lines (%d+), (%d+):$')
+  if path then
+    return { kind = 'selection', path = path, start_line = tonumber(start_line), end_line = tonumber(end_line) }
+  end
+  path = line:match('^Selected text from (.-):$')
+  if path then
+    return { kind = 'selection', path = path }
+  end
+
+  local cursor_line, cursor_column = line:match('^Cursor context at line (%S+), column (%S+):$')
+  if cursor_line then
+    return { kind = 'cursor', line = tonumber(cursor_line), column = tonumber(cursor_column) }
+  end
+
+  local buffer_name = line:match('^Open buffer (.-):$')
+  if buffer_name then
+    return { kind = 'buffer', name = buffer_name }
+  end
+
+  local agent_name = line:match('^Requested skill/agent context: (.+)$')
+  if agent_name then
+    return { kind = 'agent', name = agent_name }
+  end
+end
+
+---Split a prompt built by `parts_to_prompt` back into the user's text and a
+---summary of the context block that was prepended to it.
+---@param text string|nil
+---@return string|nil prompt
+---@return PiPromptContextItem[]|nil items nil when the text has no context block
+function M.split_prompt(text)
+  if type(text) ~= 'string' or not vim.startswith(text, '<context>\n') then
+    return text, nil
+  end
+
+  local lines = vim.split(text, '\n', { plain = true })
+  local items = {}
+  local list_mode = nil
+  local diagnostics = nil
+  local fence = nil
+  local close_index = nil
+
+  for i = 2, #lines do
+    local line = lines[i]
+    if fence then
+      if closes_fence(line, fence) then
+        fence = nil
+      end
+    elseif line == '</context>' then
+      close_index = i
+      break
+    elseif fence_opener(line) then
+      fence = fence_opener(line)
+      list_mode = nil
+    elseif line == '' then
+      list_mode = nil
+    elseif list_mode and vim.startswith(line, '- ') then
+      if list_mode == 'files' then
+        table.insert(items, referenced_file_item(line:sub(3)))
+      elseif diagnostics then
+        diagnostics.count = diagnostics.count + 1
+      end
+    else
+      local item, mode = parse_header(line)
+      list_mode = mode
+      diagnostics = mode == 'diagnostics' and item or nil
+      if item then
+        table.insert(items, item)
+      end
+    end
+  end
+
+  if not close_index then
+    return text, nil
+  end
+
+  local prompt_start = close_index + 1
+  if lines[prompt_start] == '' then
+    prompt_start = prompt_start + 1
+  end
+
+  return table.concat(lines, '\n', prompt_start), items
+end
+
 return M

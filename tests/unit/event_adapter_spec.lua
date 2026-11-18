@@ -236,6 +236,61 @@ describe('event_adapter', function()
     assert.are.equal('full thoughts', parts[1].text)
   end)
 
+  describe('user prompt context', function()
+    local context_text = '<context>\nReferenced files:\n- /repo/a.lua\n</context>\n\nfix it'
+
+    local function text_parts()
+      local parts = {}
+      for _, event in ipairs(events) do
+        if event.type == 'message.part.updated' and event.properties.part.type == 'text' then
+          table.insert(parts, event.properties.part)
+        end
+      end
+      return parts
+    end
+
+    it('splits the context block out of live user messages', function()
+      event_adapter.handle_event({
+        type = 'message_start',
+        message = { role = 'user', timestamp = 5, content = { { type = 'text', text = context_text } } },
+      })
+
+      local parts = text_parts()
+      assert.are.equal(1, #parts)
+      assert.are.equal('fix it', parts[1].text)
+      assert.are.same({ { kind = 'file', path = '/repo/a.lua' } }, parts[1].context_items)
+    end)
+
+    it('splits the context block out of user messages from history', function()
+      local messages = event_adapter.messages_from_pi({
+        { role = 'user', timestamp = 1, content = { { type = 'text', text = context_text } } },
+        { role = 'user', timestamp = 2, content = context_text },
+      })
+
+      for _, message in ipairs(messages) do
+        assert.are.equal('fix it', message.parts[1].text)
+        assert.are.same({ { kind = 'file', path = '/repo/a.lua' } }, message.parts[1].context_items)
+      end
+    end)
+
+    it('splits the context block out of emitted full user messages', function()
+      event_adapter.emit_messages({ { role = 'user', timestamp = 3, content = context_text } })
+
+      local parts = text_parts()
+      assert.are.equal('fix it', parts[1].text)
+      assert.are.same({ { kind = 'file', path = '/repo/a.lua' } }, parts[1].context_items)
+    end)
+
+    it('leaves assistant text that looks like a context block alone', function()
+      local messages = event_adapter.messages_from_pi({
+        { role = 'assistant', responseId = 'a1', timestamp = 4, content = { { type = 'text', text = context_text } } },
+      })
+
+      assert.are.equal(context_text, messages[1].parts[1].text)
+      assert.is_nil(messages[1].parts[1].context_items)
+    end)
+  end)
+
   describe('reset_live', function()
     local function tool_events()
       return vim.tbl_filter(function(event)

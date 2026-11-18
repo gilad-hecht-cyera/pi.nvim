@@ -741,6 +741,7 @@
 ---@field source PiMessagePartSource|nil
 ---@field name string|nil
 ---@field synthetic boolean|nil
+---@field context_items PiPromptContextItem[]|nil Context sent with a user prompt, parsed back out of its text
 ---@field snapshot string|nil Snapshot commit hash
 ---@field sessionID string|nil Session identifier
 ---@field messageID string|nil Message identifier

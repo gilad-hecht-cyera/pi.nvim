@@ -357,13 +357,130 @@ function M._format_callout(output, callout, text, title)
   end
 end
 
+local function display_name(path)
+  return vim.fn.fnamemodify(path or '', ':t')
+end
+
+---@param item PiPromptContextItem
+---@param prompt_text? string
+---@return boolean
+local function is_mentioned_in_prompt(item, prompt_text)
+  if not prompt_text or (item.kind ~= 'file' and item.kind ~= 'image') or not item.path then
+    return false
+  end
+  for token in prompt_text:gmatch('@(%S+)') do
+    if item.path == token or vim.endswith(item.path, '/' .. token) then
+      return true
+    end
+  end
+  return false
+end
+
+local function tag_icon(key)
+  local icon = vim.trim(icons.get(key))
+  return icon ~= '' and (icon .. ' ') or ''
+end
+
+---@param item PiPromptContextItem
+---@return string|nil
+function M._context_tag_label(item)
+  if item.kind == 'file' then
+    return tag_icon('file') .. display_name(item.path)
+  end
+  if item.kind == 'image' then
+    return tag_icon('image') .. display_name(item.path)
+  end
+  if item.kind == 'selection' then
+    local range = ''
+    if item.start_line and item.end_line and item.start_line ~= item.end_line then
+      range = string.format(':%d-%d', item.start_line, item.end_line)
+    elseif item.start_line then
+      range = ':' .. item.start_line
+    end
+    return tag_icon('selection') .. display_name(item.path) .. range
+  end
+  if item.kind == 'cursor' then
+    if not item.line then
+      return tag_icon('cursor_data') .. 'cursor'
+    end
+    return tag_icon('cursor_data') .. 'L' .. item.line .. (item.column and (':' .. item.column) or '')
+  end
+  if item.kind == 'diagnostics' then
+    local count = item.count or 0
+    return tag_icon('warning') .. count .. (count == 1 and ' diagnostic' or ' diagnostics')
+  end
+  if item.kind == 'buffer' then
+    return tag_icon('attached_file') .. (item.name or 'buffer')
+  end
+  if item.kind == 'git_diff' then
+    return tag_icon('git_diff') .. 'git diff'
+  end
+  if item.kind == 'agent' then
+    return tag_icon('agent') .. (item.name or 'agent')
+  end
+end
+
+---Render the context that was sent with a prompt as a row of tags, separated
+---from the prompt by a blank line so it reads as the message footer.
+---Files the prompt already mentions as `@name` are left out.
+---@param output Output
+---@param items? PiPromptContextItem[]
+---@param prompt_text? string
+---@return boolean rendered
+function M._format_context_tags(output, items, prompt_text)
+  if not items or #items == 0 then
+    return false
+  end
+
+  local line = ''
+  local ranges = {}
+  for _, item in ipairs(items) do
+    local label = not is_mentioned_in_prompt(item, prompt_text) and M._context_tag_label(item)
+    if label then
+      if line ~= '' then
+        line = line .. ' '
+      end
+      local start_col = #line
+      line = line .. ' ' .. label .. ' '
+      table.insert(ranges, { item = item, start_col = start_col, end_col = #line })
+    end
+  end
+
+  if line == '' then
+    return false
+  end
+
+  output:add_empty_line()
+  local line_idx = output:add_line(line) - 1
+  for _, range in ipairs(ranges) do
+    output:add_extmark(line_idx, {
+      start_col = range.start_col,
+      end_col = range.end_col,
+      hl_group = 'PiContextTag',
+      priority = 1000,
+    })
+    if range.item.kind ~= 'image' and range.item.path and range.item.path ~= '' then
+      output:add_target({
+        kind = 'file',
+        path = range.item.path,
+        line = range.item.start_line,
+        range = { line = line_idx + 1, start_col = range.start_col, end_col = range.end_col },
+      })
+    end
+  end
+  return true
+end
+
 ---@param output Output Output object to write to
 ---@param text string
 ---@param message? PiMessage Optional message object to extract mentions from
-function M._format_user_prompt(output, text, message)
+---@param context_items? PiPromptContextItem[]
+---@return boolean has_footer true when the context tags were rendered as the message's last line
+function M._format_user_prompt(output, text, message, context_items)
   local start_line = output:get_line_count()
 
   output:add_lines(vim.split(text, '\n'))
+  local has_footer = M._format_context_tags(output, context_items, text)
 
   local end_line = output:get_line_count()
 
@@ -394,6 +511,7 @@ function M._format_user_prompt(output, text, message)
   end
 
   M.add_vertical_border(output, start_line, end_line + end_line_extmark_offset, 'PiMessageRoleUser', -3)
+  return has_footer
 end
 
 ---@param output Output
@@ -1062,8 +1180,8 @@ function M.format_part(part, message, is_last_part, context)
         M._format_diagnostics_context(output, part)
         part._message_context = nil
       else
-        M._format_user_prompt(output, vim.trim(part.text), message)
-        content_added = true
+        local has_footer = M._format_user_prompt(output, vim.trim(part.text), message, part.context_items)
+        content_added = not has_footer
       end
     elseif part.type == 'file' then
       local file_line = M._format_context_file(output, part.filename)

@@ -1,4 +1,5 @@
 local state = require('pi.state')
+local prompt_adapter = require('pi.prompt_adapter')
 local util = require('pi.util')
 
 local M = {}
@@ -53,7 +54,7 @@ local function update_message(role, id, message)
   emit('message.updated', { info = message_info(role, id, message) })
 end
 
-local function update_text_part(message_id, part_id, text, synthetic)
+local function update_text_part(message_id, part_id, text, synthetic, context_items)
   emit('message.part.updated', {
     part = {
       id = part_id,
@@ -62,8 +63,16 @@ local function update_text_part(message_id, part_id, text, synthetic)
       type = 'text',
       text = text or '',
       synthetic = synthetic or nil,
+      context_items = context_items,
     },
   })
+end
+
+local function split_user_text(role, text)
+  if role ~= 'user' then
+    return text, nil
+  end
+  return prompt_adapter.split_prompt(text)
 end
 
 local function update_reasoning_part(message_id, part_id, text)
@@ -203,11 +212,13 @@ local function emit_full_message(message, index)
           status = 'completed',
         })
       else
-        update_text_part(message_id, part_id, content_to_text({ item }), nil)
+        local text, context_items = split_user_text(role, content_to_text({ item }))
+        update_text_part(message_id, part_id, text, nil, context_items)
       end
     end
   else
-    update_text_part(message_id, message_id .. '_part_1', content_to_text(message.content), nil)
+    local text, context_items = split_user_text(role, content_to_text(message.content))
+    update_text_part(message_id, message_id .. '_part_1', text, nil, context_items)
   end
 end
 
@@ -263,17 +274,19 @@ function M.messages_from_pi(messages, session_id_override)
             status = 'completed',
           }
         else
-          part.text = content_to_text({ item })
+          part.text, part.context_items = split_user_text(role, content_to_text({ item }))
         end
         table.insert(parts, part)
       end
     else
+      local text, context_items = split_user_text(role, content_to_text(message.content))
       table.insert(parts, {
         id = message_id .. '_part_1',
         messageID = message_id,
         sessionID = session_id_override or session_id(),
         type = 'text',
-        text = content_to_text(message.content),
+        text = text,
+        context_items = context_items,
       })
     end
 
@@ -381,7 +394,8 @@ function M.handle_event(event)
     elseif event.message.role == 'user' then
       local message_id = message_id_from_message('user', event.message)
       update_message('user', message_id, event.message)
-      update_text_part(message_id, message_id .. '_part_1', content_to_text(event.message.content), nil)
+      local text, context_items = prompt_adapter.split_prompt(content_to_text(event.message.content))
+      update_text_part(message_id, message_id .. '_part_1', text, nil, context_items)
     end
     return
   end

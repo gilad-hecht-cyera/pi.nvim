@@ -63,6 +63,198 @@ describe('formatter', function()
     assert.are.equal('Second line', output.lines[5])
   end)
 
+  describe('user prompt context tags', function()
+    local function user_message(part)
+      return { info = { id = 'msg_u', role = 'user', sessionID = 'ses_1' }, parts = { part } }
+    end
+
+    local function tag_extmarks(output, line_idx)
+      local marks = {}
+      for _, mark in ipairs(output.extmarks[line_idx] or {}) do
+        if mark.hl_group == 'PiContextTag' then
+          table.insert(marks, mark)
+        end
+      end
+      return marks
+    end
+
+    it('renders context items as tags below the prompt', function()
+      local cwd = vim.fn.getcwd()
+      local part = {
+        id = 'prt_u',
+        type = 'text',
+        text = 'fix it',
+        context_items = {
+          { kind = 'file', path = cwd .. '/lua/a.lua' },
+          { kind = 'selection', path = '/elsewhere/b.lua', start_line = 10, end_line = 20 },
+          { kind = 'cursor', line = 42, column = 7 },
+          { kind = 'diagnostics', count = 1 },
+        },
+      }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      assert.are.equal('fix it', output.lines[1])
+      assert.are.equal('', output.lines[2])
+      local tags = output.lines[3]
+      assert.is_truthy(tags:find(' a.lua ', 1, true))
+      assert.is_falsy(tags:find('lua/a.lua', 1, true))
+      assert.is_truthy(tags:find(' b.lua:10-20 ', 1, true))
+      assert.is_falsy(tags:find('/elsewhere', 1, true))
+      assert.is_truthy(tags:find('L42:7', 1, true))
+      assert.is_truthy(tags:find('1 diagnostic', 1, true))
+      assert.is_falsy(tags:find('1 diagnostics', 1, true))
+
+      local marks = tag_extmarks(output, 2)
+      assert.are.equal(4, #marks)
+      for i, mark in ipairs(marks) do
+        local chip = tags:sub(mark.start_col + 1, mark.end_col)
+        assert.is_truthy(chip:match('^ .+ $'), 'chip ' .. i .. ' should be padded: ' .. chip)
+      end
+      assert.are.equal(' ', tags:sub(marks[1].end_col + 1, marks[2].start_col))
+    end)
+
+    it('makes tags with a path clickable file targets', function()
+      local part = {
+        id = 'prt_u',
+        type = 'text',
+        text = 'q',
+        context_items = {
+          { kind = 'file', path = '/repo/a.lua' },
+          { kind = 'cursor', line = 3, column = 1 },
+          { kind = 'selection', path = '/repo/b.lua', start_line = 10, end_line = 20 },
+        },
+      }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+      local marks = tag_extmarks(output, 2)
+
+      assert.are.same({
+        {
+          kind = 'file',
+          path = '/repo/a.lua',
+          range = { line = 3, start_col = marks[1].start_col, end_col = marks[1].end_col },
+        },
+        {
+          kind = 'file',
+          path = '/repo/b.lua',
+          line = 10,
+          range = { line = 3, start_col = marks[3].start_col, end_col = marks[3].end_col },
+        },
+      }, output.targets)
+    end)
+
+    it('ends the part on the tag line so it doubles as the message footer', function()
+      local part = { id = 'prt_u', type = 'text', text = 'q', context_items = { { kind = 'git_diff' } } }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      assert.are.equal(3, #output.lines)
+      assert.is_truthy(output.lines[3]:find('git diff', 1, true))
+    end)
+
+    it('keeps the trailing blank line for prompts without context', function()
+      local part = { id = 'prt_u', type = 'text', text = 'q' }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      assert.are.same({ 'q', '' }, output.lines)
+    end)
+
+    it('does not add a double blank line when the prompt is empty', function()
+      local part = { id = 'prt_u', type = 'text', text = '', context_items = { { kind = 'git_diff' } } }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      assert.are.equal(2, #output.lines)
+      assert.are.equal('', output.lines[1])
+    end)
+
+    it('shows images with their own icon and without a file target', function()
+      local part = {
+        id = 'prt_u',
+        type = 'text',
+        text = 'look',
+        context_items = { { kind = 'image', path = '/tmp/x/shot.png' } },
+      }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      assert.is_truthy(output.lines[3]:find(require('pi.ui.icons').get('image') .. 'shot.png', 1, true))
+      assert.are.same({}, output.targets)
+    end)
+
+    it('leaves out files the prompt already mentions', function()
+      local part = {
+        id = 'prt_u',
+        type = 'text',
+        text = 'see @pasted_image_1.png and @lua/pi/init.lua',
+        context_items = {
+          { kind = 'image', path = '/var/folders/T/pasted_image_1.png' },
+          { kind = 'file', path = '/repo/lua/pi/init.lua' },
+          { kind = 'file', path = '/repo/other/init.lua' },
+          { kind = 'selection', path = '/repo/lua/pi/init.lua', start_line = 1, end_line = 2 },
+        },
+      }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      local tags = output.lines[3]
+      assert.is_falsy(tags:find('pasted_image_1.png', 1, true))
+      assert.is_truthy(tags:find('init.lua:1-2', 1, true))
+      local _, file_tags = tags:gsub('init%.lua ', '')
+      assert.are.equal(1, file_tags)
+      assert.are.equal('/repo/other/init.lua', output.targets[1].path)
+    end)
+
+    it('renders no footer when every item is already mentioned', function()
+      local part = {
+        id = 'prt_u',
+        type = 'text',
+        text = '@shot.png',
+        context_items = { { kind = 'image', path = '/tmp/shot.png' } },
+      }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      assert.are.same({ '@shot.png', '' }, output.lines)
+    end)
+
+    it('extends the user border over the tag line', function()
+      local part = { id = 'prt_u', type = 'text', text = 'q', context_items = { { kind = 'git_diff' } } }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      local has_border = false
+      for _, mark in ipairs(output.extmarks[2] or {}) do
+        if mark.virt_text and mark.virt_text[1][2] == 'PiMessageRoleUser' then
+          has_border = true
+        end
+      end
+      assert.is_true(has_border)
+    end)
+
+    it('renders no tag line without context items', function()
+      local part = { id = 'prt_u', type = 'text', text = 'plain' }
+
+      local output = formatter.format_part(part, user_message(part), true, {})
+
+      for _, line in ipairs(output.lines) do
+        assert.is_falsy(line:find('git diff', 1, true))
+      end
+      assert.are.same({}, tag_extmarks(output, 1))
+    end)
+
+    it('labels a single-line selection without a range', function()
+      assert.are.equal(
+        'b.lua:5',
+        formatter
+          ._context_tag_label({ kind = 'selection', path = 'b.lua', start_line = 5, end_line = 5 })
+          :gsub('^%S+ ', '')
+      )
+    end)
+  end)
+
   it('renders task child question tools with generic summary fallback', function()
     local message = {
       info = {

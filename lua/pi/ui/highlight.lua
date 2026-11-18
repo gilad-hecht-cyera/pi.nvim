@@ -1,5 +1,17 @@
 local M = {}
 
+local function resolved_hl(name)
+  return vim.api.nvim_get_hl(0, { name = name, link = false })
+end
+
+local function context_tag_hl()
+  return {
+    bg = resolved_hl('CursorLine').bg or resolved_hl('ColorColumn').bg,
+    fg = resolved_hl('Comment').fg,
+    default = true,
+  }
+end
+
 ---Define the plugin highlight groups for the current background.
 function M.setup()
   local is_light = vim.o.background == 'light'
@@ -127,6 +139,7 @@ function M.setup()
     vim.api.nvim_set_hl(0, 'PiChangedLines', { bg = '#3D3520', default = true })
   end
 
+  vim.api.nvim_set_hl(0, 'PiContextTag', context_tag_hl())
   vim.api.nvim_set_hl(0, 'PiTabActive', { link = 'TabLineSel', default = true })
   vim.api.nvim_set_hl(0, 'PiTabInactive', { link = 'PiSessionDescription', default = true })
   vim.api.nvim_set_hl(0, 'PiTabWaiting', { link = 'DiagnosticWarn', default = true })

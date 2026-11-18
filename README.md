@@ -102,6 +102,8 @@ directory. Tab options: `ui.tabs.persist`, `ui.tabs.notify`, and `ui.tabs.fork_t
 
 Except for tab switching, these work in the output window (filetype `pi_output`).
 
+Context sent with a prompt (files, selections, cursor, diagnostics) is shown as tags below your message. `gf` / `<CR>` on a file or selection tag opens it.
+
 ### Pasteboard images 
 
 Pasteboard images can be pasted directly in the input window with `p`, `P`, `<C-r>+`, or `<M-v>`. The image is saved to a temporary file, attached to the prompt, and previewed in a small floating window when `snacks.nvim` image support is available. Text paste keeps its normal behavior.
