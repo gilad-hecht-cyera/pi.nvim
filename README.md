@@ -92,7 +92,7 @@ directory. Tab options: `ui.tabs.persist`, `ui.tabs.notify`, and `ui.tabs.fork_t
 
 ### Moving around
 
-- `]]` / `[[` next / previous tab (also `]t` / `[t`, in both Pi windows)
+- `]]` / `[[` next / previous tab (also `L` / `H` and `]t` / `[t`, in both Pi windows)
 - `]m` / `[m` next / previous message
 - `]u` / `[u` next / previous user message
 - `gf` open the file reference under the cursor
